@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path[:0] = [str(ROOT / "plugin/hooks"), str(ROOT / "scripts")]
 
-from apply import merge, set_toml_keys
+from apply import for_tool, merge, set_toml_keys
 from guard import reason
 
 for bad in ["rm -rf /", "rm -rf ~", "rm -fr $HOME", "sudo rm -rf /*", "git push --force origin main", "git push -f origin master", "mkfs.ext4 /dev/sda1", "dd if=x of=/dev/disk2"]:
@@ -21,4 +21,8 @@ assert out.startswith('model = "m"\nx = 5\nnew = true\n'), out
 assert "[desktop]\nx = 2\n" in out, out
 assert set_toml_keys(out, ["x = 5", "new = true"]) == out
 assert set_toml_keys("", ["a = 1"]) == "a = 1\n\n"
+env = {"LORE_PROFILE_CLAUDE": "", "LORE_PROFILE_CODEX": "codex", "X": "1"}
+assert for_tool(env, "codex")["LORE_PROFILE"] == "codex"
+assert for_tool(env, "claude")["LORE_PROFILE"] == ""
+assert for_tool(env, "claude")["X"] == "1"
 print("ok")

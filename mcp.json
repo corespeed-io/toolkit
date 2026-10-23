@@ -1,6 +1,6 @@
 {
   "lore": {
     "command": "sh",
-    "args": ["-c", "if [ -x \"$HOME/.local/bin/lore-mcp\" ]; then exec \"$HOME/.local/bin/lore-mcp\"; else exec ssh -T -o BatchMode=yes -o ServerAliveInterval=30 devbox '~/.local/bin/lore-mcp'; fi"]
+    "args": ["-c", "if [ -x \"$HOME/.local/bin/lore-mcp\" ]; then exec \"$HOME/.local/bin/lore-mcp\" ${1:+\"$1\"}; else exec ssh -T -o BatchMode=yes -o ServerAliveInterval=30 devbox \"~/.local/bin/lore-mcp $1\"; fi", "lore-mcp", "${LORE_PROFILE}"]
   }
 }

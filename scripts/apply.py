@@ -63,6 +63,12 @@ def expand(value, env: dict[str, str]):
     return value
 
 
+def for_tool(env: dict[str, str], tool: str) -> dict[str, str]:
+    """Keys that end in _CLAUDE or _CODEX override the base key for that tool."""
+    suffix = f"_{tool.upper()}"
+    return {**env, **{k[: -len(suffix)]: v for k, v in env.items() if k.endswith(suffix)}}
+
+
 def run(*cmd: str, check: bool = True) -> None:
     result = subprocess.run(cmd, capture_output=True, text=True)
     if check and result.returncode != 0:
@@ -81,10 +87,11 @@ def main() -> None:
     codex_config.write_text(set_toml_keys(codex_config.read_text() if codex_config.exists() else "", shared))
 
     env = load_env()
-    for name, server in json.loads((TOOLKIT / "mcp.json").read_text()).items():
-        server = expand(server, env)
+    for name, raw in json.loads((TOOLKIT / "mcp.json").read_text()).items():
+        server = expand(raw, for_tool(env, "claude"))
         run("claude", "mcp", "remove", "-s", "user", name, check=False)
         run("claude", "mcp", "add-json", "-s", "user", name, json.dumps({"type": "stdio", **server}))
+        server = expand(raw, for_tool(env, "codex"))
         run(codex, "mcp", "remove", name, check=False)
         env_args = [a for k, v in server.get("env", {}).items() for a in ("--env", f"{k}={v}")]
         run(codex, "mcp", "add", name, *env_args, "--", server["command"], *server.get("args", []))
