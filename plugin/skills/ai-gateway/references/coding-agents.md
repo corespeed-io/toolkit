@@ -88,4 +88,4 @@ If an agent fails, inspect Logs before rewriting its config: a `401` is authenti
 
 ## Building an application that uses an agent
 
-This reference covers routing existing coding agents. To build an agent application, read the `ai-sdk` skill and current `ToolLoopAgent` docs, or the eve and build-agents skills for a durable agent project. Do not conflate "route my coding agent" with "build my own agent."
+This reference covers routing existing coding agents. To build an agent application, read the `ai-sdk` skill and current `ToolLoopAgent` docs. For a durable agent project, read the current Vercel Workflow docs. Do not conflate "route my coding agent" with "build my own agent."

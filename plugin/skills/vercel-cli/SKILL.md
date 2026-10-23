@@ -1,119 +1,41 @@
 ---
 name: vercel-cli
-description: Vercel CLI expert guidance. Use when deploying, managing environment variables, linking projects, viewing logs, querying metrics, debugging a deployed app on Vercel (errors, 5xx responses, timeouts, slow routes, or a single failing request), managing domains, managing feature flags with vercel flags, or interacting with the Vercel platform from the command line. Use the vercel-tracing skill instead for `vercel traces` span search, trace inspection, and sampling rules, or for OpenTelemetry setup.
-metadata:
-  priority: 4
-  docs:
-    - "https://vercel.com/docs/cli"
-  sitemap: "https://vercel.com/sitemap.xml"
-  pathPatterns:
-    - 'vercel.json'
-    - 'vercel.ts'
-    - '.vercel/**'
-    - '.vercelignore'
-    - 'now.json'
-  bashPatterns:
-    - '^\s*vercel(?:\s|$)'
-    - '^\s*vc(?:\s|$)'
-    - '\bnpx\s+vercel\b'
-    - '\bpnpm\s+dlx\s+vercel\b'
-    - '\bbunx\s+vercel\b'
-    - '\byarn\s+dlx\s+vercel\b'
-    - '\bnpx\s+@vercel/config\b'
-  promptSignals:
-    phrases:
-      - "check deployment"
-      - "check deploy"
-      - "deployment status"
-      - "deploy status"
-      - "vercel logs"
-      - "vercel metrics"
-      - "deployment logs"
-      - "deploy logs"
-      - "vercel inspect"
-      - "is it deployed"
-      - "deploy failing"
-      - "deploy failed"
-      - "deployment error"
-      - "check vercel"
-      - "vercel status"
-    allOf:
-      - [check, deployment]
-      - [check, deploy]
-      - [vercel, status]
-      - [vercel, logs]
-      - [vercel, metrics]
-      - [deploy, error]
-      - [deploy, failed]
-      - [deploy, stuck]
-    anyOf:
-      - "deployment"
-      - "deploy"
-      - "vercel"
-      - "production"
-    noneOf:
-      - "terraform"
-      - "aws deploy"
-      - "heroku"
-    minScore: 6
-retrieval:
-  aliases:
-    - vercel command line
-    - vc cli
-    - deploy command
-    - vercel terminal
-  intents:
-    - deploy from cli
-    - link project
-    - manage domains
-    - view logs from terminal
-  entities:
-    - vercel CLI
-    - vercel deploy
-    - vercel env
-    - vercel link
-    - vercel logs
-    - vercel metrics
-    - vercel traces
-chainTo:
-  -
-    pattern: '\b(?:vercel|vc)\s+traces\b'
-    targetSkill: vercel-tracing
-    message: 'vercel traces command detected — loading Vercel Tracing guidance for span search, request inspection, and sampling rules.'
-  -
-    pattern: '"functions"\s*:\s*\{|"maxDuration"\s*:|"memory"\s*:'
-    targetSkill: vercel-functions
-    message: 'Functions configuration detected in vercel.json — loading Vercel Functions guidance for runtime options, streaming, and Fluid Compute.'
-    skipIfFileContains: '"crons"\s*:'
-  -
-    pattern: '"redirects"\s*:\s*\[|"rewrites"\s*:\s*\[|"headers"\s*:\s*\['
-    targetSkill: routing-middleware
-    message: 'Routing rules in vercel.json — loading Routing Middleware guidance for platform-level request interception patterns.'
+description: Vercel CLI (`vercel`, `vc`) guidance. Use when you deploy to Vercel, link projects, manage env vars, domains, or feature flags, read logs, metrics, or traces, or debug a deployed app (errors, 5xx, timeouts, slow routes, one failed request).
 ---
 
 # Vercel CLI Skill
 
-The Vercel CLI (`vercel` or `vc`) deploys, manages, and develops projects on the Vercel platform from the command line. Use `vercel <command> --help` for full flag details on any command.
+The Vercel CLI (`vercel` or `vc`) deploys, manages, and develops projects on the Vercel platform from the command line. For all flags of a command, use `vercel <command> --help`.
 
-The installed CLI help is the source of truth for obscure or newly added flags. If a command example here is not enough, check `vercel <command> --help` before acting instead of guessing.
+The installed CLI help is the source of truth for rare or new flags. If an example here is not sufficient, check `vercel <command> --help` before you act. Do not guess.
 
-Parse only stdout for URLs and JSON. Warnings, progress, and `--help` print to stderr; merge streams only when searching help text. Some help commands exit 2 after printing usage, so treat printed usage as a successful help read.
+Parse only stdout for URLs and JSON. Warnings, progress, and `--help` output go to stderr. Merge the streams only when you search help text. Some help commands exit with code 2 after they print usage. If the usage text prints, the help read is successful.
 
-In agent/non-interactive mode, many commands report errors and required confirmations as a single JSON object on stdout with `status`, `reason`, `hint`, and `next` (runnable follow-up commands). Prefer a suggested `next` command over composing a retry only after confirming that it preserves the user's intended target and authorization; do not automatically run linking, authentication, or mutation follow-ups. Read commands such as `list`, `logs`, `inspect`, and `api` keep their normal output shape.
+In agent or non-interactive mode, many commands report errors and required confirmations as one JSON object on stdout. The object has `status`, `reason`, `hint`, and `next` (follow-up commands that you can run).
+
+- Use a suggested `next` command instead of a retry that you write yourself. First, confirm that it keeps the target and authorization that the user intends.
+- Do not automatically run follow-up commands that link, authenticate, or mutate.
+- Read commands such as `list`, `logs`, `inspect`, and `api` keep their usual output shape.
 
 ## Critical: Project Linking
 
-Project context depends on the command's working directory. Before a consequential read or mutation, run `vercel project inspect --non-interactive` from the intended directory and confirm the reported owner and project. This command resolves only existing context in non-interactive mode; stop on `link_required` or a target mismatch instead of linking automatically.
+The project context depends on the working directory of the command. Before an important read or mutation:
 
-Many project-aware commands also accept `--project <name-or-id>` with `--scope <team>` for an explicit, one-command target. Confirm that target and scope preserve the user's intent before using them.
+1. Run `vercel project inspect --non-interactive` from the intended directory.
+2. Confirm the reported owner and project.
+3. If you get `link_required` or a target mismatch, stop. Do not link automatically.
 
-- **`<cwd>/.vercel/project.json`**: Created by `vercel link`. This exact working-directory link wins over a repository link. The CLI does not generally inherit a root `project.json` when run from an arbitrary subdirectory.
-- **`<repo-root>/.vercel/repo.json`**: Created by `vercel link --repo`. The CLI selects the deepest project directory that contains the working directory.
-- **Unmatched repository path**: If no repo mapping contains the working directory, interactive repo resolution prompts among the configured projects. Non-interactive repo resolution currently selects the only configured project or remains unresolved when multiple choices exist. Commands that set up projects may then enter a linking flow, so non-interactive mode is not generally fail-closed.
+In non-interactive mode, this command only resolves context that already exists.
 
-Being inside an app directory is not proof that the intended project was selected. Check the resolved project explicitly, especially when a repo mapping does not cover that directory.
+Many commands that use a project also accept `--project <name-or-id>` with `--scope <team>`. This sets an explicit target for one command. Before you use them, confirm that the target and the scope agree with the intent of the user.
 
-`vercel whoami --format json` identifies the authenticated user and effective team; plain non-TTY `vercel whoami` prints only the username. Neither verifies the linked project. Read-only project commands can still require login or team SAML re-authentication and open a browser/device flow. Ask the user to complete that flow deliberately before continuing.
+- **`<cwd>/.vercel/project.json`**: `vercel link` creates it. This link for the exact working directory has priority over a repository link. When you run the CLI from a random subdirectory, it usually does not inherit a root `project.json`.
+- **`<repo-root>/.vercel/repo.json`**: `vercel link --repo` creates it. The CLI selects the deepest project directory that contains the working directory.
+- **Unmatched repository path**: If no repo mapping contains the working directory, interactive repo resolution asks the user to select one of the configured projects. Non-interactive repo resolution currently selects the only configured project. If there are many projects, it stays unresolved. Commands that set up projects can then start a link flow. Thus, non-interactive mode does not always fail closed.
+
+A working directory inside an app directory does not prove that the CLI selected the intended project. Check the resolved project explicitly, especially when no repo mapping covers that directory.
+
+`vercel whoami --format json` shows the authenticated user and the effective team. Plain `vercel whoami` without a TTY prints only the username. Neither command verifies the linked project. Read-only project commands can also need a login or a team SAML re-authentication, and can open a browser or device flow. Ask the user to complete that flow before you continue.
 
 ## Quick Start
 
@@ -131,7 +53,7 @@ vercel --prod     # production deployment
 
 ## Decision Tree
 
-Use this to route to the correct reference file:
+Use this list to find the correct reference file:
 
 - **Deploy, redeploy, forced builds, no-cache builds, or deployment source/provenance** → `references/deployment.md`
 - **Rolling releases, deploy hooks, cron jobs, cache, git connection, Edge Config, redirects, custom environments** → `references/project-infra.md`
@@ -145,33 +67,33 @@ Use this to route to the correct reference file:
 - **Alerts, usage, contracts, billing purchases, tokens, telemetry, or CLI upgrades** → `references/platform-ops.md`
 - **Blob storage** → `references/storage.md`
 - **Container Registry (`vercel vcr`: repositories, images, tags, docker/podman/buildah login, push/pull)** → `references/container-registry.md`
-- **Integrations (databases, storage, etc.)** → `references/integrations.md`
+- **Integrations (databases, storage, and others)** → `references/integrations.md`
 - **Connectors (`vercel connect`)** → `references/connectors.md`
 - **Routing rules** → `references/routing.md`
 - **Firewall (WAF rules, IP blocks, rate limiting)** → `references/firewall.md`
 - **Access a preview deployment** → use `vercel curl` (see `references/monitoring-and-debugging.md`)
-- **CLI command is unavailable or output is missing required fields** → use `vercel api` after first-class CLI paths are unavailable or insufficient (see `references/advanced.md`)
-- **Node.js backends (Express, Hono, etc.)** → `references/node-backends.md`
+- **A CLI command is not available, or its output does not have the required fields** → use `vercel api` only after the first-class CLI paths are not available or not sufficient (see `references/advanced.md`)
+- **Node.js backends (Express, Hono, and others)** → `references/node-backends.md`
 - **Monorepos (Turborepo, Nx, workspaces)** → `references/monorepos.md`
 - **Bun runtime** → `references/bun.md`
 - **Feature flags (`vercel flags`: create, inspect, set, split, rollout, rules, segments, sdk-keys)** → `references/flags.md`
 - **Microfrontends** → `references/microfrontends.md`
 - **Sandbox** → `references/sandbox.md`
 - **Agent, MCP, skills discovery, or AI Gateway** → `references/agent-and-ai.md`
-- **Captured request traces (`vercel traces`, including `--open` / `--view`)** → `references/advanced.md`
+- **Captured request traces (`vercel traces`, including `--open` / `--view`)** → `references/advanced.md`. For span search, trace inspection, sampling rules, and OpenTelemetry setup, also read the current Vercel docs.
 - **Advanced (`vercel api` fallback, webhooks)** → `references/advanced.md`
 - **Global flags** → `references/global-options.md`
 - **First-time setup** → `references/getting-started.md`
 
 ## Anti-Patterns
 
-- **Wrong link type in monorepos with multiple projects**: `vercel link` creates `project.json`, which only tracks one project. Use `vercel link --repo` instead. When things break, check `.vercel/` first.
-- **Letting commands auto-link in monorepos**: Many commands implicitly run `vercel link` if `.vercel/` doesn't exist. This creates `project.json`, which may be wrong. Run `vercel link` (or `--repo`) explicitly first.
-- **Assuming an app subdirectory determines the project**: Verify with `vercel project inspect --non-interactive`; an unmatched repo path can currently fall back to the sole configured project in non-interactive mode.
-- **Using `vercel whoami` as linked-project verification**: `vercel whoami --format json` reports authentication and team context, not the selected project.
-- **Forgetting non-interactive flags in plain CI runs**: detected agents get `--non-interactive` by default, but plain CI does not — pass it explicitly there, and add `--yes` only for commands that require confirmation.
-- **Using `vercel deploy` after `vercel build` without `--prebuilt`**: The build output is ignored.
-- **Using `vercel redeploy` for no-cache rebuilds**: `vercel redeploy` does not expose a no-cache flag; use `vercel deploy --force` without `--with-cache` when you need a fresh deployment that does not retain build cache.
-- **Hardcoding tokens in flags**: Use `VERCEL_TOKEN` env var instead of `--token`.
-- **Disabling deployment protection**: Use `vercel curl` instead to access preview deploys.
-- **Using `vercel api` too early**: Prefer first-class CLI commands when they expose the needed data or mutation.
+- **Incorrect link type in a monorepo with many projects**: `vercel link` creates `project.json`, which tracks only one project. Use `vercel link --repo` instead. When a problem occurs, check `.vercel/` first.
+- **Commands that link automatically in monorepos**: If `.vercel/` does not exist, many commands run `vercel link` implicitly. This creates `project.json`, which can be incorrect. Run `vercel link` (or `--repo`) explicitly first.
+- **The assumption that an app subdirectory sets the project**: Verify with `vercel project inspect --non-interactive`. In non-interactive mode, an unmatched repo path can currently fall back to the only configured project.
+- **`vercel whoami` used to verify the linked project**: `vercel whoami --format json` shows the authentication and team context. It does not show the selected project.
+- **No non-interactive flags in plain CI runs**: Detected agents get `--non-interactive` by default. Plain CI does not. Pass it explicitly in CI. Add `--yes` only for commands that need confirmation.
+- **`vercel deploy` after `vercel build` without `--prebuilt`**: The deploy ignores the build output.
+- **`vercel redeploy` for no-cache rebuilds**: `vercel redeploy` has no no-cache flag. For a fresh deployment without build cache, use `vercel deploy --force` without `--with-cache`.
+- **Tokens hardcoded in flags**: Use the `VERCEL_TOKEN` environment variable, not `--token`.
+- **Deployment protection disabled**: To access preview deployments, use `vercel curl` instead.
+- **`vercel api` used too early**: Use first-class CLI commands when they give the necessary data or mutation.

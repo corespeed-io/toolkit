@@ -1,18 +1,19 @@
 ---
 name: principle-subtract-before-you-add
-description: "Apply when sequencing an addition, refactor, or rewrite. Remove dead code, redundant validators, and stub references first, then build on the simpler base."
+description: "Use when you plan the order of an addition, refactor, or rewrite. First remove dead code, redundant validators, and stub references. Then build on the simpler base."
 disable-model-invocation: true
 ---
 
 # Subtract Before You Add
 
-When evolving a system, remove complexity first, then build. Default to subtraction.
+When you change a system, remove complexity first. Then build. Use subtraction by default.
 
-Make simplification a continual investment. Leave the design slightly simpler and more capable behind the same or smaller surface than you found it.
+Simplify continuously. Leave the design a little simpler and more capable than you found it, behind the same or a smaller surface.
 
-- Sequence removal before construction
-- Cut before you polish (get to the minimum before investing in quality)
-- Design for observed usage, not speculative edge cases
-- No speculative validators, parsers, or guards beyond what the spec demands
-- Simplify prompts (remove redundant instructions, excessive templates)
-- When a reference has no novel content, delete it rather than leaving a stub
+- Remove before you build.
+- Cut before you polish. Get to the minimum before you put effort into quality.
+- Design for the usage that you see, not for speculative edge cases.
+- Do not add speculative validators, parsers, or guards that the spec does not require.
+- Simplify prompts. Remove redundant instructions and too many templates.
+- When a reference has no new content, delete it. Do not keep a stub.
+- Do not write again what a good, well-known library does well. Use the library.

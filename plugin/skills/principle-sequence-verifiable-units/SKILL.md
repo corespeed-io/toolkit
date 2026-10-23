@@ -1,17 +1,28 @@
 ---
 name: principle-sequence-verifiable-units
-description: "Apply to multi-step work (sweeps, migrations, runs of similar edits) and to how you stack commits and PRs. Break work into small units that each end in a verifiable state, check each before the next, and order delivery so the sequence proves itself to a reviewer."
+description: "Use for multi-step work (sweeps, migrations, series of similar edits) and for stacking commits and PRs. Make small units that each end in a checkable state. Check each before the next."
 disable-model-invocation: true
 ---
 
 # Sequence work into verifiable units
 
-Order work as a sequence of small units, each ending in a state you can check, and don't advance until the current one is green.
+Put the work in a sequence of small units. Each unit must end in a state that you can check. Do not go to the next unit until the current one passes.
 
-**Why:** A break caught at the unit that caused it is cheap to localize. A break caught after a batch is buried, and you have already built further on a broken base. Sequencing those same units into a delivery a reviewer can replay turns "trust me" into "watch it go red, then green."
+**Why:** When you find a break at the unit that caused it, it is easy to find the cause. When you find a break after a batch, the cause is hidden, and you already built more work on a broken base. When you put the same units in a delivery that a reviewer can replay, "trust me" becomes "watch it fail, then pass".
 
-**Execution.** In a sweep, migration, or any run of similar edits, verify each change before starting the next. Each unit is a before/after bracket: known-good state, one change, run the check, then proceed. Rebase onto clean trunk first so every check measures against the real baseline. When a lever does the edits, the per-unit check is nearly free. Run it anyway.
+**Execution.** In a sweep, a migration, or a series of similar edits, verify each change before you start the next. Each unit is a before/after bracket:
+1. Start from a known-good state.
+2. Make one change.
+3. Run the check.
+4. Continue.
 
-**Delivery.** Stack commits and PRs in the order that proves the work. The canonical shape is the failing test first, then the fix on top. Other story orders are a subtraction before the reshape, a baseline capture before the treatment, the scaffold before the feature. Each commit lands on its own and the sequence reads as an argument.
+Rebase onto a clean trunk first, so that each check compares against the real baseline. When a lever does the edits, the check for each unit costs almost nothing. Run it anyway.
 
-The sequencing complement to the **prove-it-works** principle skill, which keeps each check real, and the **build-the-lever** principle skill, which makes the per-unit check cheap.
+**Delivery.** Stack commits and PRs in the order that proves the work. The standard shape is the failing test first, then the fix on top. Other orders are:
+- a subtraction before the reshape
+- a baseline capture before the treatment
+- the scaffold before the feature
+
+Each commit must work alone, and the sequence must read as an argument. Make a small commit at each step that works. Do not push unless the user tells you to.
+
+This principle adds sequencing to the **principle-prove-it-works** skill, which keeps each check real, and to the **principle-build-the-lever** skill, which makes the check for each unit cheap.

@@ -1,58 +1,11 @@
 ---
 name: deployments-cicd
-description: Vercel deployment and CI/CD expert guidance. Use when deploying, promoting, rolling back, inspecting deployments, building with --prebuilt, or configuring CI workflow files for Vercel.
-metadata:
-  priority: 6
-  docs:
-    - "https://vercel.com/docs/deployments"
-    - "https://vercel.com/docs/git"
-    - "https://vercel.com/docs/deployments/promoting-a-deployment"
-    - "https://vercel.com/docs/deployment-checks"
-  sitemap: "https://vercel.com/sitemap.xml"
-  pathPatterns:
-    - '.github/workflows/*.yml'
-    - '.github/workflows/*.yaml'
-    - '.gitlab-ci.yml'
-    - 'bitbucket-pipelines.yml'
-    - 'vercel.json'
-    - 'apps/*/vercel.json'
-  bashPatterns:
-    - '\bvercel\s+deploy\b'
-    - '\bvercel\s+--prod\b'
-    - '\bvercel\s+promote\b'
-    - '\bvercel\s+rollback\b'
-    - '\bvercel\s+inspect\b'
-    - '\bvercel\s+build\b'
-    - '\bvercel\s+deploy\s+--prebuilt\b'
-validate:
-  -
-    pattern: 'cron:\s*[''"]|from\s+[''"](node-cron)[''"]|cron\.schedule\('
-    message: 'Manual cron scheduling detected. Use Vercel Cron Jobs (vercel.json crons) for platform-native scheduled tasks.'
-    severity: recommended
-    skipIfFileContains: 'vercel\.json.*crons|@vercel/cron'
-retrieval:
-  aliases:
-    - deploy
-    - ci cd
-    - continuous deployment
-    - release pipeline
-  intents:
-    - deploy to vercel
-    - set up ci cd
-    - promote deployment
-    - rollback deploy
-  entities:
-    - vercel deploy
-    - preview
-    - production
-    - rollback
-    - promote
-    - CI workflow
+description: Vercel deployment and CI/CD guidance. Use when you deploy, promote, roll back, or inspect Vercel deployments, build with `--prebuilt`, or write CI workflows (GitHub Actions, GitLab CI, Bitbucket Pipelines) that deploy to Vercel.
 ---
 
 # Vercel Deployments & CI/CD
 
-You are an expert in Vercel deployment workflows — `vercel deploy`, `vercel promote`, `vercel rollback`, `vercel inspect`, `vercel build`, and CI/CD pipeline integration with GitHub Actions, GitLab CI, and Bitbucket Pipelines.
+This skill covers Vercel deployment workflows: `vercel deploy`, `vercel promote`, `vercel rollback`, `vercel inspect`, and `vercel build`. It also covers CI/CD pipelines with GitHub Actions, GitLab CI, and Bitbucket Pipelines.
 
 ## Deployment Commands
 
@@ -66,7 +19,7 @@ vercel
 vercel deploy
 ```
 
-Preview deployments are created automatically for every push to a non-production branch when using Git integration. They provide a unique URL for testing.
+With the Git integration, Vercel automatically creates a preview deployment for each push to a branch that is not the production branch. Each preview deployment has a unique URL for tests.
 
 ### Production Deployment
 
@@ -93,9 +46,12 @@ vercel deploy --prebuilt
 vercel deploy --prebuilt --prod
 ```
 
-**When to use `--prebuilt`:** Custom CI pipelines where you control the build step, need build caching at the CI level, or need to run tests between build and deploy.
+**When to use `--prebuilt`:** Use it in custom CI pipelines where:
+- You control the build step.
+- You need build caching at the CI level.
+- You must run tests between the build and the deploy.
 
-**Prebuilt limits:** [System Environment Variables are missing at build time](https://vercel.com/docs/cli/deploy#when-not-to-use---prebuilt), and Next.js Skew Protection needs a [custom deployment ID](https://vercel.com/docs/skew-protection#custom-deployment-id).
+**Prebuilt limits:** [System Environment Variables are missing at build time](https://vercel.com/docs/cli/deploy#when-not-to-use---prebuilt). Next.js Skew Protection needs a [custom deployment ID](https://vercel.com/docs/skew-protection#custom-deployment-id).
 
 ### Promote & Rollback
 
@@ -113,9 +69,9 @@ vercel rollback status
 vercel rollback <deployment-url-or-id>
 ```
 
-**Promote a production deployment, not a preview.** Promoting a staged production deployment is instant and serves the same build. Promoting a preview rebuilds it with production environment variables, so the tested build is not the one released.
+**Promote a production deployment, not a preview.** The promotion of a staged production deployment is instant and serves the same build. The promotion of a preview rebuilds it with production environment variables. Then the released build is not the build that you tested.
 
-**Rollback turns off auto-assignment.** New production pushes stop going live until `vercel promote` restores it.
+**A rollback turns off auto-assignment.** New production pushes do not go live until `vercel promote` turns it on again.
 
 ### Inspect Deployments
 
@@ -134,11 +90,11 @@ vercel logs --deployment <url>
 
 ### When to Add a CI Pipeline
 
-The Git integration builds every push, posts preview URLs on pull requests, and deploys the production branch. Use CI for what Vercel does not run: tests, security scans, performance budgets, and approval gates. Gate releases on them with [Deployment Checks](references/deployment-checks.md) while Vercel keeps building. Deploy from CI only when the build must run in your runner, such as to keep source code off Vercel or for GitHub Enterprise Server.
+The Git integration builds each push, posts preview URLs on pull requests, and deploys the production branch. Use CI for the jobs that Vercel does not run: tests, security scans, performance budgets, and approval gates. Use [Deployment Checks](references/deployment-checks.md) to make releases wait for these jobs while Vercel continues to build. Deploy from CI only when the build must run in your runner. Examples: to keep source code off Vercel, or for GitHub Enterprise Server.
 
 ### Required Environment Variables
 
-Every CI pipeline needs these three variables:
+Each CI pipeline needs these three variables:
 
 ```bash
 VERCEL_TOKEN=<your-token>        # Personal or team token
@@ -146,7 +102,7 @@ VERCEL_ORG_ID=<org-id>           # From .vercel/project.json
 VERCEL_PROJECT_ID=<project-id>   # From .vercel/project.json
 ```
 
-Set these as secrets in your CI provider. Never commit them to source control. The CLI reads `VERCEL_TOKEN` from the environment; do not pass `--token`, which exposes it in process lists and logs.
+Set these as secrets in your CI provider. Do not commit them to source control. The CLI reads `VERCEL_TOKEN` from the environment. Do not pass `--token`, because it shows the token in process lists and logs.
 
 ### GitHub Actions
 
@@ -193,7 +149,11 @@ jobs:
 
 ### Release Only Tested Builds
 
-With Git deployments, require [Deployment Checks](references/deployment-checks.md). When CI deploys with the CLI, stage a production deployment, test it, then promote that build:
+With Git deployments, require [Deployment Checks](references/deployment-checks.md). When CI deploys with the CLI:
+
+1. Stage a production deployment.
+2. Test it.
+3. Promote that build.
 
 ```yaml
 env:
@@ -234,19 +194,19 @@ jobs:
 
 | Flag | Purpose |
 |------|---------|
-| `--token <token>` | Authenticate; in CI, set `VERCEL_TOKEN` instead |
+| `--token <token>` | Authenticate. In CI, set `VERCEL_TOKEN` instead |
 | `--yes` / `-y` | Skip confirmation prompts |
-| `--scope <team>` | Execute as a specific team |
-| `--cwd <dir>` | Set working directory |
+| `--scope <team>` | Run as a specific team |
+| `--cwd <dir>` | Set the working directory |
 
 ## Best Practices
 
-1. **Always use `--prebuilt` in CI** — separates build from deploy, enables build caching and test gates
-2. **Use `vercel pull` before build** — ensures correct env vars and project settings
-3. **Release only tested builds** — Deployment Checks (Git) or staged production builds (CLI)
-4. **Use OIDC federation for runtime backend access** — lets Vercel functions auth to AWS/GCP without static secrets (does not replace `VERCEL_TOKEN` for CLI)
-5. **Pin the Vercel CLI version in CI** — `npm install -g vercel@latest` can break unexpectedly
-6. **Add `--yes` flag in CI** — prevents interactive prompts from hanging pipelines
+1. **Use `--prebuilt` in CI.** It separates the build from the deploy. It also enables build caching and test gates.
+2. **Use `vercel pull` before the build.** It gets the correct environment variables and project settings.
+3. **Release only tested builds.** Use Deployment Checks (Git) or staged production builds (CLI).
+4. **Use OIDC federation for runtime access to backends.** Vercel functions can then authenticate to AWS or GCP without static secrets. It does not replace `VERCEL_TOKEN` for the CLI.
+5. **Pin the Vercel CLI version in CI.** `npm install -g vercel@latest` can break the pipeline without warning.
+6. **Add the `--yes` flag in CI.** It prevents interactive prompts that stop the pipeline.
 
 ## Deployment Strategy Matrix
 
@@ -255,24 +215,24 @@ jobs:
 | Standard team workflow | Git-push deploy | Push to main/feature branches |
 | Custom CI/CD (Actions, CircleCI) | Prebuilt deploy | `vercel build && vercel deploy --prebuilt` |
 | Monorepo with Turborepo | Affected + remote cache | `turbo run build --affected` |
-| Preview for every PR | Default behavior | Auto-creates preview URL per branch |
+| Preview for every PR | Default behavior | Creates a preview URL for each branch automatically |
 | Release a tested build | Deployment Checks (Git) or staged production (CLI) | Required checks, or `vercel deploy --prod --skip-domain` → test → `vercel promote <url>` |
 | Atomic deploys with DB migrations | Two-phase | Run migration → verify → `vercel promote` |
-| Latency-sensitive regional data | Vercel Functions | Keep the Node.js default; set the function region near the data |
+| Latency-sensitive regional data | Vercel Functions | Keep the Node.js default. Set the function region near the data |
 
 ## Common Build Errors
 
 | Error | Cause | Fix |
 |-------|-------|-----|
-| `ERR_PNPM_OUTDATED_LOCKFILE` | Lockfile doesn't match package.json | Run `pnpm install`, commit lockfile |
-| `NEXT_NOT_FOUND` | Root directory misconfigured | Set Root Directory in Project Settings |
-| `Invalid next.config.js` | Config syntax error | Validate config locally with `next build` |
-| `functions/api/*.js` mismatch | Wrong file structure | Move to `app/api/` directory (App Router) |
-| `Error: EPERM` | File permission issue in build | Don't `chmod` in build scripts; use postinstall |
+| `ERR_PNPM_OUTDATED_LOCKFILE` | The lockfile does not match `package.json` | Run `pnpm install`, then commit the lockfile |
+| `NEXT_NOT_FOUND` | The root directory is configured incorrectly | Set Root Directory in Project Settings |
+| `Invalid next.config.js` | Syntax error in the config | Validate the config locally with `next build` |
+| `functions/api/*.js` mismatch | Incorrect file structure | Move the files to the `app/api/` directory (App Router) |
+| `Error: EPERM` | File permission problem in the build | Do not use `chmod` in build scripts. Use `postinstall` |
 
 ## Deploy Summary Format
 
-Present a structured deploy result block:
+Show the deploy result in this structured block:
 
 ```
 ## Deploy Result
@@ -284,13 +244,13 @@ Present a structured deploy result block:
 - **Build Duration**: <duration>
 ```
 
-If the deployment failed, append:
+If the deployment failed, add:
 
 ```
 - **Error**: <summary of failure from logs>
 ```
 
-For production deploys, also include:
+For production deploys, also add:
 
 ```
 ### Post-Deploy Observability
@@ -301,15 +261,15 @@ For production deploys, also include:
 
 ## Deploy Next Steps
 
-Based on the deployment outcome:
+Tell the user the next step that agrees with the deployment result:
 
-- **Success (preview)** → "Visit the preview URL to verify. When ready, run `/deploy prod` to promote to production."
-- **Success (production)** → "Your production site is live. Run `/status` to see the full project overview."
-- **Build error** → "Check the build logs above. Common fixes: verify `build` script in package.json, check for missing env vars with `/env list`, ensure dependencies are installed."
-- **Missing env vars** → "Run `/env pull` to sync environment variables locally, or `/env list` to review what's configured on Vercel."
-- **Monorepo issues** → "Set the Root Directory in Project Settings to the app's folder; `vercel.json` has no `rootDirectory` key."
-- **Post-deploy errors detected** → "Review errors above. Check `vercel logs --deployment <url> -q level:error` for details. If drains are configured, correlate with external monitoring."
-- **No monitoring configured** → "Set up drains or install an error tracking integration before the next production deploy. Run `/status` for a full observability diagnostic."
+- **Success (preview)** → "Open the preview URL to verify it. When it is ready, deploy to production with `vercel --prod`, or stage with `vercel deploy --prod --skip-domain` and then `vercel promote <url>`."
+- **Success (production)** → "Your production site is live. Run `vercel inspect <url>` or `vercel ls` to see the project status."
+- **Build error** → "Read the build logs above. Frequent fixes: verify the `build` script in `package.json`, find missing environment variables with `vercel env ls`, and make sure that the dependencies are installed."
+- **Missing env vars** → "Run `vercel env pull` to get the environment variables locally, or `vercel env ls` to see the variables configured on Vercel."
+- **Monorepo issues** → "Set the Root Directory in Project Settings to the folder of the app. `vercel.json` has no `rootDirectory` key."
+- **Post-deploy errors detected** → "Examine the errors above. Run `vercel logs --deployment <url> -q level:error` for details. If drains are configured, compare with the external monitoring."
+- **No monitoring configured** → "Set up drains or install an error-tracking integration before the next production deploy."
 
 ## Official Documentation
 

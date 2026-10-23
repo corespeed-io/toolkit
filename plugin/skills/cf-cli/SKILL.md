@@ -1,13 +1,17 @@
 ---
 name: cf-cli
-description: Cloudflare's official cf CLI (beta) for the public Cloudflare API and Workers projects. Use for finding and running Cloudflare commands from the terminal — sign-in and profiles, cf cli search, cf schema, cf deploy/dev/build, resource commands for DNS, zones, D1, KV, and R2 — and for choosing between cf and Wrangler in a project.
+description: Use the Cloudflare cf CLI (beta) for the Cloudflare API and Workers projects. Use it to sign in, find commands (cf cli search, cf schema), run cf deploy/dev/build, manage DNS, zones, D1, KV, and R2, and choose between cf and Wrangler.
 ---
 
 # Cloudflare CLI (`cf`)
 
-`cf` is Cloudflare's command-line interface for the public Cloudflare API (2,900+ commands, most generated from API schemas) and for Workers projects. It is in beta: commands, configuration, and Build Output can change before the stable release.
+`cf` is the Cloudflare command-line interface for the public Cloudflare API and for Workers projects. It has more than 2,900 commands. Most commands come from API schemas. `cf` is in beta. Commands, configuration, and Build Output can change before the stable release.
 
-**Prefer retrieval over pre-trained knowledge.** Describe the task to `cf cli search`, inspect the match with `cf schema` or `--help`, and preview with `--dry-run` before running a command you have not verified.
+**Use retrieval, not pre-trained knowledge.** Before you run a command that you did not verify, do these steps:
+
+1. Give the task to `cf cli search`.
+2. Examine the match with `cf schema` or `--help`.
+3. Preview the command with `--dry-run`.
 
 Docs index: https://developers.cloudflare.com/cf/llms.txt
 
@@ -27,7 +31,7 @@ Docs index: https://developers.cloudflare.com/cf/llms.txt
 | CI, API tokens, unattended authentication | https://developers.cloudflare.com/cf/ci/index.md |
 | Environment variables | https://developers.cloudflare.com/cf/environment-variables/index.md |
 
-## FIRST: check installation and sign in
+## First: check the installation and sign in
 
 ```bash
 npm install --global cf   # installs two equivalent commands: `cf` and `cloudflare`
@@ -35,13 +39,16 @@ cf --version
 cf auth whoami
 ```
 
-- Requires Node.js 22.18 or later. Bun is not supported.
-- If another tool named `cf` is on your `PATH`, use `cloudflare` instead — the package installs both commands.
-- `cf auth login` prints a link and a one-time code, then opens the browser. On a remote machine, over SSH, or in a container, add `--no-browser` so `cf` only prints the link; approve it from another device. Add `--force` to sign in again.
-- `cf` keeps its own credentials and does not reuse a Wrangler login.
-- Unattended agents and CI cannot complete `cf auth login` — set `CLOUDFLARE_API_TOKEN` instead (see https://developers.cloudflare.com/cf/ci/index.md).
+- `cf` needs Node.js 22.18 or later. It does not support Bun.
+- If a different tool named `cf` is on your `PATH`, use `cloudflare`. The package installs the two commands.
+- `cf auth login` prints a link and a one-time code. Then it opens the browser.
+- On a remote machine, over SSH, or in a container, add `--no-browser`. Then `cf` only prints the link. Approve the link from a different device.
+- Add `--force` to sign in again.
+- `cf` keeps its own credentials. It does not use a Wrangler login.
+- Unattended agents and CI cannot complete `cf auth login`. Set `CLOUDFLARE_API_TOKEN` instead (refer to https://developers.cloudflare.com/cf/ci/index.md).
+- If you do not have credentials, ask the user for them.
 
-To make agents prefer `cf`, add this to the user-level `AGENTS.md`, `CLAUDE.md`, or equivalent:
+The owner already uses `cf` as the default Cloudflare CLI. Upstream recommends this line in the user-level instruction file (`AGENTS.md`, `CLAUDE.md`, or equivalent). Do not edit that file unless the user tells you to:
 
 ```md
 When interacting with Cloudflare, use the `cf` CLI unless the project has a
@@ -56,34 +63,43 @@ cf schema d1 create                   # API request shape: method, path, params,
 cf <command> --help                   # arguments and options (e.g. cf deploy --help)
 ```
 
-`cf cli search` takes the task as one argument — unquoted words after the first are parsed as unknown commands. `cf schema` covers generated API commands; for command arguments and options use `--help`.
+- `cf cli search` takes the task as one argument. You must quote the full task. `cf` parses unquoted words after the first word as unknown commands.
+- `cf schema` covers the generated API commands.
+- For command arguments and options, use `--help`.
 
 ## Read output
 
-- Results are JSON on standard output; status messages and errors go to standard error, so piping to `jq` or redirecting needs no extra flags.
-- Lists print one JSON array page; paging options differ per command — check `--help`.
-- A failed command exits non-zero and prints the error to standard error.
+- `cf` writes results as JSON to standard output. It writes status messages and errors to standard error. Thus, you can pipe to `jq` or redirect output with no extra flags.
+- A list command prints one JSON array page. Paging options are different for each command. Examine `--help`.
+- A failed command exits with a non-zero code and prints the error to standard error.
 
 ## Run commands safely
 
-- **Preview first.** `--dry-run` prints the request as JSON without sending it, and needs no credentials.
-- **Aborted deletes still exit 0.** In a non-interactive session, a destructive command without `--force` prints `Aborted.` to standard error and exits `0` — a zero exit does not mean the resource was deleted.
-- **Review `--force` before allowing it.** On some commands `--force` is also an API parameter (for example, `cf workers delete --force` also deletes a Worker that other Workers reference).
-- **`--local` is limited.** It works for KV keys, D1 databases (`cf d1 raw`, `cf d1 migrations list|apply`), and R2 objects; other commands (including `cf d1 query`) return an error instead of calling the API.
+- **Preview first.** `--dry-run` prints the request as JSON and does not send it. It needs no credentials.
+- **An aborted delete also exits with 0.** In a non-interactive session, a destructive command without `--force` prints `Aborted.` to standard error and exits with `0`. A zero exit code does not mean that `cf` deleted the resource.
+- **Examine `--force` before you use it.** On some commands, `--force` is also an API parameter. For example, `cf workers delete --force` also deletes a Worker that other Workers reference.
+- **`--local` has limits.** It works for KV keys, D1 databases (`cf d1 raw`, `cf d1 migrations list|apply`), and R2 objects. Other commands (including `cf d1 query`) return an error and do not call the API.
 
 ## Choose the CLI for this project
 
-- `cloudflare.config.ts` exists: use `cf`.
-- `wrangler.jsonc`, `wrangler.json`, or `wrangler.toml` exists, and no `cloudflare.config.ts`: keep Wrangler for `dev`, `build`, and `deploy`. Do not run `cf dev`, `cf build`, or `cf deploy` there — they can generate a new configuration that ignores the Wrangler file, or fail. `cf` resource commands (DNS, zones, storage) are fine alongside it. Run `cf migrate` only when the user asks, and follow [Migrate a Wrangler project](https://developers.cloudflare.com/cf/wrangler/migrate/index.md): preview with `cf migrate --dry-run`, run `cf migrate`, then resolve the `TODO(@cloudflare)` comments in the generated `cloudflare.config.ts`.
-- Neither exists: use `cf`, as [Use cf with coding agents](https://developers.cloudflare.com/cf/agents/index.md) recommends. Do not install Wrangler or create a Wrangler configuration file.
+- If `cloudflare.config.ts` exists, use `cf`.
+- If `wrangler.jsonc`, `wrangler.json`, or `wrangler.toml` exists, and `cloudflare.config.ts` does not exist:
+  - Use Wrangler for `dev`, `build`, and `deploy`.
+  - Do not run `cf dev`, `cf build`, or `cf deploy` in that project. They can make a new configuration that ignores the Wrangler file, or they can fail.
+  - You can use `cf` resource commands (DNS, zones, storage) with the Wrangler file.
+  - Run `cf migrate` only when the user tells you to. Follow [Migrate a Wrangler project](https://developers.cloudflare.com/cf/wrangler/migrate/index.md):
+    1. Preview with `cf migrate --dry-run`.
+    2. Run `cf migrate`.
+    3. Resolve the `TODO(@cloudflare)` comments in the generated `cloudflare.config.ts`.
+- If no configuration file exists, use `cf`, as [Use cf with coding agents](https://developers.cloudflare.com/cf/agents/index.md) recommends. Do not install Wrangler. Do not make a Wrangler configuration file.
 
-For Wrangler equivalents, use the [Wrangler to cf reference](https://developers.cloudflare.com/cf/wrangler/reference/index.md) or `cf cli search`. Do not translate Wrangler commands from memory. For the full comparison, refer to [`cf` for Wrangler users](https://developers.cloudflare.com/cf/wrangler/index.md).
+To find the `cf` equivalent of a Wrangler command, use the [Wrangler to cf reference](https://developers.cloudflare.com/cf/wrangler/reference/index.md) or `cf cli search`. Do not translate Wrangler commands from memory. For the full comparison, refer to [`cf` for Wrangler users](https://developers.cloudflare.com/cf/wrangler/index.md).
 
-## Commands `cf` does not support yet
+## Commands that `cf` does not support yet
 
-`cf` does not support every Wrangler command yet. Run these with `npx wrangler` instead of adding Wrangler to the project. Wrangler does not read `cloudflare.config.ts`, so pass the Worker name:
+`cf` does not support all Wrangler commands yet. For these commands, use `npx wrangler`. Do not add Wrangler to the project. Wrangler does not read `cloudflare.config.ts`, so you must give the Worker name:
 
 - Live logs: `npx wrangler tail <WORKER_NAME>`.
-- A single secret: `npx wrangler secret put <SECRET_NAME> --name <WORKER_NAME>`. Or upload secrets with a new Worker version by passing `--secrets-file <PATH>` to `cf deploy` or `cf workers versions create`.
+- One secret: `npx wrangler secret put <SECRET_NAME> --name <WORKER_NAME>`. Alternatively, upload secrets with a new Worker version: pass `--secrets-file <PATH>` to `cf deploy` or `cf workers versions create`.
 
 For the current list, refer to "Commands not yet supported" in the [Wrangler to cf reference](https://developers.cloudflare.com/cf/wrangler/reference/index.md).

@@ -1,6 +1,6 @@
 ---
 name: principle-experience-first
-description: "Apply when product, UX, or feature-scope tradeoffs come up. Choose user delight over implementation convenience; ship fewer polished features over more rough ones."
+description: "Use for product, UX, or feature-scope tradeoffs. Choose user delight over implementation convenience. Ship fewer polished features, not more rough ones."
 disable-model-invocation: true
 ---
 
@@ -8,12 +8,12 @@ disable-model-invocation: true
 
 When implementation convenience conflicts with user delight, choose delight.
 
-- Every feature, control, and option must be justified
-- Ship less, ship better (polished experience with three features beats rough one with ten)
-- Prototype before committing (design decisions are cheaper in throwaway HTML than production code)
-- Get the details right (transitions, alignment, spacing, feedback, error states)
-- Tighten the core loop (every feature should serve the central workflow or get out of the way)
+- Each feature, control, and option must have a reason.
+- Ship less, and ship better. A polished experience with three features is better than a rough experience with ten.
+- Make a prototype before you commit. Design decisions cost less in throwaway HTML than in production code.
+- Get the details correct: transitions, alignment, spacing, feedback, and error states.
+- Make the core loop tight. Each feature must serve the central workflow or stay out of its way.
 
-The user is whoever consumes the work. For a UI that is the end user. For a library or an internal API it is the colleague who imports it. The engineer who maintains the code next is a user too. Weigh their experience the same way, and explain impact from their perspective.
+The user is the person who uses the work. For a UI, this is the end user. For a library or an internal API, this is the colleague who imports it. The engineer who maintains the code next is also a user. Give their experience the same weight. Explain the impact from their point of view.
 
-Foundations should serve the experience. Foundational thinking governs the *sequence* of work. This principle governs the *target*.
+Foundations must serve the experience. Foundational thinking controls the *sequence* of the work. This principle controls the *target*.

@@ -1,88 +1,40 @@
 ---
 name: env-vars
-description: Vercel environment variable expert guidance. Use when working with .env files, vercel env commands, Secret or Config variable types, OIDC tokens, or managing environment-specific configuration.
-metadata:
-  priority: 7
-  docs:
-    - "https://vercel.com/docs/environment-variables"
-    - "https://vercel.com/docs/environment-variables/sensitive-environment-variables"
-  sitemap: "https://vercel.com/sitemap.xml"
-  pathPatterns:
-    - '.env'
-    - '.env.*'
-    - '.env.local'
-    - '.env.production'
-    - '.env.development'
-    - '.env.test'
-    - '.env.production.local'
-    - '.env.development.local'
-    - '.env.test.local'
-    - '.env.example'
-  bashPatterns:
-    - '\bvercel\s+env\s+pull\b'
-    - '\bvercel\s+env\s+add\b'
-    - '\bvercel\s+env\s+rm\b'
-    - '\bvercel\s+env\s+ls\b'
-    - '\bvercel\s+env\s+update\b'
-    - '\bvercel\s+env\s+run\b'
-chainTo:
-  -
-    pattern: '\b(OPENAI_API_KEY|ANTHROPIC_API_KEY|GOOGLE_API_KEY)\b'
-    targetSkill: ai-gateway
-    message: 'Direct provider API key detected — loading AI Gateway guidance for OIDC auth (no manual keys needed on Vercel).'
-retrieval:
-  aliases:
-    - environment variables
-    - env file
-    - secrets
-    - config vars
-    - secret env var
-    - sensitive env var
-  intents:
-    - set env var
-    - manage secrets
-    - pull env vars
-    - configure environment
-  entities:
-    - .env
-    - vercel env
-    - OIDC
-    - environment variable
-
+description: Vercel environment variable guidance. Use when you work with .env files, `vercel env` commands (pull, add, ls, rm, run), Secret or Config variable types, VERCEL_OIDC_TOKEN, or configuration for each environment (production, preview, development).
 ---
 
 # Vercel Environment Variables
 
-You are an expert in Vercel environment variable management — `.env` file conventions, the `vercel env` CLI, OIDC token lifecycle, and environment-specific configuration.
+This skill covers Vercel environment variable management: `.env` file conventions, the `vercel env` CLI, the OIDC token lifecycle, and configuration for each environment.
 
 ## .env File Hierarchy
 
-Vercel and Next.js load environment variables in a specific order. Later files override earlier ones:
+Vercel and Next.js load environment variables in a specific order. Later files override earlier files:
 
 | File | Purpose | Git-tracked? |
 |------|---------|-------------|
 | `.env` | Default values for all environments | Yes |
 | `.env.local` | Local overrides and secrets | **No** (gitignored) |
-| `.env.development` | Development-specific defaults | Yes |
-| `.env.development.local` | Local dev overrides | **No** |
-| `.env.production` | Production-specific defaults | Yes |
-| `.env.production.local` | Local prod overrides | **No** |
-| `.env.test` | Test-specific defaults | Yes |
-| `.env.test.local` | Local test overrides | **No** |
+| `.env.development` | Defaults for development | Yes |
+| `.env.development.local` | Local overrides for development | **No** |
+| `.env.production` | Defaults for production | Yes |
+| `.env.production.local` | Local overrides for production | **No** |
+| `.env.test` | Defaults for tests | Yes |
+| `.env.test.local` | Local overrides for tests | **No** |
 
 ### Load Order (Next.js)
 
 1. `.env` (lowest priority)
 2. `.env.[environment]` (development, production, or test)
-3. `.env.local` (skipped in test environment)
+3. `.env.local` (skipped in the test environment)
 4. `.env.[environment].local` (highest priority)
 
 ### Critical Rules
 
-- **Never commit secrets** to `.env`, `.env.development`, or `.env.production` — use `.local` variants or Vercel environment variables
-- `.env.local` is always gitignored by Next.js — this is where `vercel env pull` writes secrets
-- Variables prefixed with `NEXT_PUBLIC_` are exposed to the browser bundle — never put secrets in `NEXT_PUBLIC_` vars
-- All other variables are server-only (API routes, Server Components, middleware)
+- **Do not commit secrets** to `.env`, `.env.development`, or `.env.production`. Use the `.local` variants or Vercel environment variables.
+- Next.js always gitignores `.env.local`. `vercel env pull` writes secrets to this file.
+- Variables with the `NEXT_PUBLIC_` prefix go into the browser bundle. Do not put secrets in `NEXT_PUBLIC_` variables.
+- All other variables are available only on the server (API routes, Server Components, middleware).
 
 ## vercel env CLI
 
@@ -106,14 +58,14 @@ vercel env pull .env.production.local --environment=production
 
 ### Add Environment Variables
 
-Every variable has a type:
+Each variable has a type:
 
 | Type | After saving | Use for |
 |------|--------------|---------|
-| **Secret** | Hidden in the dashboard and `vercel env ls`; can be replaced, never read back. Production and Preview Secrets are not returned by `vercel env pull`. | Passwords, API keys, tokens, database URLs |
-| **Config** | Readable by members with access | Non-sensitive values you need to read later |
+| **Secret** | Hidden in the dashboard and in `vercel env ls`. You can replace it, but you cannot read it back. `vercel env pull` does not return Production and Preview Secrets. | Passwords, API keys, tokens, database URLs |
+| **Config** | Members with access can read it | Values that are not sensitive and that you must read later |
 
-Deployments receive both types at build time and runtime. Secret and Config replaced the Sensitive toggle; existing Sensitive variables are Secrets.
+Deployments get both types at build time and at runtime. Secret and Config replaced the Sensitive toggle. Existing Sensitive variables are now Secrets.
 
 ```bash
 # Interactive — prompts for value, environments, and type
@@ -137,10 +89,10 @@ vercel env add MY_SECRET development < ./dev-secret.txt
 vercel env update MY_SECRET production < ./secret.txt
 ```
 
-- **Defaults**: a non-interactive add to production, preview, or a custom environment is stored as Secret.
-- **Public prefixes are always Config**: variables such as `NEXT_PUBLIC_*` or `VITE_*` are exposed to browsers, so the CLI refuses `--type secret` for them. Keep a private value under a name without the prefix.
-- **Flags**: `--type config|secret` needs Vercel CLI 59.6 or later. Older CLIs use `--visibility`, now a deprecated alias of `--type`. `--sensitive` (Secret) and `--no-sensitive` (Config) still work in every version.
-- **Team policy**: **Separate Production Secret Values** requires a Production Secret to differ from the Preview, Development, and custom environment values of the same key. Under it, create separate Production and non-Production values instead of adding one value to all targets. It replaces the deprecated **Enforce Sensitive Environment Variables** policy.
+- **Defaults**: A non-interactive add to production, preview, or a custom environment stores the variable as Secret.
+- **Public prefixes are always Config**: Variables such as `NEXT_PUBLIC_*` or `VITE_*` go to browsers. Thus, the CLI refuses `--type secret` for them. Keep a private value under a name without the prefix.
+- **Flags**: `--type config|secret` needs Vercel CLI 59.6 or later. Older CLIs use `--visibility`, which is now a deprecated alias of `--type`. `--sensitive` (Secret) and `--no-sensitive` (Config) work in all versions.
+- **Team policy**: The **Separate Production Secret Values** policy requires a Production Secret to be different from the Preview, Development, and custom environment values of the same key. With this policy, create separate Production and non-Production values. Do not add one value to all targets. This policy replaces the deprecated **Enforce Sensitive Environment Variables** policy.
 
 ### List Environment Variables
 
@@ -164,7 +116,7 @@ vercel env rm MY_SECRET
 
 ## Bootstrap Flow (Fresh Clone / New Machine)
 
-Use this sequence when setting up a project from scratch:
+Use this sequence to set up a project from the start:
 
 ```bash
 # 1) Link first so pulls target the correct Vercel project
@@ -182,17 +134,20 @@ done < .env.example
 
 ### Temporary Path: Run With Vercel Envs Without Writing a File
 
-If you need Vercel environment variables immediately but do not want to write `.env.local` yet:
+If you need Vercel environment variables now, but you do not want to write `.env.local` yet:
 
 ```bash
 vercel env run -- npm run dev
 ```
 
-This is useful for quick validation during bootstrap, but still pull `.env.local` for a normal local workflow.
+This is useful for a quick check during bootstrap. For a usual local workflow, pull `.env.local` anyway.
 
 ### Re-pull After Secret or Provisioning Changes
 
-After creating/updating secrets (`vercel env add`, dashboard changes) or provisioning integrations that add env vars (for example Neon/Upstash), re-run:
+Run this command again after one of these changes:
+
+- You create or update secrets (`vercel env add`, or changes in the dashboard).
+- You provision integrations that add environment variables (for example, Neon or Upstash).
 
 ```bash
 vercel env pull .env.local --yes
@@ -200,13 +155,13 @@ vercel env pull .env.local --yes
 
 ## OIDC Token Lifecycle
 
-Vercel uses **OIDC (OpenID Connect)** tokens for secure, keyless authentication between your app and Vercel services (AI Gateway, storage, etc.).
+Vercel uses **OIDC (OpenID Connect)** tokens for secure authentication without keys between your app and Vercel services (AI Gateway, storage, and others).
 
 ### How It Works
 
-1. **On Vercel deployments**: `VERCEL_OIDC_TOKEN` is automatically injected as a short-lived JWT and auto-refreshed — zero configuration needed
-2. **Local development**: `vercel env pull .env.local` provisions a `VERCEL_OIDC_TOKEN` valid for ~12 hours
-3. **Token expiry**: When the local OIDC token expires, re-run `vercel env pull .env.local --yes` to get a fresh one. Consider re-pulling at the start of each dev session to avoid mid-session auth failures
+1. **On Vercel deployments**: Vercel automatically injects `VERCEL_OIDC_TOKEN` as a short-lived JWT and refreshes it automatically. No configuration is necessary.
+2. **Local development**: `vercel env pull .env.local` provisions a `VERCEL_OIDC_TOKEN` that is valid for approximately 12 hours.
+3. **Token expiry**: When the local OIDC token expires, run `vercel env pull .env.local --yes` again to get a new token. To prevent authentication failures during a session, pull again at the start of each development session.
 
 ### Common OIDC Patterns
 
@@ -226,10 +181,10 @@ const result = await generateText({
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| `VERCEL_OIDC_TOKEN` missing locally | Haven't pulled env vars | `vercel env pull .env.local` |
-| Auth errors after ~12h locally | Token expired | `vercel env pull .env.local --yes` |
-| Works on Vercel, fails locally | Token not in `.env.local` | `vercel env pull .env.local` |
-| `AI_GATEWAY_API_KEY` vs OIDC | Both set, key takes priority | Remove `AI_GATEWAY_API_KEY` to use OIDC |
+| `VERCEL_OIDC_TOKEN` missing locally | You did not pull the environment variables | `vercel env pull .env.local` |
+| Authentication errors locally after approximately 12h | The token expired | `vercel env pull .env.local --yes` |
+| Works on Vercel, fails locally | The token is not in `.env.local` | `vercel env pull .env.local` |
+| `AI_GATEWAY_API_KEY` vs OIDC | Both are set, and the key has priority | Remove `AI_GATEWAY_API_KEY` to use OIDC |
 
 ## Environment-Specific Configuration
 
@@ -244,17 +199,17 @@ const result = await generateText({
 
 ### Environment Scoping on Vercel
 
-Variables set in the Vercel Dashboard at `https://vercel.com/{team}/{project}/settings/environment-variables` can be scoped to:
+In the Vercel Dashboard at `https://vercel.com/{team}/{project}/settings/environment-variables`, you can scope variables to:
 
-- **Production** — production domain deployments
-- **Preview** — branch/PR deployments
-- **Development** — `vercel dev` and `vercel env pull`
+- **Production**: deployments on the production domain
+- **Preview**: branch and PR deployments
+- **Development**: `vercel dev` and `vercel env pull`
 
-A variable can be assigned to one, two, or all three environments.
+You can assign a variable to one, two, or all three environments.
 
 ### Git Branch Overrides
 
-Preview environment variables can be scoped to specific Git branches:
+You can scope Preview environment variables to specific Git branches:
 
 ```bash
 # Add a variable only for the "staging" branch
@@ -265,7 +220,14 @@ vercel env add DATABASE_URL preview --git-branch=staging < ./staging-database-ur
 
 ### `vercel env pull` Merges Into an Existing File
 
-`vercel env pull .env.local` merges into an existing file. Variables defined only locally are kept (logged as `Kept <KEYS>`; Vercel CLI 56+). Keys that also exist on Vercel take the pulled value, so a local override of one is replaced. Current CLIs also keep a real local value for a Secret they cannot read, and always refresh `VERCEL_OIDC_TOKEN`. Older CLIs replace the entire file, so back up custom vars first:
+`vercel env pull .env.local` merges into an existing file:
+
+- It keeps variables that are defined only locally. It logs them as `Kept <KEYS>` (Vercel CLI 56+).
+- Keys that also exist on Vercel get the pulled value. Thus, a local override of such a key is replaced.
+- Current CLIs keep a real local value for a Secret that they cannot read.
+- Current CLIs always refresh `VERCEL_OIDC_TOKEN`.
+
+Older CLIs replace the full file. With an older CLI, back up custom variables first:
 
 ```bash
 # Save custom vars before pulling
@@ -274,15 +236,15 @@ vercel env pull .env.local --yes
 cat .env.custom.bak >> .env.local  # Re-append custom vars
 ```
 
-Or maintain custom vars in a separate `.env.development.local` file (loaded after `.env.local` by Next.js).
+Alternatively, keep custom variables in a separate `.env.development.local` file. Next.js loads it after `.env.local`.
 
 ### Pulled Files Omit Production and Preview Secrets
 
-`vercel env pull --environment=production` (or `preview`) does not write Secret values, so a pulled file cannot reproduce production credentials. Keep separate Development values for local work instead of trying to copy production Secrets onto a machine.
+`vercel env pull --environment=production` (or `preview`) does not write Secret values. Thus, a pulled file cannot reproduce production credentials. Keep separate Development values for local work. Do not try to copy production Secrets onto a machine.
 
 ### Scripts Don't Auto-Load `.env.local`
 
-Only Next.js auto-loads `.env.local`. Standalone scripts (`drizzle-kit`, `tsx`, custom Node scripts) need explicit loading:
+Only Next.js loads `.env.local` automatically. Standalone scripts (`drizzle-kit`, `tsx`, custom Node scripts) must load it explicitly:
 
 ```bash
 # Use dotenv-cli
@@ -296,13 +258,13 @@ source <(grep -v '^#' .env.local | sed 's/^/export /') && node scripts/migrate.j
 
 ## Best Practices
 
-1. **Use `vercel env pull` as part of your setup workflow** — document it in your README
-2. **Never hardcode secrets** — always use environment variables
-3. **Scope narrowly** — don't give preview deployments production database access
-4. **Rotate OIDC tokens regularly in local dev** — re-pull when you see auth errors
-5. **Use `.env.example`** — commit a template with empty values so teammates know which vars are needed
-6. **Prefix client-side vars with `NEXT_PUBLIC_`** — and never put secrets in them
-7. **Keep custom vars in `.env.development.local`** — protects them from `vercel env pull` overwrites
+1. **Use `vercel env pull` in your setup workflow.** Document it in your README.
+2. **Do not hardcode secrets.** Always use environment variables.
+3. **Keep the scope narrow.** Do not give preview deployments access to the production database.
+4. **Refresh OIDC tokens regularly in local development.** Pull again when you see authentication errors.
+5. **Use `.env.example`.** Commit a template with empty values, so that team members know which variables are necessary.
+6. **Add the `NEXT_PUBLIC_` prefix to client-side variables.** Do not put secrets in them.
+7. **Keep custom variables in `.env.development.local`.** This prevents `vercel env pull` from overwriting them.
 
 ## Official Documentation
 

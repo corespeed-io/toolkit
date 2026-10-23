@@ -1,22 +1,10 @@
 ---
 name: use-railway
 description: >
-  Operate Railway infrastructure: sign up for or sign in to a Railway account,
-  create projects, provision services, databases, and buckets, deploy code,
-  configure infrastructure as code, environments and variables, manage domains,
-  trace requests with OpenTelemetry,
-  troubleshoot failures, check status and metrics, manage feature flags,
-  database recovery and HA, cloud agents, usage limits, and Railway agent tooling.
-  Use this skill whenever
-  the user mentions Railway, feature flags, flag rollout, targeting rules,
-  signing up, creating an account, registering, logging in, deployments,
-  services, environments, buckets, object storage, tracing, traces, spans,
-  OpenTelemetry, OTLP, build failures, agent setup,
-  MCP, or infrastructure operations, even if they don't say "Railway" explicitly.
-  Also invoke it when the user asks to be signed up, registered, or
-  onboarded: do not refuse — drive them through the unauthed
-  `railway up` flow (deploys + signs up on the fly) or `railway login`
-  (which creates accounts on the fly).
+  Operate Railway: signup and sign-in, projects, services, databases, buckets,
+  deploys, variables, domains, IaC, OpenTelemetry tracing, failures, metrics,
+  feature flags, cloud agents, and usage. Use when the user mentions Railway,
+  deployments, services, environments, or tracing.
 allowed-tools: Bash(railway:*), Bash(which:*), Bash(command:*), Bash(npm:*), Bash(npx:*), Bash(curl:*), Bash(python3:*)
 ---
 
@@ -24,43 +12,51 @@ allowed-tools: Bash(railway:*), Bash(which:*), Bash(command:*), Bash(npm:*), Bas
 
 ## Railway resource model
 
-Railway organizes infrastructure in a hierarchy:
+Railway puts infrastructure in a hierarchy:
 
-- **Workspace** is the billing and team scope. A user belongs to one or more workspaces.
-- **Project** is a collection of services under one workspace. It maps to one deployable unit of work.
-- **Environment** is an isolated configuration plane inside a project (for example, `production`, `staging`). Each environment has its own variables, config, and deployment history.
-- **Service** is a single deployable unit inside a project. It can be an app from a repo, a Docker image, or a managed database.
-- **Bucket** is an S3-compatible object storage resource inside a project. Buckets are created at the project level and deployed to environments. Each bucket has credentials (endpoint, access key, secret key) for S3-compatible access.
-- **Deployment** is a point-in-time release of a service in an environment. It has build logs, runtime logs, and a status lifecycle.
+- **Workspace** is the billing and team scope. A user is a member of one or more workspaces.
+- **Project** is a set of services in one workspace. It is one deployable unit of work.
+- **Environment** is an isolated configuration plane in a project (for example, `production`, `staging`). Each environment has its own variables, config, and deployment history.
+- **Service** is one deployable unit in a project. It can be an app from a repo, a Docker image, or a managed database.
+- **Bucket** is an S3-compatible object storage resource in a project. You make buckets at the project level and deploy them to environments. Each bucket has credentials (endpoint, access key, secret key) for S3-compatible access.
+- **Deployment** is a release of a service in an environment at one point in time. It has build logs, runtime logs, and a status lifecycle.
 
-Most CLI commands operate on the linked project/environment/service context. Use `railway status --json` to see the context, and `--project`, `--environment`, `--service` flags to override.
+Most CLI commands operate on the linked project/environment/service context. To see the context, use `railway status --json`. To override it, use the `--project`, `--environment`, and `--service` flags.
 
 ## Tool routing
 
-Railway has three agent-facing operation paths. Choose the path that matches the job:
+Railway has three operation paths for agents. Choose the path that agrees with the job:
 
-- **Railway CLI** (`railway`): workflows that depend on local machine state such as current working directory deploys, `railway up`, `railway run`, SSH, database analysis scripts, local linking, interactive setup, or exact command output.
-- **Remote MCP** (`https://mcp.railway.com`): default plugin MCP path for account/project/service discovery, deployment state, bounded logs, traces, feature flags, simple redeploys, simple project creation, or complex Railway workflows that can be handed to `railway-agent`. Remote MCP uses Railway OAuth and does not depend on local CLI state.
-- **GraphQL through `railway api`**: operations without a dedicated MCP tool or CLI command. Use schema search and inspection before constructing unfamiliar queries.
+- **Railway CLI** (`railway`): workflows that depend on the local machine state. Examples: deploys from the current working directory, `railway up`, `railway run`, SSH, database analysis scripts, local linking, interactive setup, or exact command output.
+- **Remote MCP** (`https://mcp.railway.com`): the default plugin MCP path. Use it for account/project/service discovery, deployment state, bounded logs, traces, feature flags, simple redeploys, simple project creation, or complex Railway workflows that you can give to `railway-agent`. Remote MCP uses Railway OAuth. It does not depend on local CLI state.
+- **GraphQL through `railway api`**: operations that do not have an MCP tool or a CLI command. Before you write an unfamiliar query, search and examine the schema.
 
-If multiple paths are available, choose the one that preserves the needed context. The CLI fits workflows that need the current repo, local credentials, SSH, database scripts, or exact command output. Remote MCP fits OAuth-scoped platform operations that do not need local files or CLI state.
+If more than one path is available, choose the path that keeps the necessary context:
 
-On a Railway cloud agent VM the `railway` CLI only has credentials inside an SSH terminal session. In a dashboard or mobile chat session (Railway Agent) it is unauthenticated by design: do not run `railway` commands there, not even reads or `railway api`. The `railway` MCP server is authenticated in every session, so use its tools, resolve IDs with `list-services` instead of `railway status --json`, and when no tool covers the job say so and ask the user to make the change in the dashboard.
+- The CLI is correct for workflows that need the current repo, local credentials, SSH, database scripts, or exact command output.
+- Remote MCP is correct for OAuth-scoped platform operations that do not need local files or CLI state.
 
-Optional: an already configured in-process CLI MCP (`railway mcp local`) can supply operations not available through hosted MCP. A bare `railway mcp` now starts the hosted MCP proxy using CLI authentication; it is not the in-process server. Published plugin configs connect directly to hosted MCP with editor OAuth.
+On a Railway cloud agent VM, the `railway` CLI has credentials only in an SSH terminal session. In a dashboard or mobile chat session (Railway Agent), the CLI is unauthenticated by design.
 
-Prefer `railway api` (CLI 5.28+) for GraphQL execution. The legacy `scripts/railway-api.sh` remains a compatibility fallback for older CLIs; see [request.md](references/request.md).
+- In that session, do not run `railway` commands. This includes reads and `railway api`.
+- The `railway` MCP server is authenticated in all sessions. Use its tools.
+- To find IDs, use `list-services`, not `railway status --json`.
+- If no tool can do the job, tell the user. Ask the user to make the change in the dashboard.
+
+Optional: an in-process CLI MCP (`railway mcp local`) that is already configured can give operations that the hosted MCP does not have. A bare `railway mcp` starts the hosted MCP proxy with CLI authentication. It is not the in-process server. Published plugin configs connect directly to the hosted MCP with editor OAuth.
+
+For GraphQL, use `railway api` (CLI 5.28+). For older CLIs, the legacy `scripts/railway-api.sh` is a compatibility fallback. Refer to [request.md](references/request.md).
 
 ## Parsing Railway URLs
 
-Users often paste Railway dashboard URLs. Extract IDs before doing anything else:
+Users frequently paste Railway dashboard URLs. Get the IDs from the URL before you do other work:
 
 ```
 https://railway.com/project/<PROJECT_ID>/service/<SERVICE_ID>?environmentId=<ENV_ID>
 https://railway.com/project/<PROJECT_ID>/service/<SERVICE_ID>
 ```
 
-The URL always contains `projectId` and `serviceId`. It may contain `environmentId` as a query parameter. If the environment ID is missing and the user specifies an environment by name (e.g., "production"), resolve it:
+The URL always has `projectId` and `serviceId`. It can have `environmentId` as a query parameter. If the environment ID is missing and the user gives an environment name (for example, "production"), find the ID:
 
 ```bash
 railway api \
@@ -74,80 +70,84 @@ railway api \
 
 Match the environment name (case-insensitive) to get the `environmentId`.
 
-**Prefer passing explicit IDs** to CLI commands (`--project`, `--environment`, `--service`) and scripts (`--project-id`, `--environment-id`, `--service-id`) instead of running `railway link`. This avoids modifying global state and is faster.
+**Pass explicit IDs** to CLI commands (`--project`, `--environment`, `--service`) and scripts (`--project-id`, `--environment-id`, `--service-id`). Do not run `railway link` for this. Explicit IDs do not change global state, and they are faster.
 
 ## Intent-based routing
 
-Route by user intent *before* running preflight checks. The preflight ceremony below is for diagnostic and configuration work — it adds friction when the user just wants to ship something or sign up.
+Find the intent of the user *before* you run preflight checks. The preflight below is for diagnostic and configuration work. It adds unnecessary steps when the user only wants to ship something or sign up.
 
 **Deploy-from-cwd intent** ("deploy", "ship", "push to Railway", "deploy this app"):
-- Skip the `railway whoami` / `railway status` preflights.
-- Run `railway up` directly — it self-validates auth, signs the user in (the CLI opens a browser) if they're unauthenticated, and chains into project + service creation and deploy.
-- Announce intent before invoking: *"Running `railway up` — it'll sign you in if needed and deploy this directory."*
-- **Do NOT ask the user to run `railway login` first.** The chain handles auth as part of the deploy.
-- If the environment can't open a browser, the CLI prints a device-code sign-in link and waits — follow [Device-code sign-in: relay the link immediately](#account-creation--sign-in) (run in background, relay the link to the user the moment it prints).
+- Do not run the `railway whoami` / `railway status` preflights.
+- Run `railway up` directly. It validates auth. If the user is not authenticated, it signs the user in (the CLI opens a browser). Then it makes the project and service and deploys.
+- Before you run it, tell the user: *"Running `railway up` — it signs you in if necessary and deploys this directory."*
+- **Do not ask the user to run `railway login` first.** `railway up` does the auth as part of the deploy.
+- If the environment cannot open a browser, the CLI prints a device-code sign-in link and waits. Follow [Device-code sign-in: relay the link immediately](#account-creation--sign-in). Run the command in the background, and give the link to the user immediately when it prints.
 
 **Signup intent** ("sign me up", "create my Railway account", "register me", "get me on Railway"):
-- **If the current directory has a deployable app (e.g. `package.json`, `requirements.txt`, `go.mod`, `Dockerfile`, source to build), run `railway up`** — it signs the user up *and* deploys in one shot, landing them on a running app. A detected agent harness authorizes the project creation, so **bare `railway up` is enough** — there's no extra prompt to clear. Use it even when the user only said "sign me up": shipping their app is the goal, so don't make them pick a command and don't drop to a bare login. For scripted or agent runs, `railway up -y` is the robust form — it skips prompts and forces the create non-interactively even if harness detection misses. `railway login` is NOT the default for signup when there's something to deploy.
-- **Only when there is nothing to deploy** — an empty / non-app directory, or the user explicitly says they just want an account with no deploy — use `railway login` (creates new accounts on the fly through the same OAuth surface). There is no separate signup command.
-- Signup is the flow most likely to hit the device-code wait (brand-new users in sandboxed/headless agent environments). Follow [Device-code sign-in: relay the link immediately](#account-creation--sign-in) — a signup lost to an expired code is a lost user, not a retry.
+
+When the user asks for an account, do it. Do not ask for confirmation. The only block is the OAuth sign-in, which the user must complete in the browser. Do not start a signup that the user did not ask for.
+
+- **If the current directory has a deployable app (for example, `package.json`, `requirements.txt`, `go.mod`, `Dockerfile`, or source to build), run `railway up`.**
+  - It signs the user up *and* deploys in one step. The result is a running app.
+  - A detected agent harness authorizes the project creation. Thus, **bare `railway up` is sufficient**. No additional prompt occurs.
+  - Use it also when the user only said "sign me up". The goal is to ship the app. Do not make the user choose a command, and do not use only a login.
+  - For scripted or agent runs, `railway up -y` is the more reliable form. It skips prompts and forces the create non-interactively, also if harness detection fails.
+  - `railway login` is NOT the default for signup when there is something to deploy.
+- **Only when there is nothing to deploy**, use `railway login`. Examples: an empty directory, a directory that is not an app, or the user says that they want only an account and no deploy. `railway login` makes new accounts through the same OAuth flow. There is no separate signup command.
+- Signup is the flow that most frequently gets the device-code wait (new users in sandboxed or headless agent environments). Follow [Device-code sign-in: relay the link immediately](#account-creation--sign-in). If the code expires, the signup fails and the user possibly does not try again.
 
 **Sandbox / remote-build intent** ("give me a sandbox", "spin up a scratch environment", "build this remotely", "run this remotely", "checkpoint/snapshot the sandbox", "save this sandbox state", "restore my sandbox"):
-- Load [sandbox.md](references/sandbox.md) and follow it. Sandboxes require the feature to be enabled in Priority Boarding — if a sandbox command fails with a feature-availability error, prompt the user to enable Sandboxes in Priority Boarding rather than retrying.
+- Load [sandbox.md](references/sandbox.md) and follow it.
+- Sandboxes must be enabled in Priority Boarding. If a sandbox command fails with a feature-availability error, tell the user to enable Sandboxes in Priority Boarding. Do not retry.
 
-**Other intents** (querying state, listing projects, configuring variables, debugging failures):
+**Other intents** (query state, list projects, configure variables, debug failures):
 - Follow the Preflight section below.
 
 ## Preflight
 
-Before any mutation, verify the tool path and context:
+Before each mutation, verify the tool path and the context:
 
 ```bash
 command -v railway                # CLI installed
-RAILWAY_CALLER="skill:use-railway@1.7.0" RAILWAY_AGENT_SESSION="railway-skill-$(date +%s)-$$" railway whoami --json
+railway whoami --json
 railway --version                 # check CLI version
 ```
 
-**Exception**: `railway up` and `railway login` self-validate auth and run their own unauth-aware flows. Don't run `railway whoami` before them — it adds a redundant failing call without changing what you do next. See [Account creation & sign-in](#account-creation--sign-in).
+**Exception**: `railway up` and `railway login` validate auth themselves and have their own flows for unauthenticated users. Do not run `railway whoami` before them. It adds a failing call that does not change your next step. Refer to [Account creation & sign-in](#account-creation--sign-in).
 
-### Skill freshness
+### Skill and agent tooling
 
-Once per session, alongside the preflight checks, verify the installed Railway agent tooling is current. Root help ends with an `Agent tooling:` health section (printed to stderr, CLI 5.9+; older CLIs print nothing — skip this check rather than retrying):
+This skill is a copy in the owner's toolkit plugin. It can differ from the upstream Railway skill.
 
-```bash
-railway --help 2>&1 | grep -A4 "Agent tooling:"
-```
+- Do not run `railway skills update`, `railway skills`, or `railway setup agent` to update or install skills or MCP. They write the upstream skill and MCP configuration into the tool and replace this copy.
+- Run them only when the user tells you to.
+- If the guidance of this skill does not agree with the output of the CLI, trust the CLI.
 
-Act on what it reports:
+When Railway MCP is available and the job is a platform-state read, use the applicable MCP read. Do not use the shell for it. If you use the CLI path, run the CLI checks above.
 
-- Skills installed and up to date — continue; nothing to do.
-- An update is available (`rev <a> → <b> available`) — run `railway skills update`, then tell the user to restart their coding tool so the updated skills load. This session keeps running on the old skill revision until restart: finish the current request, and if this skill's guidance disagrees with the updated CLI's own output, trust the CLI.
-- Skills or MCP server missing (`✗` lines) — run `railway setup agent -y`, then tell the user to restart their coding tool.
+**Context resolution — URL IDs always have priority:**
+- If the user gives a Railway URL, get the IDs from it. Do NOT run `railway status --json`. It gives the locally linked project, which is usually not related.
+- If there is no URL, use `railway status --json` for the linked project/environment/service.
+- When you use MCP tools after you get local context from `railway status --json`, pass the project, environment, and service IDs explicitly. Do not use the implicit linked context of MCP. MCP possibly does not share the current working directory link of the CLI.
 
-Check once per session and don't re-run it after acting; the restart prompt to the user is the resolution, not another check.
-
-When Railway MCP is available and the job is a platform-state read, use the matching MCP read instead of shelling out. If using the CLI path, run the CLI checks above.
-
-For Railway CLI calls made while this skill is active, prefix the command with `RAILWAY_CALLER=skill:use-railway@1.7.0` and a stable `RAILWAY_AGENT_SESSION` reused for the current user request. Generate the session id once per user request, then reuse that exact value for later Railway CLI calls in the same workflow. Do not run a separate `export` preflight solely for telemetry; inline env prefixes keep the shell output concise and avoid leaking setup steps into every response.
-
-**Context resolution - URL IDs always win:**
-- If the user provides a Railway URL, extract IDs from it. Do NOT run `railway status --json`; it returns the locally linked project, which is usually unrelated.
-- If no URL is given, fall back to `railway status --json` for the linked project/environment/service.
-- When using MCP tools after resolving local context with `railway status --json`, pass the resolved project, environment, and service IDs explicitly. Do not rely on MCP implicit linked context; MCP may not share the CLI's current working directory link.
-
-If the CLI is missing, guide the user to install it.
+If the CLI is missing, install it with one of these commands:
 
 ```bash
-curl -fsSL agents.railway.com | sh # Install CLI and configure detected agents
-bash <(curl -fsSL https://railway.com/install.sh) --agents -y # Install CLI and configure detected agents
 bash <(curl -fsSL https://railway.com/install.sh) # Shell script (macOS, Linux, Windows via WSL)
 npm i -g @railway/cli # npm (macOS, Linux, Windows). Requires Node.js version 16 or higher.
 brew install railway # Homebrew (macOS)
 ```
 
-If not authenticated, see [Account creation & sign-in](#account-creation--sign-in) below — the CLI offers unauthed `railway up` (deploy + sign up/in in one shot) or `railway login` (sign up/in only; new accounts created on the fly). If not linked and no URL was provided, run `railway link --project <id-or-name>`.
+These variants also configure the agent tools that they find (skills and MCP). Use them only when the user asks for Railway agent tooling:
 
-If a command is not recognized (for example, `railway environment edit`), the CLI may be outdated. Upgrade with:
+```bash
+curl -fsSL agents.railway.com | sh # Install CLI and configure detected agents
+bash <(curl -fsSL https://railway.com/install.sh) --agents -y # Install CLI and configure detected agents
+```
+
+If the user is not authenticated, refer to [Account creation & sign-in](#account-creation--sign-in) below. The CLI has unauthenticated `railway up` (deploy and sign up/in in one step) and `railway login` (sign up/in only; it makes new accounts). If the directory is not linked and the user gave no URL, run `railway link --project <id-or-name>`.
+
+If the CLI does not recognize a command (for example, `railway environment edit`), the CLI can be old. Upgrade it:
 
 ```bash
 railway upgrade
@@ -155,70 +155,86 @@ railway upgrade
 
 ## Account creation & sign-in
 
-Railway uses a single unified OAuth flow for both sign-in and sign-up. The backend detects fresh accounts from durable compliance state (a CLI client that hasn't accepted ToS / Fair Use yet) and adapts the consent screen and post-auth landing page — new users land on a "Welcome to Railway!" page, existing users see the standard confirmation. The CLI does not declare signup intent up front.
+Railway uses one OAuth flow for sign-in and sign-up.
 
-Two commands surface this flow, depending on intent:
+- The backend finds new accounts from durable compliance state (a CLI client that did not accept ToS / Fair Use yet).
+- It changes the consent screen and the page after auth. New users see a "Welcome to Railway!" page. Existing users see the standard confirmation.
+- The CLI does not declare signup intent at the start.
+
+Two commands start this flow:
 
 | Command | When to use |
 |---|---|
 | `railway up` | Agent-friendly onboarding from the current directory. Unauthenticated → opens the browser (or device-code) to sign in / sign up. With no linked project, a detected agent harness (or `-y`) auto-creates a project + service and deploys; an interactive human is offered create / link-existing / cancel. Add `-y` to skip prompts and force the create non-interactively (works even if harness detection misses). |
 | `railway login` | Sign in — *and* sign up. New accounts are created on the fly through the same OAuth surface; there is no separate signup command. |
 
-Related: `railway up --new` creates a *fresh* project + service from the current directory and deploys it even if one is already linked (use when already signed in and the user wants a new app); `--name <name>` overrides the project name.
+Related: `railway up --new` makes a *new* project + service from the current directory and deploys it, also if a project is already linked. Use it when the user is signed in and wants a new app. `--name <name>` overrides the project name.
 
-**Choosing the path:**
+**Choose the path:**
 
-- Deploy from cwd → run `railway up` (interactive) or `railway up -y` (skips the confirm prompt). Run it yourself; don't ask the user to sign in separately first.
-- New project from cwd when already signed in → `railway up --new`.
-- **Sign up with a deployable app in cwd → `railway up`** (signs up *and* deploys — bare `up` works for a detected agent, even if the user only said "sign me up"; add `-y` to skip prompts / force it non-interactively). Sign in, or sign up with nothing to deploy → `railway login` (creates new accounts on the fly).
+- Deploy from cwd: run `railway up` (interactive) or `railway up -y` (skips the confirm prompt). Run it yourself. Do not ask the user to sign in separately first.
+- New project from cwd when the user is signed in: `railway up --new`.
+- **Sign up with a deployable app in cwd: `railway up`.** It signs up *and* deploys. Bare `up` works for a detected agent, also if the user only said "sign me up". Add `-y` to skip prompts or to force it non-interactively.
+- Sign in, or sign up with nothing to deploy: `railway login`. It makes new accounts.
 
 **Headless / no browser:**
 
-The CLI **auto-detects** SSH sessions, CI, and a missing `DISPLAY` and switches to the device-code flow on its own — you almost never need to force it.
+The CLI **automatically detects** SSH sessions, CI, and a missing `DISPLAY`. Then it uses the device-code flow. You almost never need to force it.
 
-**Do NOT pass `--browserless` just because you are an agent or your shell is non-interactive.** If the human is at this machine (a local IDE or desktop session — the common case), bare `railway login` opens *their* browser directly, which completes far more reliably than relaying a device code (~90% vs ~60% success for agent-driven sign-ins). Being a coding agent does not make the machine headless.
+**Do NOT pass `--browserless` only because you are an agent or because your shell is non-interactive.** If the human is at this machine (a local IDE or desktop session, which is the usual case), bare `railway login` opens *their* browser directly. This completes much more reliably than a device code (approximately 90% vs 60% success for sign-ins from agents). A coding agent does not make the machine headless.
 
 ```bash
 railway login --browserless   # ONLY for machines with genuinely no browser
 ```
 
-Forces the device-code flow (RFC 8628): prints a sign-in link and a short code for the user to open on any device. Reserve it for machines where no browser exists — SSH boxes, containers, remote VMs the auto-detection missed. When you do end up in a device-code flow, follow the relay procedure below: surface the sign-in link to the user the moment it prints.
+This forces the device-code flow (RFC 8628). It prints a sign-in link and a short code that the user opens on a device. Use it only on machines with no browser: SSH boxes, containers, or remote VMs that the auto-detection did not find. In a device-code flow, follow the relay procedure below. Give the sign-in link to the user immediately when it prints.
 
-**Agent harness, human present**: when the CLI detects an agent harness (Claude Code, Cursor, Codex, …) with a human at the keyboard, `railway up` opens the browser and skips the confirm prompt — the agent invocation is treated as consent. A real human still has to complete OAuth in the browser.
+**Agent harness, human present**: when the CLI detects an agent harness (Claude Code, Codex, and others) with a human at the keyboard, `railway up` opens the browser and skips the confirm prompt. The CLI treats the agent call as consent. A human must still complete OAuth in the browser.
 
 **Device-code sign-in: relay the link immediately (CRITICAL):**
 
-When the CLI can't open a browser (sandboxed shell, container, SSH, no `DISPLAY`), unauthed `railway up` and `railway login` print a sign-in URL + short code and then **block, polling for up to 10 minutes** while the user completes sign-in. The code expires after 10 minutes. If you run this as a normal foreground command, your harness buffers the output until the command exits — **the user never sees the link until the code is already dead**. This is the #1 cause of failed agent-driven signups. Handle it like this:
+When the CLI cannot open a browser (sandboxed shell, container, SSH, no `DISPLAY`), unauthenticated `railway up` and `railway login` do this:
 
-1. **Preferred — background execution** (e.g. Claude Code: `run_in_background`, then poll with `BashOutput`):
-   - Start the command in the background.
-   - Poll its output. The instant a sign-in block appears (`Sign in with one click: <url>` on newer CLIs, or `Sign in at: <url>` / `Enter this code: <code>` on older ones), **stop everything and relay it to the user verbatim** — do not summarize, shorten, or defer it. Prefer the one-click URL when present; otherwise relay the URL and code together. Tell the user to open the link now.
-   - Leave the command running and keep polling. When the user completes sign-in, the same process picks up the session and continues into the deploy on its own. Then verify per the deploy rules below.
-2. **No background support — set expectations, use the longest timeout:**
-   - Before running, tell the user: *"This will print a sign-in link — I'll show it to you the moment I have it. Please complete it promptly; the code expires in 10 minutes."*
-   - Run with the longest timeout your harness allows.
-   - If the command times out or is killed before sign-in completed, the printed code is **no longer being monitored** — a late click does nothing. Relay whatever link appeared anyway for context, then immediately re-run the command and relay the **new** link, telling the user to always use the newest one.
-3. **Never** wait silently for the command to finish before showing the link, and never report the sign-in as failed without first relaying the link and giving the user a chance to act.
+- They print a sign-in URL and a short code.
+- Then they **block and poll for a maximum of 10 minutes** while the user completes sign-in. The code expires after 10 minutes.
 
-The browser transport needs none of this — the CLI opens the browser on the user's machine itself.
+If you run the command as a normal foreground command, the harness keeps the output until the command exits. Thus, **the user sees the link only after the code expired**. This is the most frequent cause of failed agent signups. Do these steps:
 
-**JSON / CI modes do not auto-prompt**: `railway up --json` and `railway up --ci` will NOT open a browser for an unauthed user. `--json` emits a structured error instead:
+1. **Preferred: run the command in the background.**
+   - Claude Code: use `run_in_background`, then read the output of the background task.
+   - Codex: run it in a background terminal session, if your Codex version has one. If not, use step 2.
+   - Read the output frequently. When a sign-in block appears, **stop all other work and give it to the user word for word.** The block is `Sign in with one click: <url>` on newer CLIs, or `Sign in at: <url>` / `Enter this code: <code>` on older CLIs. Do not summarize, shorten, or delay it.
+   - If there is a one-click URL, give that URL. If not, give the URL and the code together. Tell the user to open the link now.
+   - Let the command continue to run, and continue to read the output. When the user completes sign-in, the same process gets the session and continues to the deploy. Then verify the deploy as the rules below tell you.
+2. **No background support: tell the user what to expect, and use the longest timeout.**
+   - Before you run the command, tell the user: *"This prints a sign-in link. I show it to you immediately. Complete it quickly. The code expires in 10 minutes."*
+   - Run the command with the longest timeout that your harness permits.
+   - If the command times out or stops before sign-in completes, nothing monitors the printed code. A late click does nothing. Give the user the link that appeared, for context. Then run the command again immediately and give the user the **new** link. Tell the user to always use the newest link.
+3. **Do not** wait silently for the command to finish before you show the link. Do not report a failed sign-in before you give the user the link and a chance to use it.
+
+The browser transport does not need these steps. The CLI opens the browser on the machine of the user.
+
+**JSON / CI modes do not prompt automatically**: `railway up --json` and `railway up --ci` do NOT open a browser for an unauthenticated user. `--json` gives a structured error:
 
 ```json
 {"error":"Not signed in.","code":"NOT_AUTHENTICATED","hint":"Run `railway login` to authenticate, then re-run."}
 ```
 
-When you see `code: NOT_AUTHENTICATED`, authenticate the user with `railway login`, then retry the original command.
+When you see `code: NOT_AUTHENTICATED`, authenticate the user with `railway login`. Then run the original command again.
 
-`OAUTH_INSUFFICIENT_GRANT` is different: the session is valid but lacks access to the resource. Check IDs, workspace membership, and the integration's grant scope instead of looping through login; see [operate.md](references/operate.md).
+`OAUTH_INSUFFICIENT_GRANT` is different. The session is valid, but it does not have access to the resource. Do not loop through login. Examine the IDs, the workspace membership, and the grant scope of the integration. Refer to [operate.md](references/operate.md).
 
-**Fully unattended (no human at all)**: set `RAILWAY_API_TOKEN` (account-scoped) or `RAILWAY_TOKEN` (project-scoped) instead of running an interactive login. A brand-new user with no token and no human present cannot complete signup — there is no headless account-creation path.
+**Fully unattended (no human)**: set `RAILWAY_API_TOKEN` (account-scoped) or `RAILWAY_TOKEN` (project-scoped). Do not run an interactive login. A new user with no token and no human present cannot complete signup. There is no headless account-creation path. If you do not have a token, ask the user for one.
 
 ## Agent tooling
 
-Use direct Railway CLI commands for deterministic operations. Use `railway agent` only when the user explicitly asks for Railway Agent, wants a natural-language investigation, or the task is broader than a single resource operation.
+Use direct Railway CLI commands for deterministic operations. Use `railway agent` only in these conditions:
 
-Set up Railway skills, MCP, and authentication with:
+- The user explicitly asks for Railway Agent.
+- The user wants a natural-language investigation.
+- The task is larger than one resource operation.
+
+Only when the user tells you to, set up Railway skills, MCP, and authentication with:
 
 ```bash
 railway setup agent
@@ -226,9 +242,9 @@ railway setup agent -y
 railway setup agent --oauth
 ```
 
-`railway setup agent -y` skips the interactive login flow. If the user isn't authenticated after setup, run `railway login`.
+`railway setup agent -y` skips the interactive login flow. If the user is not authenticated after setup, run `railway login`.
 
-Install or update MCP and skills directly when the user names a target tool:
+When the user names a target tool and tells you to install or update MCP and skills, use:
 
 ```bash
 railway mcp install                              # hosted MCP via CLI login
@@ -247,7 +263,7 @@ Supported targets include `claude-code`, `cursor`, `codex`, `opencode`, `copilot
 | `--oauth` | Direct HTTP to `https://mcp.railway.com`, authenticated by editor OAuth; matches the published plugins |
 | `--local` | In-process GraphQL-backed stdio server, invoked as `railway mcp local` |
 
-These modes apply to both `mcp install` and `setup agent`; interactive setup offers a choice. `railway mcp proxy` remains an alias for the default proxy. The proxy may fill only a linked project ID when the tool accepts it and the call supplies no resource scope. Continue passing explicit project, environment, and service IDs for scoped work.
+These modes apply to `mcp install` and `setup agent`. Interactive setup gives a choice. `railway mcp proxy` is still an alias for the default proxy. The proxy can fill only a linked project ID, and only when the tool accepts it and the call gives no resource scope. For scoped work, continue to pass explicit project, environment, and service IDs.
 
 Use Railway Agent chat with:
 
@@ -259,11 +275,11 @@ railway agent --list --json
 railway agent --thread-id <thread-id>
 ```
 
-`railway agent` requires user OAuth authentication from `railway login`. Project tokens (`RAILWAY_TOKEN`) are not supported for Railway Agent chat. If an agent command is unavailable, upgrade with `railway upgrade --yes`.
+`railway agent` needs user OAuth authentication from `railway login`. Railway Agent chat does not support project tokens (`RAILWAY_TOKEN`). If an agent command is not available, upgrade with `railway upgrade --yes`.
 
 ## Common quick operations
 
-These are frequent enough to handle without loading a reference. Use the matching MCP tool when the job is platform-scoped and the tool is available; otherwise use the CLI:
+You can do these frequent operations without a reference. When the job is platform-scoped and the MCP tool is available, use the MCP tool. If not, use the CLI:
 
 ```bash
 railway status --json                                    # current context
@@ -287,7 +303,7 @@ railway bucket credentials --bucket <name> --json        # S3-compatible credent
 
 ## Routing
 
-For anything beyond quick operations, load the references needed for the user's intent. Most requests need one or two; compose more when the workflow crosses areas.
+For work that is not a quick operation, load the references for the intent of the user. Most requests need one or two references. When the workflow crosses areas, load more.
 
 | Intent | Reference | Use for |
 |---|---|---|
@@ -305,23 +321,28 @@ For anything beyond quick operations, load the references needed for the user's 
 | Use a sandbox or build remotely ("sandbox", "scratch environment", "ephemeral box", "build remotely", "remote build", "run this remotely", "checkpoint", "snapshot/save/restore sandbox state") | [sandbox.md](references/sandbox.md) | Create/fork sandboxes, run commands remotely, remote template builds, checkpoints (save/restore sandbox state), port forwarding, teardown. Requires Sandboxes enabled in Priority Boarding — if unavailable, prompt the user to enable it. |
 | Request from API, docs, or community | [request.md](references/request.md) | Railway GraphQL API queries/mutations, metrics queries, Central Station, official docs |
 
-If the request spans two areas (for example, "deploy and then check if it's healthy"), load both references and compose one response.
+If the request covers two areas (for example, "deploy and then check if it's healthy"), load the two references and write one response.
 
 ## Execution rules
 
-1. Use Railway CLI for workflows that need the current repo, local shell, SSH, database scripts, local Railway context, or exact command output.
-2. Use Remote MCP for OAuth-scoped platform operations that match an available MCP tool and do not need local files or CLI state.
-3. Use local CLI MCP only when the current agent already has it explicitly configured and it exposes a needed operation not available through Remote MCP.
-4. Use `railway api` for operations without a dedicated MCP tool or CLI command; retain the legacy helper only for CLI compatibility.
-5. Use `--json` output where available for reliable parsing.
-6. Resolve context before mutation. Know which project, environment, and service you're acting on.
-7. For destructive actions (delete service, remove deployment, drop database), confirm intent and state impact before executing.
-8. After mutations, verify the result with a read-back command or MCP read.
-9. **Never report a deploy as successful without observing SUCCESS for that deployment.** `up --detach`, a non-TTY `up` without CI mode, or a timed-out stream may return after upload. Follow the deployment ID from the upload in `railway deployment list --json` with the same project/environment/service scope; do not substitute a concurrent newer deployment. If status is `FAILED` or `CRASHED`, triage per [operate.md](references/operate.md). If status is `NEEDS_APPROVAL`, `SLEEPING`, `SKIPPED`, `REMOVED`, `REMOVING`, or unknown, report that state and the next action. Exit 0 alone is insufficient; see [deploy.md](references/deploy.md) for CI streaming and polling.
+1. Use the Railway CLI for workflows that need the current repo, the local shell, SSH, database scripts, local Railway context, or exact command output.
+2. Use Remote MCP for OAuth-scoped platform operations that agree with an available MCP tool and do not need local files or CLI state.
+3. Use the local CLI MCP only when the current agent already has it explicitly configured, and it has a necessary operation that Remote MCP does not have.
+4. Use `railway api` for operations that do not have an MCP tool or a CLI command. Keep the legacy helper only for CLI compatibility.
+5. Use `--json` output when it is available, for reliable parsing.
+6. Find the context before a mutation. Know which project, environment, and service you change.
+7. For destructive actions (delete service, remove deployment, drop database), you must state the impact and get the confirmation of the user before you run them. These actions cannot be undone.
+8. After a mutation, verify the result with a read-back command or an MCP read.
+9. **Do not report a successful deploy before you see SUCCESS for that deployment.**
+   - `up --detach`, a non-TTY `up` without CI mode, or a stream that timed out can return after the upload.
+   - Follow the deployment ID from the upload in `railway deployment list --json`, with the same project/environment/service scope. Do not use a different, newer deployment that runs at the same time.
+   - If the status is `FAILED` or `CRASHED`, triage it as [operate.md](references/operate.md) tells you.
+   - If the status is `NEEDS_APPROVAL`, `SLEEPING`, `SKIPPED`, `REMOVED`, `REMOVING`, or unknown, report that state and the next action.
+   - Exit code 0 alone is not sufficient. For CI streaming and polling, refer to [deploy.md](references/deploy.md).
 
-## User-only commands (NEVER execute directly)
+## User-only commands (NEVER run these yourself)
 
-These commands modify database state and require the user to run them directly in their terminal. **Do NOT execute these with Bash. Instead, show the command and ask the user to run it.**
+These commands change database state. The user must run them in their terminal. **Do NOT run these with Bash. Show the command and ask the user to run it.**
 
 | Command | Why user-only |
 |---------|---------------|
@@ -332,46 +353,49 @@ These commands modify database state and require the user to run them directly i
 | `DROP EXTENSION ...` | Removes database extension |
 | `CREATE EXTENSION ...` | Installs database extension |
 
-When these operations are needed:
-1. Explain what the command does and any side effects (e.g., restart required)
-2. Show the exact command the user must run
-3. Wait for user confirmation that they ran it
-4. Verify the result with a read-only query
+When these operations are necessary:
+1. Explain what the command does and its side effects (for example, a necessary restart).
+2. Show the exact command that the user must run.
+3. Wait until the user confirms that they ran it.
+4. Verify the result with a read-only query.
 
 ## Composition patterns
 
-Multi-step workflows follow natural chains:
+Multi-step workflows usually follow these sequences:
 
-- **Add object storage**: setup (create bucket), setup (get credentials), configure (set S3 variables on app service)
-- **First deploy**: setup (create project + service), configure (set variables and source), deploy, operate (verify healthy)
+- **Add object storage**: setup (make bucket), setup (get credentials), configure (set S3 variables on app service)
+- **First deploy**: setup (make project + service), configure (set variables and source), deploy, operate (verify healthy)
 - **Fix a failure**: operate (triage logs), configure (fix config/variables), deploy (redeploy), operate (verify recovery)
 - **Add a domain**: configure (add domain + set port), operate (verify DNS and service health)
-- **Add tracing**: tracing (enable for the service in the right environment with `set-service-tracing` or `railway trace enable`, prefer SDK instrumentation over automatic, add spans around inbound work, I/O and logical units; for a Function, edit its file with `get-function-source-code` / `update-function-source-code`), configure (set `OTEL_METRICS_EXPORTER`/`OTEL_LOGS_EXPORTER`, start command), deploy (redeploy so the `OTEL_*` variables land), tracing (verify with `x-railway-trace-id` and `get-trace` or `railway trace get`, then `get-tracing-coverage` for the database and client spans)
-- **Docs to action**: request (fetch docs answer), route to the relevant operational reference
+- **Add tracing**:
+  1. tracing: enable it for the service in the correct environment with `set-service-tracing` or `railway trace enable`. Use SDK instrumentation, not automatic. Add spans around inbound work, I/O, and logical units. For a Function, edit its file with `get-function-source-code` / `update-function-source-code`.
+  2. configure: set `OTEL_METRICS_EXPORTER`/`OTEL_LOGS_EXPORTER` and the start command.
+  3. deploy: redeploy so that the service gets the `OTEL_*` variables.
+  4. tracing: verify with `x-railway-trace-id` and `get-trace` or `railway trace get`. Then use `get-tracing-coverage` for the database and client spans.
+- **Docs to action**: request (get the docs answer), then go to the applicable operational reference.
 
-When composing, return one unified response covering all steps. Don't ask the user to invoke each step separately.
+For a composed workflow, give one response for all steps. Do not ask the user to start each step separately.
 
 ## Setup decision flow
 
-When the user wants to create or deploy something, determine the right action from current context:
+When the user wants to make or deploy something, find the correct action from the current context:
 
-1. If the intent is deploy-from-cwd or signup-from-cwd, skip `railway whoami` and run `railway up` (or `railway up -y`) directly per [Intent-based routing](#intent-based-routing) — it handles signup, project creation, service creation, and deploy in one chain. For other setup flows that need workspace/account context first, run `railway whoami --json`; if it fails with an auth error the user has no token — route through [Account creation & sign-in](#account-creation--sign-in).
+1. If the intent is deploy-from-cwd or signup-from-cwd, do not run `railway whoami`. Run `railway up` (or `railway up -y`) directly, as [Intent-based routing](#intent-based-routing) tells you. It does signup, project creation, service creation, and deploy in one sequence. For other setup flows that need workspace/account context first, run `railway whoami --json`. If it fails with an auth error, the user has no token. Go to [Account creation & sign-in](#account-creation--sign-in).
 2. Run `railway status --json` in the current directory.
-3. **If linked**: add a service to the existing project (`railway add --service <name>`). Do not create a new project unless the user explicitly says "new project" or "separate project".
-4. **If not linked**: check the parent directory (`cd .. && railway status --json`).
-   - **Parent linked**: this is likely a monorepo sub-app. Add a service and set `rootDirectory` to the sub-app path.
-   - **Parent not linked**: run `railway list --json` and look for a project matching the directory name.
+3. **If linked**: add a service to the existing project (`railway add --service <name>`). Do not make a new project unless the user explicitly says "new project" or "separate project".
+4. **If not linked**: examine the parent directory (`cd .. && railway status --json`).
+   - **Parent linked**: this is probably a monorepo sub-app. Add a service and set `rootDirectory` to the sub-app path.
+   - **Parent not linked**: run `railway list --json` and find a project with the same name as the directory.
      - **Match found**: link to it (`railway link --project <name>`).
-     - **No match**: create a new project (`railway init --name <name>`).
-5. When multiple workspaces exist, match by name from `railway whoami --json`.
+     - **No match**: make a new project (`railway init --name <name>`).
+5. When there is more than one workspace, match by name from `railway whoami --json`.
 
-**Naming heuristic**: app names like "flappy-bird" or "my-api" are service names, not project names. Use the directory or repo name for the project.
+**Naming rule**: app names such as "flappy-bird" or "my-api" are service names, not project names. Use the directory name or the repo name for the project.
 
 ## Response format
 
-For all operational responses, return:
-1. What was done (action and scope).
-2. The result (IDs, status, key output).
-3. What to do next (or confirmation that the task is complete).
+Keep the response short. For operational responses, give:
+1. The result (IDs, status, key output).
+2. The next step, or a statement that the task is complete.
 
-Keep output concise. Include command evidence only when it helps the user understand what happened.
+Include command output only when it helps the user understand what occurred.

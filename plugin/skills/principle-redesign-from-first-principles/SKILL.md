@@ -1,16 +1,16 @@
 ---
 name: principle-redesign-from-first-principles
-description: "Apply when integrating a new requirement into an existing design."
+description: "Use when you add a new requirement to an existing design. Redesign as if the requirement was a foundational assumption from the start."
 disable-model-invocation: true
 ---
 
 # Redesign From First Principles
 
-When integrating a change, don't bolt it onto the existing design. Redesign as if the requirement had been a foundational assumption from the start.
+When you add a change, do not attach it to the existing design. Redesign as if the requirement was a foundational assumption from the start.
 
-- Read all affected files and understand the current design
-- Ask: "if we were writing this from scratch with this new requirement, what would we build?"
-- Propagate the change through every reference: types, docs, examples, rationale sections
-- Think about the whole redesign, then deliver it incrementally
+1. Read all affected files, and understand the current design.
+2. Ask: "If we write this from the start with this new requirement, what do we build?"
+3. Apply the change to each reference: types, docs, examples, and rationale sections.
+4. Think about the full redesign. Then deliver it in increments.
 
-This is the method for preserving option value when integrating changes into an existing design.
+This is the method that keeps options open when you add changes to an existing design.

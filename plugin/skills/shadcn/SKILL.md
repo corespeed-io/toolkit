@@ -1,15 +1,15 @@
 ---
 name: shadcn
-description: Manages shadcn components and projects — adding, searching, fixing, debugging, styling, and composing UI, including chat interfaces. Provides project context, component docs, and usage examples. Applies when working with shadcn/ui, component registries, presets, --preset codes, or any project with a components.json file. Also triggers for "shadcn init", "create an app with --preset", "switch to --preset", and for building a design system or applying a DESIGN.md or brand spec to shadcn/ui.
+description: 'Add, search, fix, debug, style, and compose shadcn/ui components, including chat UI. Use for shadcn/ui, components.json, registries, "shadcn init", --preset codes ("create an app with --preset", "switch to --preset"), or a design system from a DESIGN.md or brand spec.'
 user-invocable: false
 allowed-tools: Bash(npx shadcn@latest *), Bash(pnpm dlx shadcn@latest *), Bash(bunx --bun shadcn@latest *)
 ---
 
 # shadcn/ui
 
-A framework for building ui, components and design systems. Components are added as source code to the user's project via the CLI.
+shadcn/ui is a framework to build UI, components, and design systems. The CLI adds components as source code to the project of the user.
 
-> **IMPORTANT:** Run all CLI commands using the project's package runner: `npx shadcn@latest`, `pnpm dlx shadcn@latest`, or `bunx --bun shadcn@latest` — based on the project's `packageManager`. Examples below use `npx shadcn@latest` but substitute the correct runner for the project.
+> **IMPORTANT:** Run all CLI commands with the package runner of the project: `npx shadcn@latest`, `pnpm dlx shadcn@latest`, or `bunx --bun shadcn@latest`. Select the runner from the `packageManager` of the project. The examples below use `npx shadcn@latest`. Replace it with the correct runner for the project.
 
 ## Current Project Context
 
@@ -17,81 +17,83 @@ A framework for building ui, components and design systems. Components are added
 !`npx shadcn@latest info --json`
 ```
 
-The JSON above contains the project config and installed components. Use `npx shadcn@latest docs <component>` to get documentation and example URLs for any component.
+In Claude Code, the block above runs when the skill loads and shows the output. Other harnesses (for example, Codex) show the command text only. In that case, run `npx shadcn@latest info --json` yourself first.
+
+The JSON contains the project config and the installed components. Use `npx shadcn@latest docs <component>` to get the documentation and example URLs for a component.
 
 ## Principles
 
-1. **Use existing components first.** Use `npx shadcn@latest search` to check registries before writing custom UI. Check community registries too.
-2. **Compose, don't reinvent.** Settings page = Tabs + Card + form controls. Dashboard = Sidebar + Card + Chart + Table.
-3. **Use built-in variants before custom styles.** `variant="outline"`, `size="sm"`, etc.
-4. **Use semantic colors.** `bg-primary`, `text-muted-foreground` — never raw values like `bg-blue-500`.
+1. **Use existing components first.** Use `npx shadcn@latest search` to check registries before you write custom UI. Also check community registries.
+2. **Compose components. Do not make them again.** Settings page = Tabs + Card + form controls. Dashboard = Sidebar + Card + Chart + Table.
+3. **Use built-in variants before custom styles.** For example, `variant="outline"` and `size="sm"`.
+4. **Use semantic colors.** Use `bg-primary` and `text-muted-foreground`. Never use raw values such as `bg-blue-500`.
 
 ## Critical Rules
 
-These rules are **always enforced**. Each links to a file with Incorrect/Correct code pairs.
+These rules **always apply**. Each section links to a file with Incorrect/Correct code pairs.
 
 ### Styling & Tailwind → [styling.md](./rules/styling.md)
 
-- **`className` for layout, not styling.** Never override component colors or typography.
-- **No `space-x-*` or `space-y-*`.** Use `flex` with `gap-*`. For vertical stacks, `flex flex-col gap-*`.
-- **Use `size-*` when width and height are equal.** `size-10` not `w-10 h-10`.
-- **Use `truncate` shorthand.** Not `overflow-hidden text-ellipsis whitespace-nowrap`.
-- **No manual `dark:` color overrides.** Use semantic tokens (`bg-background`, `text-muted-foreground`).
-- **Use `cn()` for conditional classes.** Don't write manual template literal ternaries.
-- **No manual `z-index` on overlay components.** Dialog, Sheet, Popover, etc. handle their own stacking.
+- **Use `className` for layout, not for styling.** Never override the colors or typography of a component.
+- **Do not use `space-x-*` or `space-y-*`.** Use `flex` with `gap-*`. For vertical stacks, use `flex flex-col gap-*`.
+- **Use `size-*` when width and height are equal.** Use `size-10`, not `w-10 h-10`.
+- **Use the `truncate` shorthand.** Do not use `overflow-hidden text-ellipsis whitespace-nowrap`.
+- **Do not add manual `dark:` color overrides.** Use semantic tokens (`bg-background`, `text-muted-foreground`).
+- **Use `cn()` for conditional classes.** Do not write manual template literal ternaries.
+- **Do not add a manual `z-index` to overlay components.** Dialog, Sheet, Popover, and similar components control their own stacking.
 
 ### Forms & Inputs → [forms.md](./rules/forms.md)
 
-- **Forms use `FieldGroup` + `Field`.** Never use raw `div` with `space-y-*` or `grid gap-*` for form layout.
-- **`InputGroup` uses `InputGroupInput`/`InputGroupTextarea`.** Never raw `Input`/`Textarea` inside `InputGroup`.
+- **Forms use `FieldGroup` + `Field`.** Never use a raw `div` with `space-y-*` or `grid gap-*` for form layout.
+- **`InputGroup` uses `InputGroupInput`/`InputGroupTextarea`.** Never put a raw `Input`/`Textarea` inside `InputGroup`.
 - **Buttons inside inputs use `InputGroup` + `InputGroupAddon`.**
-- **Option sets (2–7 choices) use `ToggleGroup`.** Don't loop `Button` with manual active state.
-- **`FieldSet` + `FieldLegend` for grouping related checkboxes/radios.** Don't use a `div` with a heading.
-- **Field validation uses `data-invalid` + `aria-invalid`.** `data-invalid` on `Field`, `aria-invalid` on the control. For disabled: `data-disabled` on `Field`, `disabled` on the control.
+- **Option sets (2–7 choices) use `ToggleGroup`.** Do not loop `Button` with a manual active state.
+- **Use `FieldSet` + `FieldLegend` to group related checkboxes/radios.** Do not use a `div` with a heading.
+- **Field validation uses `data-invalid` + `aria-invalid`.** Put `data-invalid` on `Field` and `aria-invalid` on the control. For disabled: put `data-disabled` on `Field` and `disabled` on the control.
 
 ### Component Structure → [composition.md](./rules/composition.md)
 
-- **Items always inside their Group.** `SelectItem` → `SelectGroup`. `DropdownMenuItem` → `DropdownMenuGroup`. `CommandItem` → `CommandGroup`.
-- **Use `asChild` (radix) or `render` (base) for custom triggers.** Check `base` field from `npx shadcn@latest info`. → [base-vs-radix.md](./rules/base-vs-radix.md)
-- **Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, `DrawerTitle` required for accessibility. Use `className="sr-only"` if visually hidden.
-- **Use full Card composition.** `CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`CardFooter`. Don't dump everything in `CardContent`.
-- **Button has no `isPending`/`isLoading`.** Compose with `Spinner` + `data-icon` + `disabled`.
+- **Items are always inside their Group.** `SelectItem` → `SelectGroup`. `DropdownMenuItem` → `DropdownMenuGroup`. `CommandItem` → `CommandGroup`.
+- **Use `asChild` (radix) or `render` (base) for custom triggers.** Check the `base` field from `npx shadcn@latest info`. → [base-vs-radix.md](./rules/base-vs-radix.md)
+- **Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, and `DrawerTitle` are necessary for accessibility. Use `className="sr-only"` to hide the title visually.
+- **Use the full Card composition.** Use `CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`CardFooter`. Do not put all content in `CardContent`.
+- **Button has no `isPending`/`isLoading`.** Compose it with `Spinner` + `data-icon` + `disabled`.
 - **`TabsTrigger` must be inside `TabsList`.** Never render triggers directly in `Tabs`.
-- **`Avatar` always needs `AvatarFallback`.** For when the image fails to load.
+- **`Avatar` always needs `AvatarFallback`.** The fallback shows when the image does not load.
 
 ### Use Components, Not Custom Markup → [composition.md](./rules/composition.md)
 
-- **Use existing components before custom markup.** Check if a component exists before writing a styled `div`.
-- **Callouts use `Alert`.** Don't build custom styled divs.
-- **Empty states use `Empty`.** Don't build custom empty state markup.
+- **Use existing components before custom markup.** Before you write a styled `div`, check if a component exists.
+- **Callouts use `Alert`.** Do not build custom styled divs.
+- **Empty states use `Empty`.** Do not build custom empty state markup.
 - **Toast follows the project base.** Use `toast` from the `toast` component for
   Base UI projects. Use `toast()` from `sonner` for Radix and React Aria
   projects.
-- **Use `Separator`** instead of `<hr>` or `<div className="border-t">`.
-- **Use `Skeleton`** for loading placeholders. No custom `animate-pulse` divs.
-- **Use `Badge`** instead of custom styled spans.
+- **Use `Separator`** in place of `<hr>` or `<div className="border-t">`.
+- **Use `Skeleton`** for loading placeholders. Do not use custom `animate-pulse` divs.
+- **Use `Badge`** in place of custom styled spans.
 
 ### Icons → [icons.md](./rules/icons.md)
 
-- **Icons in `Button` use `data-icon`.** `data-icon="inline-start"` or `data-icon="inline-end"` on the icon.
-- **No sizing classes on icons inside components.** Components handle icon sizing via CSS. No `size-4` or `w-4 h-4`.
-- **Pass icons as objects, not string keys.** `icon={CheckIcon}`, not a string lookup.
+- **Icons in `Button` use `data-icon`.** Put `data-icon="inline-start"` or `data-icon="inline-end"` on the icon.
+- **Do not put sizing classes on icons inside components.** Components set the icon size through CSS. Do not use `size-4` or `w-4 h-4`.
+- **Pass icons as objects, not as string keys.** Use `icon={CheckIcon}`, not a string lookup.
 
 ### Chat & Messaging → [chat.md](./rules/chat.md)
 
-- **Chat UI composes the chat primitives.** Conversations use `MessageScroller`, rows use `Message`, surfaces use `Bubble`. Never hand-rolled bubble `div`s or a raw scroll container.
-- **`MessageScroller` owns scroll behavior.** Streaming follow, anchoring, and jump-to-latest (`MessageScrollerButton`) are built in. Don't write a `useStickToBottom`/`ResizeObserver` hook.
-- **Attachments use `Attachment`; system notes and dividers use `Marker`.** Not `Item` cards or `Separator` + a label.
-- **Assistant activity uses `Trace`.** Reasoning, tool calls, sources and steps are `TraceLine`s in a `Trace`, one `Trace` per run of message parts. Behavior wraps the line: `TraceCollapsible`, a sheet trigger or a link. Not a hand-rolled `Collapsible` or a `Marker`.
+- **Chat UI composes the chat primitives.** Conversations use `MessageScroller`, rows use `Message`, and surfaces use `Bubble`. Never write custom bubble `div`s or a raw scroll container.
+- **`MessageScroller` controls the scroll behavior.** Streaming follow, anchoring, and jump-to-latest (`MessageScrollerButton`) are built in. Do not write a `useStickToBottom`/`ResizeObserver` hook.
+- **Attachments use `Attachment`. System notes and dividers use `Marker`.** Do not use `Item` cards or `Separator` + a label.
+- **Assistant activity uses `Trace`.** Reasoning, tool calls, sources, and steps are `TraceLine`s in a `Trace`. Use one `Trace` for each run of message parts. Behavior wraps the line: `TraceCollapsible`, a sheet trigger, or a link. Do not use a custom `Collapsible` or a `Marker`.
 
 ### CLI
 
-- **Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`.
-- **Apply preset codes directly with the CLI.** Use `npx shadcn@latest apply <code>` for existing projects, or `npx shadcn@latest init --preset <code>` when initializing.
+- **Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. To detect the preset of a project, use `npx shadcn@latest preset resolve`.
+- **Apply preset codes directly with the CLI.** Use `npx shadcn@latest apply <code>` for existing projects. Use `npx shadcn@latest init --preset <code>` to initialize a project.
 
 ## Key Patterns
 
-These are the most common patterns that differentiate correct shadcn/ui code. For edge cases, see the linked rule files above.
+These are the most frequent patterns that make shadcn/ui code correct. For edge cases, see the linked rule files above.
 
 ```tsx
 // Form layout: FieldGroup + Field, not div + Label.
@@ -149,73 +151,77 @@ These are the most common patterns that differentiate correct shadcn/ui code. Fo
 
 ## Key Fields
 
-The injected project context contains these key fields:
+The project context contains these key fields:
 
-- **`aliases`** → use the actual alias prefix for imports (e.g. `@/`, `~/`), never hardcode.
-- **`isRSC`** → when `true`, components using `useState`, `useEffect`, event handlers, or browser APIs need `"use client"` at the top of the file. Always reference this field when advising on the directive.
-- **`tailwindVersion`** → `"v4"` uses `@theme inline` blocks; `"v3"` uses `tailwind.config.js`.
-- **`tailwindCssFile`** → the global CSS file where custom CSS variables are defined. Always edit this file, never create a new one.
-- **`style`** → component visual treatment (e.g. `nova`, `vega`).
-- **`base`** → primitive library (`radix` or `base`). Affects component APIs and available props.
-- **`iconLibrary`** → determines icon imports. Use `lucide-react` for `lucide`, `@tabler/icons-react` for `tabler`, etc. Never assume `lucide-react`.
-- **`resolvedPaths`** → exact file-system destinations for components, utils, hooks, etc.
-- **`framework`** → routing and file conventions (e.g. Next.js App Router vs Vite SPA).
-- **`packageManager`** → use this for any non-shadcn dependency installs (e.g. `pnpm add date-fns` vs `npm install date-fns`).
-- **`preset`** → resolved preset code and values for the current project. Use `npx shadcn@latest preset resolve --json` when you only need preset information.
+- **`aliases`** → Use the actual alias prefix for imports (for example, `@/`, `~/`). Never hardcode it.
+- **`isRSC`** → When `true`, a component that uses `useState`, `useEffect`, event handlers, or browser APIs needs `"use client"` at the top of the file. Always check this field before you give advice about the directive.
+- **`tailwindVersion`** → `"v4"` uses `@theme inline` blocks. `"v3"` uses `tailwind.config.js`.
+- **`tailwindCssFile`** → The global CSS file that defines the custom CSS variables. Always edit this file. Never create a new one.
+- **`style`** → The visual treatment of the components (for example, `nova`, `vega`).
+- **`base`** → The primitive library (`radix` or `base`). It changes the component APIs and the available props.
+- **`iconLibrary`** → Sets the icon imports. Use `lucide-react` for `lucide`, `@tabler/icons-react` for `tabler`, and so on. Never assume `lucide-react`.
+- **`resolvedPaths`** → The exact file-system destinations for components, utils, hooks, and other files.
+- **`framework`** → The routing and file conventions (for example, Next.js App Router vs Vite SPA).
+- **`packageManager`** → Use this for all dependency installs that are not shadcn (for example, `pnpm add date-fns` vs `npm install date-fns`).
+- **`preset`** → The resolved preset code and values for the current project. Use `npx shadcn@latest preset resolve --json` when you need only the preset information.
 
 See [cli.md — `info` command](./cli.md) for the full field reference.
 
 ## Component Docs, Examples, and Usage
 
-Run `npx shadcn@latest docs <component>` to get the URLs for a component's documentation, examples, and API reference. Fetch these URLs to get the actual content.
+Run `npx shadcn@latest docs <component>` to get the URLs for the documentation, examples, and API reference of a component. Fetch these URLs to get the content.
 
 ```bash
 npx shadcn@latest docs button dialog select
 ```
 
-**When creating, fixing, debugging, or using a component, always run `npx shadcn@latest docs` and fetch the URLs first.** This ensures you're working with the correct API and usage patterns rather than guessing.
+**Before you create, fix, debug, or use a component, always run `npx shadcn@latest docs` and fetch the URLs.** Then you use the correct API and usage patterns, and you do not guess.
 
 ## Workflow
 
-1. **Get project context** — already injected above. Run `npx shadcn@latest info` again if you need to refresh.
-2. **Check installed components first** — before running `add`, always check the `components` list from project context or list the `resolvedPaths.ui` directory. Don't import components that haven't been added, and don't re-add ones already installed.
-3. **Find components** — `npx shadcn@latest search`.
-4. **Get docs and examples** — run `npx shadcn@latest docs <component>` to get URLs, then fetch them. Use `npx shadcn@latest view` to browse registry items you haven't installed. To preview changes to installed components, use `npx shadcn@latest add --diff`.
-5. **Install or update** — `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below).
-6. **Fix imports in third-party components** — After adding components from community registries (e.g. `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths like `@/components/ui/...`. These won't match the project's actual aliases. Use `npx shadcn@latest info` to get the correct `ui` alias (e.g. `@workspace/ui/components`) and rewrite the imports accordingly. The CLI rewrites imports for its own UI files, but third-party registry components may use default paths that don't match the project.
-7. **Review added components** — After adding a component or block from any registry, **always read the added files and verify they are correct**. Check for missing sub-components (e.g. `SelectItem` without `SelectGroup`), missing imports, incorrect composition, or violations of the [Critical Rules](#critical-rules). Also replace any icon imports with the project's `iconLibrary` from the project context (e.g. if the registry item uses `lucide-react` but the project uses `hugeicons`, swap the imports and icon names accordingly). Fix all issues before moving on.
-8. **Registry must be explicit** — When the user asks to add a block or component, **do not guess the registry**. If no registry is specified (e.g. user says "add a login block" without specifying `@shadcn`, `@tailark`, `owner/repo`, etc.), ask which registry to use. Never default to a registry on behalf of the user.
-9. **Switching presets** — Ask the user first: **overwrite**, **partial**, **merge**, or **skip**?
-   - **Inspect current preset**: `npx shadcn@latest preset resolve`. Use `--json` when you need structured values.
-   - **Inspect incoming preset**: `npx shadcn@latest preset decode <code>`. Use `preset url <code>` or `preset open <code>` to share or open the preset builder.
-   - **Overwrite**: `npx shadcn@latest apply <code>`. Overwrites detected components, fonts, and CSS variables.
-   - **Partial**: `npx shadcn@latest apply <code> --only theme,font`. Updates only the selected preset parts without reinstalling UI components. Supported values are `theme` and `font`; comma-separated combinations are allowed. `icon` is intentionally not supported, because icon changes may require full component reinstall and transforms.
-   - **Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually.
-   - **Skip**: `npx shadcn@latest init --preset <code> --force --no-reinstall`. Only updates config and CSS, leaves components as-is.
-   - **Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly — preset codes do not encode the base.
+1. **Get the project context.** See [Current Project Context](#current-project-context). Run `npx shadcn@latest info` again to refresh it.
+2. **Check the installed components first.** Before you run `add`, always check the `components` list in the project context, or list the `resolvedPaths.ui` directory. Do not import components that are not added. Do not add again components that are installed.
+3. **Find components.** Use `npx shadcn@latest search`.
+4. **Get docs and examples.** Run `npx shadcn@latest docs <component>` to get the URLs, then fetch them. Use `npx shadcn@latest view` to look at registry items that are not installed. To preview changes to installed components, use `npx shadcn@latest add --diff`.
+5. **Install or update.** Use `npx shadcn@latest add`. To update existing components, use `--dry-run` and `--diff` to preview the changes first (see [Updating Components](#updating-components) below).
+6. **Fix the imports in third-party components.** After you add components from community registries (for example, `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths such as `@/components/ui/...`. These paths do not match the actual aliases of the project. Use `npx shadcn@latest info` to get the correct `ui` alias (for example, `@workspace/ui/components`), and change the imports to match. The CLI changes the imports of its own UI files. Third-party registry components can use default paths that do not match the project.
+7. **Review the added components.** After you add a component or block from a registry, **always read the added files and make sure that they are correct.**
+   - Check for missing sub-components (for example, `SelectItem` without `SelectGroup`), missing imports, incorrect composition, and violations of the [Critical Rules](#critical-rules).
+   - Replace the icon imports with the `iconLibrary` of the project. For example, if the registry item uses `lucide-react` and the project uses `hugeicons`, change the imports and icon names.
+   - Fix all problems before you continue.
+8. **The registry must be explicit.** When the user asks to add a block or component, **do not guess the registry**. If the user does not specify a registry (for example, "add a login block" without `@shadcn`, `@tailark`, `owner/repo`, or similar), ask which registry to use. Never select a default registry for the user.
+9. **Switch presets.** First ask the user: **overwrite**, **partial**, **merge**, or **skip**?
+   - **Inspect the current preset**: `npx shadcn@latest preset resolve`. Use `--json` when you need structured values.
+   - **Inspect the incoming preset**: `npx shadcn@latest preset decode <code>`. Use `preset url <code>` or `preset open <code>` to share or open the preset builder.
+   - **Overwrite**: `npx shadcn@latest apply <code>`. This overwrites the detected components, fonts, and CSS variables.
+   - **Partial**: `npx shadcn@latest apply <code> --only theme,font`. This updates only the selected preset parts and does not reinstall UI components. The supported values are `theme` and `font`. Comma-separated combinations are allowed. `icon` is intentionally not supported, because icon changes can need a full component reinstall and transforms.
+   - **Merge**: Run `npx shadcn@latest init --preset <code> --force --no-reinstall`. Then run `npx shadcn@latest info` to list the installed components. Then, for each installed component, use `--dry-run` and `--diff` to [smart merge](#updating-components) it.
+   - **Skip**: `npx shadcn@latest init --preset <code> --force --no-reinstall`. This updates only the config and CSS. It does not change the components.
+   - **Important**: Always run preset commands in the project directory of the user. `apply` works only in an existing project with a `components.json` file. The CLI keeps the current base (`base` vs `radix`) from `components.json`. If you must use a scratch or temp directory (for example, for `--dry-run` comparisons), pass `--base <current-base>` explicitly. Preset codes do not encode the base.
 
 ## Design Systems from DESIGN.md
 
-When the user asks for a design system from a `DESIGN.md` (or a brand spec), with or without a preset, follow [design-system.md](./design-system.md) end to end:
+When the user asks for a design system from a `DESIGN.md` (or a brand spec), with or without a preset, follow all of [design-system.md](./design-system.md):
 
-1. `init --preset <code> --template <vite|next> --name <app> --no-monorepo -y`. Without a preset code, pick the closest style and pass `--base base --preset <style>`. Then `add --all -y`.
-2. Read the DESIGN.md frontmatter, Do's and Don'ts, and Known Gaps before editing.
-3. Map its tokens onto the shadcn variables in `tailwindCssFile`. Pin the radius scale, shadows, fonts and `type-*` utilities.
-4. Restyle components by editing their `cva` variants. Change control heights together.
-5. Build the design system page per [design-system-page.md](./design-system-page.md): contrast-checked color roles, type specimens, pinned state matrices, edge cases, do/don't pairs, recipes. Check coverage with `scripts/showcase-coverage.mjs`.
-6. Verify in a browser: typecheck, no console errors, loads at the top, no horizontal overflow, dark mode.
+1. Run `init --preset <code> --template <vite|next> --name <app> --no-monorepo -y`. Without a preset code, select the closest style and pass `--base base --preset <style>`. Then run `add --all -y`.
+2. Before you edit, read the DESIGN.md frontmatter, Do's and Don'ts, and Known Gaps.
+3. Map its tokens to the shadcn variables in `tailwindCssFile`. Pin the radius scale, shadows, fonts, and `type-*` utilities.
+4. Restyle the components through their `cva` variants. Change the control heights together.
+5. Build the design system page as [design-system-page.md](./design-system-page.md) specifies: contrast-checked color roles, type specimens, pinned state matrices, edge cases, do/don't pairs, and recipes. Check the coverage with `scripts/showcase-coverage.mjs`.
+6. Verify in a browser: typecheck, no console errors, the page loads at the top, no horizontal overflow, and dark mode works.
 
 ## Updating Components
 
-When the user asks to update a component from upstream while keeping their local changes, use `--dry-run` and `--diff` to intelligently merge. **NEVER fetch raw files from GitHub manually — always use the CLI.**
+When the user asks to update a component from upstream and keep their local changes, use `--dry-run` and `--diff` to merge. **NEVER fetch raw files from GitHub manually. Always use the CLI.**
 
-1. Run `npx shadcn@latest add <component> --dry-run` to see all files that would be affected.
-2. For each file, run `npx shadcn@latest add <component> --diff <file>` to see what changed upstream vs local.
-3. Decide per file based on the diff:
-   - No local changes → safe to overwrite.
-   - Has local changes → read the local file, analyze the diff, and apply upstream updates while preserving local modifications.
-   - User says "just update everything" → use `--overwrite`, but confirm first.
-4. **Never use `--overwrite` without the user's explicit approval.**
+Warning: **Never use `--overwrite` without the explicit approval of the user.**
+
+1. Run `npx shadcn@latest add <component> --dry-run` to see all files that the update changes.
+2. For each file, run `npx shadcn@latest add <component> --diff <file>` to compare upstream and local.
+3. Decide for each file from the diff:
+   - No local changes → you can overwrite safely.
+   - Local changes → read the local file, analyze the diff, and apply the upstream updates. Keep the local changes.
+   - The user says "just update everything" → use `--overwrite`, but confirm with the user first.
 
 ## Quick Reference
 
@@ -279,7 +285,7 @@ npx shadcn@latest view owner/repo/item
 
 **Named presets:** `nova`, `vega`, `maia`, `lyra`, `mira`, `luma`
 **Templates:** `next`, `vite`, `start`, `react-router`, `astro` (all support `--monorepo`) and `laravel` (not supported for monorepo)
-**Preset codes:** Version-prefixed base62 strings (e.g. `a2r6bw` or `b0`), from [ui.shadcn.com](https://ui.shadcn.com).
+**Preset codes:** Version-prefixed base62 strings (for example, `a2r6bw` or `b0`), from [ui.shadcn.com](https://ui.shadcn.com).
 
 ## Detailed References
 

@@ -1,29 +1,27 @@
 ---
 name: show-me-your-work
-description: "Keep a reviewable decision trail for long-running or unattended work: a TSV log with one row per decision (what, why, evidence, result). Local by default; commit it when a reviewer needs the trail to trust the result. Use for /show-me-your-work, autonomous or multi-phase runs, or work a human reviews after stepping away."
+description: "Keep a decision trail that a reviewer can check for long or unattended work: a TSV log with one row for each decision (what, why, evidence, result). Local by default. Use for /show-me-your-work, autonomous or multi-phase runs, or work that a human reviews later."
 disable-model-invocation: true
 ---
 
 # Show me your work
 
-In Claude Code, read [the Claude Code adapter](../../docs/harness/claude-code.md) once per session before you follow this skill. It maps the Cursor names in pstack skills to Claude Code.
-
 Keep one canonical log.
 
 ## The format
 
-A single TSV file, one row per decision. Cells stay single-line. Evidence is a pointer, not prose.
+The log is one TSV file, with one row for each decision. Each cell is one line. Evidence is a pointer, not prose.
 
-Copy `references/decision-log-template.tsv` (the header row) to start a clean log. Columns:
+To start a clean log, copy `references/decision-log-template.tsv` (the header row). Columns:
 
 - **ts.** ISO8601 timestamp.
-- **phase.** The phase or workstream.
-- **decision.** What was chosen or done, one line.
-- **why.** The reason in plain words. If a principle drove it, say it plainly, not as a jargon tag.
-- **evidence.** A link or path that proves it: commit SHA, PR number, `file:line`, or an artifact, trace, or screenshot path. Never a paragraph.
-- **result.** The outcome or predicate state: `tests green`, `reverted`, `pixel-diff 0`, `INCONCLUSIVE`, `open`.
+- **phase.** The phase or the workstream.
+- **decision.** What you chose or did, in one line.
+- **why.** The reason in plain words. If a principle caused the decision, say it plainly, not as a jargon tag.
+- **evidence.** A link or a path that proves it: a commit SHA, a PR number, `file:line`, or the path of an artifact, a trace, or a screenshot. Never a paragraph.
+- **result.** The outcome or the predicate state: `tests green`, `reverted`, `pixel-diff 0`, `INCONCLUSIVE`, `open`.
 
-An example, plain-spoken so a reviewer reads it at a glance.
+An example, in plain words, so that a reviewer can read it quickly:
 
 ```
 ts	phase	decision	why	evidence	result
@@ -33,52 +31,74 @@ ts	phase	decision	why	evidence	result
 2026-05-24T12:30:00Z	widget	threw out a helper's work because its screenshots were blank	checked the real files instead of trusting its summary	worktree reset	reverted, tightened the instructions for next time
 ```
 
-## Logging a row
+## Log a row
 
-Write each entry the way you'd tell a teammate what you did. Plain words, concrete actions, no AI speak or abstract jargon (the **unslop** skill applies to log text too).
+Write each entry as you tell a teammate what you did. Use plain words and concrete actions. Do not use AI phrasing or abstract jargon (the **unslop** skill applies to the log text too).
 
-Use the helper `scripts/log.sh <logfile> <phase> <decision> <why> <evidence> <result>`. It stamps `ts`, writes the header on first use, strips stray tabs/newlines, and prefixes any cell starting with `=`, `+`, `-`, or `@` with a single quote. A bare `printf` appending a row works too, but mind those same bytes if cells come from generated or user-supplied text.
+Use the helper `scripts/log.sh <logfile> <phase> <decision> <why> <evidence> <result>`. It:
 
-Log decision points and checkpoints, not every action: a fork chosen, a unit completed with its verification result, a pivot or revert with its trigger, a blocker surfaced, a gate fixed. For loop runs, one row per iteration. Skip the trivial and self-evident.
+- writes `ts`,
+- writes the header on the first use,
+- removes tabs and newlines from the cells,
+- puts a single quote before each cell that starts with `=`, `+`, `-`, or `@`.
 
-A run is one agent conversation, including its later turns and any summary of it. A pickup, a replacement agent, or a new chat starts a new run. When a run adds to a log that already has rows, its first row has phase `start`, and so does its first row after another run's `start` row. So a run that comes back to a log in a later turn first reads the log's last rows to see whether another run wrote since. A `start` row names the `ts` range of the rows before it that this run did not write, and its evidence names this run, such as its agent id. Use phase `start` for nothing else.
+A plain `printf` that appends a row also works. But if the cells come from generated text or text from users, you must handle the same characters.
 
-## Where it lives
+Log decision points and checkpoints, not each action. Examples: a fork that you chose, a unit that you completed with its verification result, a pivot or a revert with its cause, a blocker that you found, a gate that you fixed. For loop runs, write one row for each iteration. Do not log trivial or obvious items.
 
-By default the log is a working artifact, not committed. Keep it at `decisions.tsv` in the work dir, or `.audit/<task-slug>.tsv` when several efforts run at once, and leave it out of git.
+A run is one agent conversation, with its later turns and any summary of it. A pickup, a replacement agent, or a new chat starts a new run.
 
-Commit it only when the work is ambitious enough that a reviewer needs the trail to trust the result.
+- When a run adds to a log that already has rows, its first row has phase `start`.
+- Its first row after a `start` row of a different run also has phase `start`.
+- So when a run comes back to a log in a later turn, it first reads the last rows of the log, to find out whether a different run wrote since.
+- A `start` row names the `ts` range of the earlier rows that this run did not write. Its evidence names this run, such as its agent id or session id.
+- Use phase `start` for nothing else.
+
+## Where the log is
+
+By default, the log is a working artifact. Do not commit it. Keep it at `decisions.tsv` in the work directory, or at `.audit/<task-slug>.tsv` when many efforts run at the same time. Keep it out of git.
+
+Commit it only when the work is so large that a reviewer needs the trail to trust the result.
 
 ## Rules
 
-- Append-only. A wrong call gets a new row that supersedes it. Never edit or delete history.
-- Prefer evidence produced by committed scripts over hand-made one-offs (the **encode-lessons-in-structure** principle skill).
+- Only append. To correct a wrong decision, add a new row that replaces it. Never edit or delete history.
+- Prefer evidence from committed scripts to evidence from one-time manual steps (the **encode-lessons-in-structure** principle skill).
 
 ## Audit the log against the transcript
 
-At the end of the run, before handing back, check the log told the truth. Read this run's transcript under the active workspace's `agent-transcripts/` directory (the system prompt names the path). Don't glob across `~/.cursor/projects/*/`. That reads unrelated private chats. Walk this run's rows against what actually happened. Each stretch of them begins at one of this run's `start` rows, or at the first row if this run created the log, and ends at the next `start` row of another run:
+At the end of the run, before you give the work back, make sure that the log tells the truth. Read the transcript of this run:
 
-- Check that every row maps to a real decision or action.
-- Check that each row's evidence resolves and shows what the row claims.
-- A fork, pivot, or abandoned approach that shaped the work but isn't logged is a gap. Add it.
+- Claude Code: `~/.claude/projects/<slug>/<session>.jsonl`. The slug is the workspace path with each `/` and `.` changed to `-`. The newest `.jsonl` directly in that folder is the current session.
+- Codex: the newest session file under `~/.codex/sessions/` for this workspace.
 
-Correct the log, not the story. The audit never edits or removes a row, even an invented one. When a row records neither a real decision nor a real action, or its claim or evidence is wrong, add a row that supersedes it with what actually happened and a pointer that resolves. This audit does not check rows outside this run's stretches. If this run's own work shows one of them is wrong, supersede it like any wrong call.
+Read only the transcripts of this workspace. Do not glob across all projects, because that reads unrelated private chats.
 
-## Cross-model review of the trail
+Compare the rows of this run with what actually happened. Each stretch of rows starts at one of this run's `start` rows, or at the first row if this run created the log. It ends at the next `start` row of a different run.
 
-Before handing back, spawn a subagent on a different model family from the one that did the work. Self-review is not a substitute. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky. Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section of the **poteto-mode** skill.
+- Make sure that each row maps to a real decision or action.
+- Make sure that the evidence of each row resolves and shows what the row says.
+- A fork, a pivot, or an abandoned approach that shaped the work but is not in the log is a gap. Add it.
 
-- Decisions logged with weak or absent evidence.
-- Verification steps skipped or claimed without proof in the transcript.
-- Choices that look risky in hindsight (premature, scope-creeping, papering over a symptom).
-- Gaps the user would otherwise miss on a casual skim.
+Correct the log, not the story. The audit never edits or removes a row, also an invented row. When a row records no real decision and no real action, or its claim or evidence is wrong, add a row that replaces it. The new row tells what actually happened and has a pointer that resolves. This audit does not check rows outside the stretches of this run. If the work of this run shows that one of those rows is wrong, replace it as you replace any wrong decision.
 
-Every reply for a run that produced a trail ends with an "Attention" section. Lead with the reviewer's model on its own line (`reviewed by <model>`), then list each flag pointing to specific rows or moments. "No flags" is a valid value. The model name is not.
+## Review of the trail by a different model
 
-## Reviewing the trail
+Before you give the work back, spawn a subagent on a model that is different from the model that did the work. Self-review is not a replacement. If the subagent tool cannot choose a model (for example in Codex), spawn a fresh subagent on the parent model, and say in the Attention section that the review used the same model. The subagent reads the audit trail and the transcript of the run. Then it flags what the user must look at. It does not do the work again. It looks for what is not optimal or has risk:
 
-Read top to bottom, follow the evidence pointers, spot-check. GitHub renders a committed TSV as a table. `column -s$'\t' -t decisions.tsv` renders it in a terminal.
+- Decisions logged with weak evidence or no evidence.
+- Verification steps that were skipped, or that the run said it did without proof in the transcript.
+- Choices that look risky now (premature, scope creep, a fix for a symptom only).
+- Gaps that the user can miss on a fast read.
 
-## Composing this skill
+Pick each subagent's reasoning effort for the job, per the Subagents section of the **poteto-mode** skill.
 
-Other skills route their audit trail here instead of inventing one. Reference it by name and let it own the format. Don't restate the columns.
+Each reply for a run that made a trail ends with an "Attention" section. Put the model of the reviewer first, on its own line (`reviewed by <model>`). Then list each flag, with a pointer to specific rows or moments. "No flags" is a valid value. The model name is not.
+
+## Review the trail
+
+Read from top to bottom. Follow the evidence pointers, and do spot checks. GitHub shows a committed TSV as a table. `column -s$'\t' -t decisions.tsv` shows it as a table in a terminal.
+
+## Use this skill from other skills
+
+Other skills send their audit trail to this skill. They do not make a different one. Refer to this skill by name and let it own the format. Do not repeat the columns.

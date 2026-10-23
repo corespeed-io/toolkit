@@ -1,13 +1,15 @@
 ---
 name: agents-sdk
-description: Build, debug, or review Cloudflare Agents SDK applications using the agents package.
+description: Build, debug, or review Cloudflare Agents SDK applications that use the agents package (Agent class, AIChatAgent, state, scheduling, MCP servers, email, workflows).
 ---
 
 # Cloudflare Agents SDK
 
-Your knowledge of the Agents SDK may be outdated. **Prefer retrieval over pre-training** for any Agents SDK task.
+Your knowledge of the Agents SDK can be old. **Use retrieval, not pre-training,** for all Agents SDK tasks.
 
-## Retrieval Sources
+For CLI commands (development, deployment, secrets, type generation), load the `cf-cli` skill. It tells you when to use `cf` and when Wrangler is still necessary.
+
+## Retrieval sources
 
 Cloudflare docs: https://developers.cloudflare.com/agents/index.md
 
@@ -49,34 +51,34 @@ Cloudflare docs: https://developers.cloudflare.com/agents/index.md
 
 ## Capabilities
 
-The Agents SDK provides:
+The Agents SDK gives these capabilities:
 
-- **Persistent state** — SQLite-backed, auto-synced to clients via `setState`
-- **Callable RPC** — `@callable()` methods invoked over WebSocket
-- **Scheduling** — One-time, recurring (`scheduleEvery`), and cron tasks
-- **Workflows** — Durable multi-step background processing via `AgentWorkflow`
-- **Durable execution** — `runFiber()` / `stash()` for work that survives DO eviction
-- **Queue** — Built-in FIFO queue with retries via `queue()`
-- **Retries** — `this.retry()` with exponential backoff and jitter
-- **MCP integration** — Connect to MCP servers or build your own with `createMcpHandler`
-- **Email handling** — Receive and reply to emails with secure routing
-- **Streaming chat** — `AIChatAgent` with resumable streams, message persistence, tools
-- **Server-driven messages** — `saveMessages`, `waitUntilStable` for proactive agent turns
-- **React hooks** — `useAgent`, `useAgentChat` for client apps
-- **Observability** — `diagnostics_channel` events for state, RPC, schedule, lifecycle
-- **Push notifications** — Web Push + VAPID delivery from agents
-- **Webhooks** — Receive and verify external webhooks
-- **Voice** (experimental) — STT/TTS via `@cloudflare/voice`
-- **Browser tools** (experimental) — CDP-powered browsing via `agents/browser`
-- **Think** (experimental) — Higher-level chat agent via `@cloudflare/think`
+- **Persistent state** — SQLite stores the state. `setState` syncs it to clients automatically.
+- **Callable RPC** — Clients call `@callable()` methods over WebSocket.
+- **Scheduling** — One-time, recurring (`scheduleEvery`), and cron tasks.
+- **Workflows** — Durable multi-step background processing with `AgentWorkflow`.
+- **Durable execution** — `runFiber()` / `stash()` for work that continues after DO eviction.
+- **Queue** — Built-in FIFO queue with retries through `queue()`.
+- **Retries** — `this.retry()` with exponential backoff and jitter.
+- **MCP integration** — Connect to MCP servers, or build an MCP server with `createMcpHandler`.
+- **Email handling** — Receive and reply to emails with secure routing.
+- **Streaming chat** — `AIChatAgent` with resumable streams, message persistence, and tools.
+- **Server-driven messages** — `saveMessages` and `waitUntilStable` for agent turns that the server starts.
+- **React hooks** — `useAgent` and `useAgentChat` for client apps.
+- **Observability** — `diagnostics_channel` events for state, RPC, schedule, and lifecycle.
+- **Push notifications** — Web Push + VAPID delivery from agents.
+- **Webhooks** — Receive and verify external webhooks.
+- **Voice** (experimental) — STT/TTS through `@cloudflare/voice`.
+- **Browser tools** (experimental) — CDP browsing through `agents/browser`.
+- **Think** (experimental) — Higher-level chat agent through `@cloudflare/think`.
 
-## FIRST: Verify Installation
+## First: verify the installation
 
 ```bash
 npm ls agents  # Should show agents package
 ```
 
-If not installed:
+If the package is not installed:
 ```bash
 npm install agents
 ```
@@ -86,7 +88,9 @@ For chat agents:
 npm install agents @cloudflare/ai-chat ai @ai-sdk/react
 ```
 
-## Wrangler Configuration
+## Wrangler configuration
+
+This example uses Wrangler configuration. In a `cf` project (`cloudflare.config.ts`), find the equivalent fields in the [Wrangler to cf reference](https://developers.cloudflare.com/cf/wrangler/reference/index.md).
 
 ```jsonc
 {
@@ -99,12 +103,12 @@ npm install agents @cloudflare/ai-chat ai @ai-sdk/react
 ```
 
 **Gotchas:**
-- Do NOT enable `experimentalDecorators` in tsconfig (breaks `@callable`)
-- Never edit old migrations — always add new tags
-- Each agent class needs its own DO binding + migration entry
-- Add `"ai": { "binding": "AI" }` for Workers AI
+- Do not enable `experimentalDecorators` in tsconfig. It breaks `@callable`.
+- Do not edit old migrations. Always add new tags.
+- Each agent class must have its own DO binding and migration entry.
+- For Workers AI, add `"ai": { "binding": "AI" }`.
 
-## Agent Class
+## Agent class
 
 ```typescript
 import { Agent, routeAgentRequest, callable } from "agents";
@@ -136,7 +140,7 @@ export default {
 
 ## Routing
 
-Requests route to `/agents/{agent-name}/{instance-name}`:
+The SDK sends requests to `/agents/{agent-name}/{instance-name}`:
 
 | Class | URL |
 |-------|-----|
@@ -145,7 +149,7 @@ Requests route to `/agents/{agent-name}/{instance-name}`:
 
 Client: `useAgent({ agent: "Counter", name: "user-123" })`
 
-Custom routing: use `getAgentByName(env.MyAgent, "instance-id")` then `agent.fetch(request)`.
+Custom routing: use `getAgentByName(env.MyAgent, "instance-id")`, then `agent.fetch(request)`.
 
 ## Core APIs
 
@@ -166,9 +170,9 @@ Custom routing: use `getAgentByName(env.MyAgent, "instance-id")` then `agent.fet
 | Broadcast to clients | `this.broadcast(message)` |
 | Get connections | `this.getConnections(tag?)` |
 
-## React Client
+## React client
 
-Read [client-sdk.md](references/client-sdk.md) for client selection and current connection examples. For chat UI and tools, also read [streaming-chat.md](references/streaming-chat.md).
+To choose a client and to see current connection examples, read [client-sdk.md](references/client-sdk.md). For chat UI and tools, also read [streaming-chat.md](references/streaming-chat.md).
 
 ## References
 

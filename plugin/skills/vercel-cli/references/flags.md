@@ -47,4 +47,4 @@ vercel flags open [flag]          # open the dashboard
 
 ## Flags SDK Skill
 
-Everything flags-specific lives in the `flags-sdk` skill (`npx skills add vercel/flags@flags-sdk`): declaring flags with `flag()` and `vercelAdapter`, matching a CLI flag key to the `key` in code, `identify()` entities and the `--by` / `--condition` attribute contract, adopting a flag that already exists (`inspect` first), lifecycle and production safety, `FLAGS` / `FLAGS_SECRET`, `prepare`, and `override`. Use that skill for those topics; this reference does not repeat them.
+Everything flags-specific lives in the upstream `flags-sdk` skill, which is not installed here (use the Flags SDK docs at https://flags-sdk.dev instead): declaring flags with `flag()` and `vercelAdapter`, matching a CLI flag key to the `key` in code, `identify()` entities and the `--by` / `--condition` attribute contract, adopting a flag that already exists (`inspect` first), lifecycle and production safety, `FLAGS` / `FLAGS_SECRET`, `prepare`, and `override`. Use those docs for these topics; this reference does not repeat them.

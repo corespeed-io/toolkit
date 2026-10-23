@@ -1,38 +1,43 @@
 ---
 name: how
-description: "Use for \"how does X work\", code walkthroughs before changing something, and placement / ownership / layering questions (\"where should this live\", \"which package owns this\", \"is this the right layer\"). Explains subsystem architecture, runtime flow, onboarding mental models. Use why for motivation."
+description: "Explains how code works: \"how does X work\", code walkthroughs before a change, and placement, ownership, or layering questions (\"where should this live\", \"which package owns this\", \"is this the right layer\"). Use why for motivation."
 disable-model-invocation: true
 ---
 
 # How
 
-In Claude Code, read [the Claude Code adapter](../../docs/harness/claude-code.md) once per session before you follow this skill. It maps the Cursor names in pstack skills to Claude Code.
+Explore the codebase to answer "how does X work?" questions. Write architecture explanations at the level of a senior engineer who joins a subsystem. Give enough to build a working mental model. Do not write so much that it reads like annotated source code.
 
-Explore the codebase to answer "how does X work?" questions. Produce architectural explanations at the level of a senior engineer onboarding onto a subsystem, enough to build a working mental model, not so much that it reads like annotated source code.
+Each spawn is a general-purpose subagent (Claude Code: `subagent_type: "general-purpose"`; Codex: the default subagent). Tell each subagent that it must not edit files. After the subagents finish, run `git status` to make sure that they did not edit files.
 
-Every spawn is a Task subagent with `subagent_type: generalPurpose` and `readonly: true`. Explorers use the `how explorer` line in the `pstack-models.mdc` rule (default `grok-4.7-xhigh-fast`), and every explainer uses the `how explainer` line (default `claude-opus-5-5-xhigh`). Set `model` to that line's value, or to the default if the rule or the line is missing. Leave `model` unset when the value is `auto` or `inherit-parent`. If the Task tool rejects a slug, use the default and say so. If it rejects the default, use the closest valid slug of the same family from its error message. Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section of the **poteto-mode** skill.
+Models:
 
-## 1. Assess complexity
+- Explorers use the `how explorer` line in `~/.claude/rules/pstack-models.md` (default `inherit-parent`).
+- Each explainer uses the `how explainer` line (default `opus xhigh`).
+- If the file or the line does not exist, use the default.
+- Set the model and the effort per the Subagents section of the **poteto-mode** skill. That section also tells what to do for `auto`, `inherit-parent`, a tool with no model choice, and a rejected value.
 
-If the scope is ambiguous, state your interpretation and explore. The user can redirect.
+## 1. Assess the complexity
 
-- **Simple** (a single module, a small utility, a narrow question such as "how does function X work"): no explorers. Spawn one explainer that explores and explains in one pass, built from `references/explainer-prompt.md` without the explorer-findings section. Go to step 4.
-- **Complex** (a subsystem spanning multiple files or services, a cross-cutting feature, a full architectural overview): go to step 2.
+If the scope is not clear, state your interpretation and explore. The user can redirect you.
 
-When in doubt, take the simple path.
+- **Simple** (one module, a small utility, or a narrow question such as "how does function X work"): no explorers. Spawn one explainer that explores and explains in one pass. Build its prompt from `references/explainer-prompt.md` without the explorer-findings section. Go to step 4.
+- **Complex** (a subsystem across many files or services, a cross-cutting feature, or a full architecture overview): go to step 2.
+
+If you are not sure, use the simple path.
 
 ## 2. Explore (complex only)
 
-Decompose the question into 2 to 4 angles, each a distinct slice of the subsystem. Spawn all explorers in a single message, each with `references/explorer-prompt.md` and its angle filled in.
+Divide the question into 2 to 4 angles. Each angle is a different slice of the subsystem. Spawn all explorers in one message. Give each one `references/explorer-prompt.md` with its angle filled in.
 
 ## 3. Synthesize (complex only)
 
-Once all explorers have returned, spawn one explainer with `references/explainer-prompt.md` and every explorer's findings filled in.
+When all explorers have returned, spawn one explainer with `references/explainer-prompt.md` and the findings of each explorer filled in.
 
 ## 4. Present
 
-Present the explainer's output. Light edits for clarity or context from the conversation are fine. Do not substantially rewrite it.
+Present the output of the explainer. You can make light edits for clarity or for context from the conversation. Do not rewrite it much.
 
 ## Output format
 
-The explanation uses the sections defined in `references/explainer-prompt.md`, dropping any that do not apply: Overview, Key Concepts, How It Works, Where Things Live, Gotchas.
+The explanation uses the sections in `references/explainer-prompt.md`: Overview, Key Concepts, How It Works, Where Things Live, Gotchas. Remove a section that does not apply.

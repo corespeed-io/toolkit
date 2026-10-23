@@ -1,13 +1,14 @@
 ---
 name: principle-type-system-discipline
-description: "Apply when designing types, reviewing a function signature, or writing code in any statically-typed language. Make illegal states unrepresentable, brand semantic primitives, parse external data at boundaries, exhaust variants, derive from authoritative schemas."
+description: "Use when you design types, review a function signature, or write code in a statically typed language. Make illegal states unrepresentable, brand primitives, parse external data at boundaries."
 disable-model-invocation: true
 ---
 
 # Type System Discipline
 
-Make the compiler reject impossible states, mismatched primitives, and unhandled variants. Prefer defining errors and special cases out of existence over proliferating handlers. For TypeScript syntax, see the `typescript-best-practices` skill.
+Make the compiler reject impossible states, mismatched primitives, and unhandled variants. Define errors and special cases out of existence. Do not add more and more handlers. For TypeScript syntax, see the `typescript-best-practices` skill.
 
-- **Brand semantic primitives.** `UserId` and `OrderId` are strings underneath but should not be interchangeable. Give each its own type, such as a branded intersection in TypeScript or a newtype elsewhere. Validate once at creation, trust the type downstream. If two arguments share a primitive type but mean different things, brand them.
-- **External data is untyped until parsed.** RPC payloads, JSON, IPC messages, CLI args, config files, environment variables, database rows. Have a parse function at every boundary that turns unstructured input into the typed model. The **boundary-discipline** principle skill says where to put validation.
-- **Derive types from authoritative schemas.** When a protocol buffer, OpenAPI spec, GraphQL schema, database migration, design-token file, or another file owns a shape, derive from it instead of hand-rolling a parallel type. See the **encode-lessons-in-structure** principle skill.
+- **Brand semantic primitives.** `UserId` and `OrderId` are strings, but you must not use one in place of the other. Give each its own type, for example a branded intersection in TypeScript or a newtype in other languages. Validate one time at creation, and trust the type after that. If two arguments have the same primitive type but different meanings, brand them.
+- **External data has no type until you parse it.** This includes RPC payloads, JSON, IPC messages, CLI arguments, config files, environment variables, and database rows. Put a parse function at each boundary. It changes unstructured input into the typed model. The **principle-boundary-discipline** skill tells where to put validation.
+- **Derive types from authoritative schemas.** When a file owns a shape, derive the type from it. Do not write a parallel type by hand. Examples of such files are a protocol buffer, an OpenAPI spec, a GraphQL schema, a database migration, or a design-token file. See the **principle-encode-lessons-in-structure** skill.
+- **Exhaust variants.** Handle each variant of a union, and make the compiler report a variant that the code does not handle.

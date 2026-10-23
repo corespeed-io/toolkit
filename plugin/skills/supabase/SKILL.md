@@ -1,6 +1,6 @@
 ---
 name: supabase
-description: "Use when doing ANY task involving Supabase. Triggers: Supabase products (Database, Auth, Edge Functions, Realtime, Storage, Vectors, Cron, Queues); client libraries and SSR integrations (supabase-js, @supabase/ssr) in Next.js, React, SvelteKit, Astro, Remix; auth issues (login, logout, sessions, JWT, cookies, getSession, getUser, getClaims, RLS); Supabase CLI or MCP server; schema changes, migrations, declarative schemas, security audits, Postgres extensions (pg_graphql, pg_cron, pg_vector); debugging and troubleshooting errors or unexpected behavior on Supabase projects (HTTP errors, Postgres errors, RLS surprises, permission denied, schema cache issues, timeouts, Edge Function crashes, Realtime drops, Storage failures) and reading or querying logs (Logs Explorer, ClickHouse)."
+description: "Use for all Supabase tasks: Database, Auth, Edge Functions, Realtime, Storage, Vectors, Cron, Queues, supabase-js, @supabase/ssr, RLS, JWT and session issues, Supabase CLI or MCP, migrations, extensions, and debugging Supabase errors or logs."
 metadata:
   author: supabase
   version: "0.1.2"
@@ -8,76 +8,110 @@ metadata:
 
 # Supabase
 
-## Core Principles
+## Core principles
 
-**1. Supabase changes frequently — verify against changelog and current docs before implementing.**
-Do not rely on training data for Supabase features. Function signatures, config.toml settings, and API conventions change between versions.
+**1. Supabase changes frequently. Verify against the changelog and the current docs before you make a change.**
 
-First, fetch `https://supabase.com/changelog.md` (a lightweight summary index — not a heavy pull), scan for `breaking-change` tags relevant to your task, and follow the linked page for any that apply. Then look up the relevant topic using the documentation access methods below.
+Do not use training data for Supabase features. Function signatures, config.toml settings, and API conventions change between versions.
+
+1. Get `https://supabase.com/changelog.md`. It is a small summary index.
+2. Find the `breaking-change` tags that apply to your task. Follow the linked page for each one.
+3. Find the applicable topic with the documentation methods below.
 
 **2. Verify your work.**
-After implementing any fix, run a test query to confirm the change works. A fix without verification is incomplete.
 
-**3. Recover from errors, don't loop.**
-If an approach fails after 2-3 attempts, stop and reconsider. Try a different method, check documentation, inspect the error more carefully, and review relevant logs when available. Supabase issues are not always solved by retrying the same command, and the answer is not always in the logs, but logs are often worth checking before proceeding.
+After you make a fix, run a test query to make sure that the change works. A fix without verification is not complete.
 
-**4. Exposing tables to the Data API:** Depending on the user's [Data API settings](https://supabase.com/dashboard/project/<ref>/integrations/data_api/settings), newly created tables may not be automatically exposed via the Data (REST) API. If this is the case, `anon` and `authenticated` roles will need to be explicitly granted access.
+**3. Recover from errors. Do not loop.**
 
-> Note that this is separate from RLS, which controls which _rows_ are visible once a table is accessible, not whether the table is accessible at all.
+If an approach fails after 2-3 attempts, stop and think again. Then do one or more of these:
 
-When a user reports a SQL-created table is unexpectedly inaccessible, check their Data API settings and whether the roles have been granted access via explicit `GRANT` SQL. When granting public (`anon`/`authenticated`) access, always enable RLS too. See [Exposing a Table to the Data API](https://supabase.com/docs/guides/api/securing-your-api.md) for the full setup workflow.
+- Try a different method.
+- Read the documentation.
+- Examine the error more carefully.
+- Examine the applicable logs, if they are available.
+
+Retrying the same command does not always solve a Supabase problem. The logs do not always contain the answer, but examine them before you continue.
+
+**4. Exposing tables to the Data API.**
+
+The [Data API settings](https://supabase.com/dashboard/project/<ref>/integrations/data_api/settings) of the user control this. Possibly the Data (REST) API does not expose new tables automatically. In that case, you must grant access to the `anon` and `authenticated` roles explicitly.
+
+> This is different from RLS. RLS controls which _rows_ are visible when a table is accessible. It does not control whether the table is accessible.
+
+When a user reports that a table made with SQL is not accessible:
+
+1. Examine the Data API settings.
+2. Examine whether an explicit `GRANT` gives the roles access.
+3. When you grant public (`anon`/`authenticated`) access, always enable RLS too.
+
+For the full setup procedure, refer to [Exposing a Table to the Data API](https://supabase.com/docs/guides/api/securing-your-api.md).
 
 **5. RLS in exposed schemas.**
-Enable RLS on every table in any exposed schema, which includes `public` by default. This is critical in Supabase because tables in exposed schemas can be reachable through the Data API when the `anon`/`authenticated` roles have access (see [Exposing a Table to the Data API](https://supabase.com/docs/guides/api/securing-your-api.md)). For private schemas, prefer RLS as defense in depth. After enabling RLS, create policies that match the actual access model rather than defaulting every table to the same `auth.uid()` pattern.
+
+- Enable RLS on each table in each exposed schema. `public` is an exposed schema by default.
+- This is critical in Supabase. When the `anon`/`authenticated` roles have access, the Data API can reach tables in exposed schemas (refer to [Exposing a Table to the Data API](https://supabase.com/docs/guides/api/securing-your-api.md)).
+- For private schemas, use RLS as defense in depth.
+- After you enable RLS, make policies that agree with the real access model. Do not give all tables the same `auth.uid()` pattern by default.
 
 **6. Security checklist.**
-When working on any Supabase task that touches auth, RLS, views, storage, or user data, run through this checklist. These are Supabase-specific security traps that silently create vulnerabilities:
+
+Use this checklist for all Supabase tasks that touch auth, RLS, views, storage, or user data. These Supabase traps make vulnerabilities and do not show an error:
 
 - **Auth and session security**
-  - **Never use `user_metadata` claims in JWT-based authorization decisions.** In Supabase, `raw_user_meta_data` is user-editable and can appear in `auth.jwt()`, so it is unsafe for RLS policies or any other authorization logic. Store authorization data in `raw_app_meta_data` / `app_metadata` instead.
-  - **Deleting a user does not invalidate existing access tokens.** Sign out or revoke sessions first, keep JWT expiry short for sensitive apps, and for strict guarantees validate `session_id` against `auth.sessions` on sensitive operations.
-  - **If you use `app_metadata` or `auth.jwt()` for authorization, remember JWT claims are not always fresh until the user's token is refreshed.**
+  - **Do not use `user_metadata` claims for JWT authorization decisions.** In Supabase, the user can edit `raw_user_meta_data`, and it can be in `auth.jwt()`. Thus, it is not safe for RLS policies or other authorization logic. Store authorization data in `raw_app_meta_data` / `app_metadata`.
+  - **When you delete a user, the existing access tokens stay valid.**
+    - Sign out or revoke sessions first.
+    - For sensitive apps, keep the JWT expiry short.
+    - For strict guarantees, validate `session_id` against `auth.sessions` on sensitive operations.
+  - **If you use `app_metadata` or `auth.jwt()` for authorization, JWT claims can be old until the token of the user refreshes.**
 
 - **API key and client exposure**
-  - **Never expose the `service_role` or secret key in public clients.** Prefer publishable keys for frontend code. Legacy `anon` keys are only for compatibility. In Next.js, any `NEXT_PUBLIC_` env var is sent to the browser.
-  - **Use scoped personal access tokens for the Management API, CLI, and MCP server.** A classic personal access token carries the user's full account access, on every organization and project. For scripts, CI, and agents, have the user create a scoped token limited to the organizations, projects, and permissions the task needs. The [personal access tokens guide](https://supabase.com/docs/guides/platform/personal-access-tokens.md) lists the permission each Management API endpoint and MCP tool requires. Look permissions up there rather than guessing.
+  - **Do not put the `service_role` or secret key in public clients.** Use publishable keys for frontend code. Legacy `anon` keys are only for compatibility. In Next.js, the browser gets all `NEXT_PUBLIC_` env vars.
+  - **Use scoped personal access tokens for the Management API, CLI, and MCP server.**
+    - A classic personal access token has full access to the account of the user, on all organizations and projects.
+    - For scripts, CI, and agents, the user must make a scoped token. Limit it to the organizations, projects, and permissions that the task needs.
+    - The [personal access tokens guide](https://supabase.com/docs/guides/platform/personal-access-tokens.md) lists the permission that each Management API endpoint and MCP tool needs. Find the permissions there. Do not guess.
 
 - **RLS, views, and privileged database code**
-  - **Views bypass RLS by default.** In Postgres 15 and above, use `CREATE VIEW ... WITH (security_invoker = true)`. In older versions of Postgres, protect your views by revoking access from the `anon` and `authenticated` roles, or by putting them in an unexposed schema.
-  - **UPDATE requires a SELECT policy.** In Postgres RLS, an UPDATE needs to first SELECT the row. Without a SELECT policy, updates silently return 0 rows — no error, just no change.
-  - **`auth.role()` is deprecated — use the `TO` clause instead.** Supabase has deprecated `auth.role()` in favour of specifying the target role directly on the policy with `TO authenticated` or `TO anon`. Beyond deprecation, `auth.role() = 'authenticated'` breaks silently when anonymous sign-ins are enabled, because anonymous users carry the `authenticated` Postgres role and pass the check regardless of whether the user is genuinely signed in.
+  - **By default, views bypass RLS.** In Postgres 15 and higher, use `CREATE VIEW ... WITH (security_invoker = true)`. In older versions of Postgres, revoke access from the `anon` and `authenticated` roles, or put the views in a schema that is not exposed.
+  - **UPDATE needs a SELECT policy.** In Postgres RLS, an UPDATE must first SELECT the row. Without a SELECT policy, updates return 0 rows. You get no error and no change.
+  - **`auth.role()` is deprecated. Use the `TO` clause.** Supabase replaced `auth.role()` with `TO authenticated` or `TO anon` on the policy. Also, `auth.role() = 'authenticated'` fails silently when anonymous sign-ins are enabled. Anonymous users have the `authenticated` Postgres role, so they pass the check also when they did not sign in.
     ```sql
     -- Deprecated (do not use)
     create policy "example" on table_name for select
     using ( auth.role() = 'authenticated' );
     ```
-  - **`TO authenticated` alone is authentication without authorization (BOLA / IDOR).** Using `TO authenticated` only checks the role — it does not restrict which rows a user can access. The correct pattern combines `TO authenticated` with an ownership predicate in `USING`:
+  - **`TO authenticated` alone gives authentication without authorization (BOLA / IDOR).** `TO authenticated` only examines the role. It does not limit the rows that a user can access. Use `TO authenticated` together with an ownership predicate in `USING`:
     ```sql
     create policy "example" on table_name for select
     to authenticated
     using ( (select auth.uid()) = user_id );
     ```
-  - **UPDATE policies require both `USING` and `WITH CHECK`.** Without `WITH CHECK`, a user can reassign a row's `user_id` to another user:
+  - **UPDATE policies need `USING` and `WITH CHECK`.** Without `WITH CHECK`, a user can change the `user_id` of a row to a different user:
     ```sql
     create policy "example" on table_name for update
     to authenticated
     using ( (select auth.uid()) = user_id )
     with check ( (select auth.uid()) = user_id );
     ```
-  - **`SECURITY DEFINER` functions bypass RLS.** A `SECURITY DEFINER` function runs with its creator's privileges — typically a role with `bypassrls` (e.g., `postgres`). Never add `SECURITY DEFINER` to resolve a permission error; it silently removes access control without fixing the underlying cause. Prefer `SECURITY INVOKER`.
-  - **`SECURITY DEFINER` functions in `public` are callable by all roles.** Postgres grants `EXECUTE` to `PUBLIC` by default for every new function, so any `SECURITY DEFINER` function in `public` is a public API endpoint callable by `anon` and `authenticated` (which inherit from `PUBLIC`) without any additional grant. When `SECURITY DEFINER` is genuinely needed (e.g., bypassing RLS on an internal lookup table), keep the function in a non-exposed schema, always include an `auth.uid()` check in the function body, and run `supabase db advisors` after making changes.
+  - **`SECURITY DEFINER` functions bypass RLS.** A `SECURITY DEFINER` function runs with the privileges of its creator. That is usually a role with `bypassrls` (for example, `postgres`). Do not add `SECURITY DEFINER` to solve a permission error. It removes access control silently and does not fix the cause. Use `SECURITY INVOKER`.
+  - **All roles can call `SECURITY DEFINER` functions in `public`.** By default, Postgres grants `EXECUTE` to `PUBLIC` for each new function. Thus, a `SECURITY DEFINER` function in `public` is a public API endpoint. `anon` and `authenticated` inherit from `PUBLIC`, so they can call it without an additional grant. When you must use `SECURITY DEFINER` (for example, to bypass RLS on an internal lookup table):
+    - Keep the function in a schema that is not exposed.
+    - Always put an `auth.uid()` check in the function body.
+    - Run `supabase db advisors` after the change.
 
 - **Storage access control**
-  - **Storage upsert requires INSERT + SELECT + UPDATE.** Granting only INSERT allows new uploads but file replacement (upsert) silently fails. You need all three.
+  - **Storage upsert needs INSERT + SELECT + UPDATE.** With only INSERT, new uploads work, but file replacement (upsert) fails silently. You must grant all three.
 
 - **Dependency and supply-chain security**
-  - **Always pin package versions and commit lockfiles** when installing Supabase packages (`supabase-js`, `@supabase/ssr`, `supabase-py`, etc.). See the [npm security guide](https://supabase.com/docs/guides/security/npm-security.md) for the full checklist.
+  - **Always pin package versions and commit lockfiles** when you install Supabase packages (`supabase-js`, `@supabase/ssr`, `supabase-py`, and others). For the full checklist, refer to the [npm security guide](https://supabase.com/docs/guides/security/npm-security.md).
 
-For any security concern not covered above, fetch the Supabase product security index: `https://supabase.com/docs/guides/security/product-security.md`
+For a security concern that is not in this list, get the Supabase product security index: `https://supabase.com/docs/guides/security/product-security.md`
 
 ## Supabase CLI
 
-Always discover commands via `--help` — never guess. The CLI structure changes between versions.
+Always find commands with `--help`. Do not guess. The CLI structure changes between versions.
 
 ```bash
 supabase --help                    # All top-level commands
@@ -85,71 +119,86 @@ supabase <group> --help            # Subcommands (e.g., supabase db --help)
 supabase <group> <command> --help  # Flags for a specific command
 ```
 
-**Supabase CLI Known gotchas:**
+**Known Supabase CLI gotchas:**
 
-- `supabase db query` requires **CLI v2.79.0+** → use MCP `execute_sql` or `psql` as fallback
-- `supabase db advisors` requires **CLI v2.81.3+** → use MCP `get_advisors` as fallback
-- The browser flow of `supabase login` creates a classic token with full account access. In CI, set `SUPABASE_ACCESS_TOKEN` to a scoped personal access token instead. It takes precedence over any saved login. Commands that connect with the database password (`--password` or `SUPABASE_DB_PASSWORD`, for example `supabase db push`) aren't limited by the token's permissions.
-- In imperative migration projects, create new hand-authored migration files with `supabase migration new <name>` first. Never invent a migration filename or rely on memory for the expected format. Declarative schema projects generate migrations from `supabase/schemas/`; see "Making and Committing Schema Changes" below.
+- `supabase db query` needs **CLI v2.79.0+**. As an alternative, use MCP `execute_sql` or `psql`.
+- `supabase db advisors` needs **CLI v2.81.3+**. As an alternative, use MCP `get_advisors`.
+- The browser flow of `supabase login` makes a classic token with full account access. In CI, set `SUPABASE_ACCESS_TOKEN` to a scoped personal access token. It has priority over a saved login. The token permissions do not limit commands that connect with the database password (`--password` or `SUPABASE_DB_PASSWORD`, for example `supabase db push`).
+- In imperative migration projects, make each new hand-written migration file with `supabase migration new <name>` first. Do not invent a migration filename. Do not use memory for the expected format. Declarative schema projects generate migrations from `supabase/schemas/`. Refer to "Making and committing schema changes" below.
 
-**Version check and upgrade:** Run `supabase --version` to check. For CLI changelogs and version-specific features, consult the [CLI documentation](https://supabase.com/docs/reference/cli/introduction) or [GitHub releases](https://github.com/supabase/cli/releases).
+**Version check and upgrade:** To examine the version, run `supabase --version`. For CLI changelogs and features of each version, refer to the [CLI documentation](https://supabase.com/docs/reference/cli/introduction) or [GitHub releases](https://github.com/supabase/cli/releases).
 
-## Supabase MCP Server
+## Supabase MCP server
 
-For setup instructions, server URL, and configuration, see the [MCP setup guide](https://supabase.com/docs/guides/getting-started/mcp).
+For setup instructions, the server URL, and configuration, refer to the [MCP setup guide](https://supabase.com/docs/guides/getting-started/mcp).
 
-**Troubleshooting connection issues** — follow these steps in order:
+**Troubleshoot connection problems.** Do these steps in sequence:
 
-1. **Check if the server is reachable:**
+1. **Examine whether the server is reachable:**
    `curl -so /dev/null -w "%{http_code}" https://mcp.supabase.com/mcp`
-   A `401` is expected (no token) and means the server is up. Timeout or "connection refused" means it may be down.
+   A `401` is expected (no token). It means that the server is up. A timeout or "connection refused" means that the server can be down.
 
-2. **Check `.mcp.json` configuration:**
-   Verify the project root has a valid `.mcp.json` with the correct server URL. If missing, create one pointing to `https://mcp.supabase.com/mcp`.
+2. **Examine the MCP configuration of the tool:**
+   - Claude Code: a project `.mcp.json`.
+   - Codex: the `[mcp_servers]` section of `~/.codex/config.toml` (or the project `.codex/config.toml`).
+
+   Make sure that the configuration has the correct server URL. If the entry is missing, add one that points to `https://mcp.supabase.com/mcp`.
 
 3. **Authenticate the MCP server:**
-   If the server is reachable and `.mcp.json` is correct but tools aren't visible, the user needs to authenticate. The Supabase MCP server uses OAuth 2.1 — tell the user to trigger the auth flow in their agent, complete it in the browser, and reload the session.
-   In CI or other environments where the browser flow can't run, pass a scoped personal access token in the `Authorization: Bearer` header instead.
+   If the server is reachable and the configuration is correct, but you cannot see the tools, the user must authenticate. The Supabase MCP server uses OAuth 2.1. Tell the user to start the auth flow in their agent, complete it in the browser, and reload the session.
+   In CI or other environments where the browser flow cannot run, send a scoped personal access token in the `Authorization: Bearer` header.
 
-4. **Check scoped token permissions:**
-   If a tool fails with "You do not have permission to perform this action" while using a scoped personal access token, the token lacks that tool's permission or the project is outside the token's scope. Check the tool's required permission in the [personal access tokens guide](https://supabase.com/docs/guides/platform/personal-access-tokens.md#mcp-tools).
+4. **Examine the scoped token permissions:**
+   A tool can fail with "You do not have permission to perform this action" while you use a scoped personal access token. This means that the token does not have the permission for that tool, or the project is outside the token scope. Find the permission that the tool needs in the [personal access tokens guide](https://supabase.com/docs/guides/platform/personal-access-tokens.md#mcp-tools).
 
-## Supabase Documentation
+## Supabase documentation
 
-Before implementing any Supabase feature, find the relevant documentation. Use these methods in priority order:
+Before you make a Supabase feature, find the applicable documentation. Use these methods in this sequence of priority:
 
-1. **MCP `search_docs` tool** (preferred — returns relevant snippets directly)
-2. **Fetch docs pages as markdown** — any docs page can be fetched by appending `.md` to the URL path.
-3. **Web search** for Supabase-specific topics when you don't know which page to look at.
+1. **MCP `search_docs` tool.** This is the best method. It gives applicable snippets directly.
+2. **Get docs pages as markdown.** To get a docs page as markdown, add `.md` to the URL path.
+3. **Web search** for Supabase topics when you do not know which page to read.
 
-## Making and Committing Schema Changes
+## Making and committing schema changes
 
-First decide which schema workflow the project uses.
+First, find which schema workflow the project uses.
 
 ### Option A: Declarative schemas
 
-Use this when `supabase/schemas/` exists or `config.toml` sets `schema_paths`. Edit the desired schema state in those files, then generate and review the migration. Do not start by hand-writing a migration. See the [Declarative database schemas guide](https://supabase.com/docs/guides/local-development/declarative-database-schemas).
+Use this option when `supabase/schemas/` exists or `config.toml` sets `schema_paths`.
+
+1. Edit the desired schema state in those files.
+2. Generate the migration and review it.
+
+Do not start with a hand-written migration. Refer to the [Declarative database schemas guide](https://supabase.com/docs/guides/local-development/declarative-database-schemas).
 
 ### Option B: Imperative migrations
 
-Use this when the project does not use declarative schemas.
+Use this option when the project does not use declarative schemas.
 
-**To make schema changes, use `execute_sql` (MCP) or `supabase db query` (CLI).** These run SQL directly on the database without creating migration history entries, so you can iterate freely and generate a clean migration when ready.
+**To make schema changes, use `execute_sql` (MCP) or `supabase db query` (CLI).** These run SQL directly on the database and do not make migration history entries. Thus, you can change the SQL many times and then generate a clean migration.
 
-Do NOT use `apply_migration` to change a local database schema — it writes a migration history entry on every call, which means you can't iterate, and `supabase db diff` / `supabase db pull` will produce empty or conflicting diffs. If you use it, you'll be stuck with whatever SQL you passed on the first try.
+Do not use `apply_migration` to change a local database schema. Each call writes a migration history entry. Thus, you cannot change the SQL again, and `supabase db diff` / `supabase db pull` give empty or conflicting diffs. If you use it, you must keep the SQL of the first call.
 
-**When ready to commit** your changes to a migration file:
+**When you are ready to put the changes in a migration file:**
 
-1. **Run advisors** → `supabase db advisors` (CLI v2.81.3+) or MCP `get_advisors`. Fix any issues.
-2. **Review the Security Checklist above** if your changes involve views, functions, triggers, or storage.
-3. **Generate the migration** → `supabase db pull <descriptive-name> --local --yes`
-4. **Verify** → `supabase migration list --local`
+1. **Run advisors:** `supabase db advisors` (CLI v2.81.3+) or MCP `get_advisors`. Fix all issues.
+2. **Review the security checklist above** if the changes have views, functions, triggers, or storage.
+3. **Generate the migration:** `supabase db pull <descriptive-name> --local --yes`
+4. **Verify:** `supabase migration list --local`
 
 ## Debugging
 
-When you get an error on a Supabase-related request, for example an error code from the Supabase REST API, Postgres database, or PostgREST, an empty result, getting blocked by RLS unexpectedly, or an error from a Supabase service like Auth, Realtime, Edge Functions, or Storage, you **must** fetch Supabase's [Monitoring and Debugging](https://supabase.com/docs/guides/monitoring-and-debugging.md) documentation before diagnosing or proposing a fix, rather than working from memory. The same docs also cover performance optimizations, such as slow queries and missing indexes.
+You can get an error on a Supabase request. Examples:
 
-## Reference Guides
+- An error code from the Supabase REST API, the Postgres database, or PostgREST.
+- An empty result.
+- RLS blocks a request and you do not expect it.
+- An error from a Supabase service: Auth, Realtime, Edge Functions, or Storage.
+
+Before you diagnose or propose a fix, you **must** get the Supabase [Monitoring and Debugging](https://supabase.com/docs/guides/monitoring-and-debugging.md) documentation. Do not work from memory. These docs also cover performance problems, such as slow queries and missing indexes.
+
+## Reference guides
 
 - **Skill Feedback** → [references/skill-feedback.md](references/skill-feedback.md)
-  **MUST read when** the user reports that this skill gave incorrect guidance or is missing information.
+  You **must** read it when the user reports that this skill gave incorrect guidance or does not have necessary information.

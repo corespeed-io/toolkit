@@ -1,106 +1,134 @@
 ---
 name: automate-me
-description: "Use for \"automate me\", \"create/update/refresh my -mode skill\", \"turn/capture my preferences or working style into a skill\", or wanting agents to follow how the user works. Drafts or revises a personal -mode skill via create-skill + unslop, optionally pulling fresh evidence from recent transcripts."
+description: "Use for \"automate me\", \"create/update/refresh my -mode skill\", or to capture the user's preferences or working style in a skill. Writes or revises a personal -mode skill with skill-creator and unslop, and can mine recent transcripts for evidence."
 disable-model-invocation: true
 ---
 
 # Automate me
 
-In Claude Code, read [the Claude Code adapter](../../docs/harness/claude-code.md) once per session before you follow this skill. It maps the Cursor names in pstack skills to Claude Code.
+This skill is a guided flow. It changes the working conventions of the user into a skill that agents follow. The output is one `-mode` skill for the user (for example, `jay-mode` or `priya-mode`).
 
-A guided flow for turning the user's working conventions into a skill agents will follow. The output is one `-mode` skill tailored to them (e.g. `jay-mode`, `priya-mode`).
+This skill puts three other parts in sequence. It does not replace them:
 
-This skill orchestrates three others: an inline mining pass (see step 1), Cursor's built-in `create-skill` (authoring), and the **unslop** skill (prose discipline). It sequences them. It doesn't replace them.
+- A mining pass, in this skill (step 1).
+- The **skill-creator** skill, for authoring.
+- The **unslop** skill, for prose discipline.
 
 ## Flow
 
-### 0. Check for an existing skill
+### 0. Look for an existing skill
 
-Look recursively for `.cursor/skills/**/*-mode/SKILL.md` and `~/.cursor/skills/*-mode/SKILL.md` matching the user's handle. Mode skills can live in a personal category directory (`.cursor/skills/<handle>/`), not only at the top level. If one exists, confirm intent with `AskQuestion` (unless they already said "update my skill" or similar):
+Look recursively for a `*-mode/SKILL.md` that matches the handle of the user. Look in these locations:
 
-- Update the existing skill (default for repeat runs)
-- Start fresh (rare, ask why before doing it)
+- Project skills: `.claude/skills/**/` (Claude Code) and `.agents/skills/**/` (Codex).
+- Personal skills: `~/.claude/skills/` (Claude Code) and `~/.codex/skills/` or `~/.agents/skills/` (Codex).
+- Plugin skills that the user maintains, if the user names a plugin repo.
 
-Update mode changes the rest of the flow:
-- Step 1 mines only history since the skill was last edited (`git log -1 --format=%cI <path>`).
-- Step 2 asks what's changed or missing, not what to capture from zero.
-- Step 4 edits the existing file in place. Preserve sections the user hasn't contradicted. Revise ones with new evidence. Add new sections only for genuinely new rules.
+A mode skill can be in a personal category directory (for example, `.claude/skills/<handle>/`), not only at the top level.
 
-### 1. Mine their history
+If a mode skill exists, ask the user which action to do. Do not ask if the user already said "update my skill" or a similar phrase. The options are:
 
-Locate the active workspace's transcripts before fanning out. The system prompt names the workspace's `agent-transcripts/` directory. Use only that path. Don't glob across `~/.cursor/projects/*/`. That crosses workspace boundaries and reads private chats from unrelated projects.
+- Update the existing skill. This is the default for a repeat run.
+- Start a new skill. This is rare. Ask why before you do it.
 
-Survey recent agent conversations within that scope for recurring patterns. Run multiple parallel subagents across slices of history (e.g. last 2-4 weeks, split into 3 slices so each has enough material). Pick each subagent's reasoning level and fast or standard speed for the job, per the Subagents section of the **poteto-mode** skill. Each slice mining subagent reads transcripts from the workspace-scoped path the parent provides, looks for the signals below, and returns a short structured list of patterns it saw with evidence pointers. Default signals worth hunting:
+Update mode changes the remaining steps:
+
+- Step 1 mines only the history after the last edit of the skill (`git log -1 --format=%cI <path>`).
+- Step 2 asks what changed or what is missing. It does not ask what to capture from zero.
+- Step 4 edits the existing file in place. Keep the sections that the user did not contradict. Revise the sections that have new evidence. Add a new section only for a rule that is really new.
+
+### 1. Mine the history of the user
+
+Find the transcripts of the active workspace before you start subagents. Read only the transcripts of this workspace:
+
+- Claude Code: `~/.claude/projects/<slug>/*.jsonl`. `<slug>` is the workspace path with each "/" changed to "-".
+- Codex: `~/.codex/sessions/**/rollout-*.jsonl`. Use only the files whose session metadata `cwd` is this workspace.
+
+Do not read transcripts of other workspaces. They are private chats from projects that are not related.
+
+Look for patterns that occur again and again in recent agent conversations in that scope. Do these steps:
+
+1. Divide the history into slices. For example, divide the last 2–4 weeks into 3 slices, so that each slice has sufficient material.
+2. Give each slice to one mining subagent, in parallel, if the tool has subagents. If it does not, mine each slice yourself.
+3. Give each subagent the workspace transcript path. The subagent looks for the signals below. It returns a short structured list of patterns, with a pointer to the evidence for each.
+
+Look for these default signals:
 
 - Response preferences (length, tone, format, "dumb it down" corrections)
-- Delegation habits (subagents, models, specialized workflows, parallelism)
-- Verification posture (what "done" means, unit tests vs live repro, reviewers)
-- Code and prose discipline (style, principles cited, lint/format tools)
-- Process conventions (worktrees, commits, PRs, review/merge tooling)
-- Meta preferences (fixing skills mid-task, proposing new ones)
+- Delegation habits (subagents, models, special workflows, parallel work)
+- Verification posture (what "done" means, unit tests or live repro, reviewers)
+- Code and prose discipline (style, principles that the user cites, lint and format tools)
+- Process conventions (worktrees, commits, PRs, review and merge tools)
+- Meta preferences (fixing skills during a task, proposing new skills)
 
-Cross-check across slices before elevating a signal. Patterns seen in 2+ slices are high-confidence. Lone signals are weak and usually get dropped.
+Compare the slices before you accept a signal. A pattern that occurs in 2 or more slices has high confidence. A signal that occurs in only one slice is weak. Usually, drop it.
 
 ### 2. Ask the user directly
 
-Mining misses intent that hasn't come up yet. Use the `AskQuestion` tool (structured multi-choice) rather than asking the user to type from scratch.
+Mining does not find intent that did not come up yet. Ask the user multiple-choice questions. Use a structured question tool if the tool has one (Claude Code: `AskUserQuestion`). Otherwise, ask in chat with numbered options.
 
-Shape: one or two questions with 4-6 options each, `allow_multiple: true` for category questions. Start broad ("Which areas matter most?"), then follow up on selected areas with specific options. After the structured rounds, one free-form chat question catches anything the options missed.
+Use this shape:
 
-Don't dump 20 questions.
+1. Ask one or two questions with 4–6 options each. Let the user select more than one option for a category question.
+2. Start with a broad question ("Which areas are most important?").
+3. Ask about the selected areas with specific options.
+4. After the structured rounds, ask one free-form question in chat. This finds the items that the options did not include.
 
-### 3. Cluster findings
+Do not ask 20 questions.
 
-Group the combined signals into sections. Common ones (use only what applies):
+### 3. Put the findings into groups
+
+Put the combined signals into sections. Use only the sections that apply. These are the usual sections:
 
 - **Response style**: length, tone, format.
 - **Autonomy**: how much to do without asking, MCP tool use.
-- **Understand first**: which skills to reach for when scoping or investigating a change.
-- **Subagents**: default, parallelism, model-to-task, specialized workflows.
+- **Understand first**: which skills to use when you scope or investigate a change.
+- **Subagents**: default, parallel work, which model for which task, special workflows.
 - **Prose / code discipline**: principles, lint tools, style guides.
 - **Review and verify**: repro posture, verification skills, live-testing tools.
-- **Process**: git worktrees, commits, PRs, review/merge tooling.
+- **Process**: git worktrees, commits, PRs, review and merge tools.
 - **Skills**: skill-authoring habits, fix-the-skill-first, proposing new skills.
 
-The **poteto-mode** skill shows the shape. Read it for granularity. Don't copy its content. The user's rules are not the same as poteto-mode's.
+The **poteto-mode** skill shows the shape. Read it to see the level of detail. Do not copy its content. The rules of the user are not the same as the rules of poteto-mode.
 
-### 4. Draft the skill
+### 4. Write the skill
 
-Use Cursor's built-in `create-skill` skill to author the skill. Placement:
+Use the **skill-creator** skill to write the skill. Use these rules:
 
-- Path: preserve an existing mode skill's category. For a new mode, use `.cursor/skills/<handle>/<handle>-mode/SKILL.md` when the repo has an established personal category for that handle. Otherwise default to `.cursor/skills/<handle>-mode/SKILL.md` in the project (or `~/.cursor/skills/<handle>-mode/` if the user prefers a personal skill).
-- Handle: the user's first name or chosen identifier.
-- Frontmatter `description`: trigger on their name + `/<handle>-mode` + "work in their style", not on generic keywords like "write code" or "review PR".
-- Frontmatter formatting: follow `create-skill`'s YAML rules. Keep `description` as one YAML scalar. Quote it or use `description: >-` with indented continuation lines when punctuation or wrapping requires it.
-- Frontmatter `disable-model-invocation: true` by default. Opt out only if the user explicitly wants their mode to apply on every turn.
+- Path: keep the category of an existing mode skill. For a new mode skill, use `<skills-dir>/<handle>/<handle>-mode/SKILL.md` if the repo has a personal category for that handle. Otherwise, use `<skills-dir>/<handle>-mode/SKILL.md` in the project. `<skills-dir>` is `.claude/skills` (Claude Code) or `.agents/skills` (Codex). If the user prefers a personal skill, use the personal skills directory from step 0.
+- Handle: the first name of the user, or the identifier that the user chooses.
+- Frontmatter `description`: trigger on the name of the user, `/<handle>-mode`, and "work in their style". Do not trigger on general keywords such as "write code" or "review PR".
+- Frontmatter format: follow the YAML rules of `skill-creator`. Keep `description` as one YAML scalar. Put it in quotes, or use `description: >-` with indented continuation lines, if punctuation or line wrap makes this necessary.
+- Frontmatter `disable-model-invocation: true` is the default. Remove it only if the user explicitly wants the mode to apply on each turn. Claude Code uses this key. Codex ignores it.
 
-### 5. Iterate on prose
+### 5. Improve the prose
 
-Apply the **unslop** skill and `create-skill`'s writing guidelines to every line.
+Apply the **unslop** skill and the writing guidelines of `skill-creator` to each line.
 
-Show the draft to the user and take feedback. Expect multiple iterations. Cut ruthlessly. A mode skill is not a manual.
+Show the draft to the user and get feedback. Expect more than one iteration. Remove all text that is not necessary. A mode skill is not a manual.
 
-### 6. Land it
+### 6. Commit it
 
-Work in a worktree off main. Commit and open a PR. Don't push to main directly.
+1. If you are on `main` or `master`, make a branch or a worktree first.
+2. Commit the skill in a small commit.
+3. Do not push, and do not open a PR, unless the user tells you to.
 
 ## Guardrails
 
-- **Don't overfit to one conversation.** A preference stated once and contradicted another time is noise. Require multiple instances before codifying it.
-- **Don't be clever.** Restating other skills' contents, inventing metaphors, or writing "poetic" prose for an agent reader is cost without benefit. Keep it operational.
-- **Reference, don't inline.** Other skills the user relies on should appear as path references, not pasted excerpts. Same for any principle docs they maintain elsewhere.
-- **Keep sections minimal.** Only add a section if the user has a specific, non-default rule there. "Communicate clearly" is not a section. "Short paragraphs. Tables when comparing options. Bullets only when items are genuinely parallel." is.
-- **Name conventions generic.** Use "the user" or "the human" in imperatives, not the author's first name.
-- **Don't force symmetry.** If a user has no process rules worth writing down, skip the Process section entirely.
+- **Do not fit the skill to one conversation.** A preference that the user states one time and contradicts another time is noise. Codify a preference only if it occurs more than one time.
+- **Keep it simple.** Do not restate the content of other skills, invent metaphors, or write "poetic" prose for an agent reader. This adds cost and gives no benefit. Keep it operational.
+- **Refer, do not copy.** Refer to other skills that the user uses by path. Do not paste excerpts. Do the same for principle documents that the user keeps in other locations.
+- **Keep sections to a minimum.** Add a section only if the user has a specific rule there that is not a default. "Communicate clearly" is not a section. "Short paragraphs. Tables when comparing options. Bullets only when items are genuinely parallel." is a section.
+- **Use general names.** In instructions, use "the user" or "the human". Do not use the first name of the author.
+- **Do not force symmetry.** If the user has no process rules to write down, do not include the Process section.
 
 ## Evaluation
 
-A `-mode` skill is subjective output. A `create-skill`-style test/iterate benchmark loop isn't useful here. Vibe-check with the user: does it read like them? Did it miss anything? Then ship.
+A `-mode` skill is subjective output. A test-and-iterate benchmark loop, as in `skill-creator`, does not help here. Check with the user: does it read like the user? Is something missing? Then commit it.
 
-Run a description-optimization loop only if the skill's trigger accuracy turns out to be a problem in practice.
+Run a description-optimization loop only if the trigger accuracy of the skill is a real problem in use.
 
-## When not to use
+## When not to use this skill
 
-- User wants a task-specific skill (not working conventions): `create-skill` alone, no mining required.
-- User wants to capture one narrow workflow (e.g. "how I write commit messages"). That's a regular skill, not a mode skill.
-
+- The user wants a skill for one task, not for working conventions. Use `skill-creator` alone. Mining is not necessary.
+- The user wants to capture one narrow workflow (for example, "how I write commit messages"). That is a usual skill, not a mode skill.

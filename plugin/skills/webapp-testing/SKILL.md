@@ -1,19 +1,19 @@
 ---
 name: webapp-testing
-description: Toolkit for interacting with and testing local web applications using Playwright. Supports verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs.
+description: Test and interact with local web applications through Python Playwright. Use to verify frontend behavior, debug UI problems, capture browser screenshots, and read browser console logs.
 license: Complete terms in LICENSE.txt
 ---
 
 # Web Application Testing
 
-To test local web applications, write native Python Playwright scripts.
+To test a local web application, write native Python Playwright scripts.
 
-**Helper Scripts Available**:
-- `scripts/with_server.py` - Manages server lifecycle (supports multiple servers)
+**Helper scripts**:
+- `scripts/with_server.py` - Starts and stops one or more servers.
 
-**Always run scripts with `--help` first** to see usage. DO NOT read the source until you try running the script first and find that a customized solution is abslutely necessary. These scripts can be very large and thus pollute your context window. They exist to be called directly as black-box scripts rather than ingested into your context window.
+**Always run a script with `--help` first** to see its usage. Do not read the source until you run the script and find that a custom solution is necessary. These scripts can be very large, and their source fills your context window. Call them directly as black-box scripts. Do not read them into your context window.
 
-## Decision Tree: Choosing Your Approach
+## Decision Tree: Choose Your Approach
 
 ```
 User task → Is it static HTML?
@@ -32,16 +32,16 @@ User task → Is it static HTML?
             4. Execute actions with discovered selectors
 ```
 
-## Example: Using with_server.py
+## Example: Use with_server.py
 
-To start a server, run `--help` first, then use the helper:
+To start a server, run `--help` first. Then use the helper.
 
-**Single server:**
+**One server:**
 ```bash
 python scripts/with_server.py --server "npm run dev" --port 5173 -- python your_automation.py
 ```
 
-**Multiple servers (e.g., backend + frontend):**
+**More than one server (for example, backend and frontend):**
 ```bash
 python scripts/with_server.py \
   --server "cd backend && python server.py" --port 3000 \
@@ -49,7 +49,7 @@ python scripts/with_server.py \
   -- python your_automation.py
 ```
 
-To create an automation script, include only Playwright logic (servers are managed automatically):
+An automation script must contain only Playwright logic. The helper starts and stops the servers.
 ```python
 from playwright.sync_api import sync_playwright
 
@@ -64,33 +64,33 @@ with sync_playwright() as p:
 
 ## Reconnaissance-Then-Action Pattern
 
-1. **Inspect rendered DOM**:
+1. **Inspect the rendered DOM**:
    ```python
    page.screenshot(path='/tmp/inspect.png', full_page=True)
    content = page.content()
    page.locator('button').all()
    ```
 
-2. **Identify selectors** from inspection results
+2. **Identify the selectors** from the inspection results.
 
-3. **Execute actions** using discovered selectors
+3. **Do the actions** with the selectors that you found.
 
-## Common Pitfall
+## Common Error
 
-❌ **Don't** inspect the DOM before waiting for `networkidle` on dynamic apps
-✅ **Do** wait for `page.wait_for_load_state('networkidle')` before inspection
+❌ **Do not** inspect the DOM of a dynamic app before it reaches `networkidle`.
+✅ **Do** call `page.wait_for_load_state('networkidle')` before you inspect.
 
 ## Best Practices
 
-- **Use bundled scripts as black boxes** - To accomplish a task, consider whether one of the scripts available in `scripts/` can help. These scripts handle common, complex workflows reliably without cluttering the context window. Use `--help` to see usage, then invoke directly. 
-- Use `sync_playwright()` for synchronous scripts
-- Always close the browser when done
-- Use descriptive selectors: `text=`, `role=`, CSS selectors, or IDs
-- Add appropriate waits: `page.wait_for_selector()` or `page.wait_for_timeout()`
+- **Use the bundled scripts as black boxes.** For each task, check if a script in `scripts/` can do it. These scripts do common, complex workflows reliably and keep the context window small. Use `--help` to see the usage, then run the script directly.
+- Use `sync_playwright()` for synchronous scripts.
+- Always close the browser when you are done.
+- Use descriptive selectors: `text=`, `role=`, CSS selectors, or IDs.
+- Add the necessary waits: `page.wait_for_selector()` or `page.wait_for_timeout()`.
 
 ## Reference Files
 
-- **examples/** - Examples showing common patterns:
-  - `element_discovery.py` - Discovering buttons, links, and inputs on a page
-  - `static_html_automation.py` - Using file:// URLs for local HTML
-  - `console_logging.py` - Capturing console logs during automation
+- **examples/** - Examples of common patterns:
+  - `element_discovery.py` - Find the buttons, links, and inputs on a page.
+  - `static_html_automation.py` - Use file:// URLs for local HTML.
+  - `console_logging.py` - Capture console logs during automation.

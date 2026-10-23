@@ -1,71 +1,131 @@
 ---
 name: frontend-design
-description: Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.
+description: Make distinctive, deliberate visual design when you build a new UI or change an existing one. Use for aesthetic direction, typography, palette, layout, and UI copy that must not look like a template default.
 license: Complete terms in LICENSE.txt
 ---
 
 # Frontend Design
 
-Approach this as the design lead at a design studio known for giving every client a distinct visual identity that is not mistaken for anyone else's. This client has already rejected proposals that felt cliché or templated, and is paying for a distinctive point of view: make deliberate, opinionated choices about palette, typography, and layout that are specific to this brief, and take aesthetic risk if justified.
+Work as the design lead of a design studio. The studio gives each client a visual identity that is different from all others. This client rejected earlier proposals because they looked cliché or templated. The client pays for a distinctive point of view.
 
-## Ground your designs in the subject matter
+- Make deliberate choices about palette, typography, and layout that are specific to this brief.
+- Take aesthetic risks when the brief justifies them.
 
-If the brief does not identify what the product or subject matter is, identify it yourself before designing, and confirm with the client. You can come up with one concrete subject, the design's audience, and the design's primary job, as a proposal. If there's any information in your memory about the client's preferences or context about what they're building, use that as a hint. The subject's industry, subject matter, materials, and vernacular are where distinctive visual choices come from — a design for a toy for girls aged 8–11 will be very aesthetically different from a dashboard for financial analysts. Build with the brief's real content and subject matter throughout.
+## Use the subject matter as the base of the design
+
+If the brief does not identify the product or the subject matter, identify it yourself before you design.
+
+1. Propose one concrete subject, the audience of the design, and the primary job of the design.
+2. Search Lore (`lore_search`) for the preferences of the client and for context about the product. Use the results as hints.
+3. Tell the user your proposal and continue. Ask only if you cannot identify the subject from the context.
+
+Distinctive visual choices come from the industry, subject matter, materials, and vocabulary of the subject. For example, a design for a toy for girls aged 8–11 looks very different from a dashboard for financial analysts. Use the real content and subject matter of the brief everywhere in the build.
 
 ## Design principles
 
-For web designs, the hero is the first thing viewers will see. Open with the most characteristic thing in the subject's world, in the form that is most appropriate: a headline, an image, an animation, a live demo, an interactive moment, or other treatments. Be deliberate with your choice: a big number with a small label, supporting stats, and a gradient accent is the default treatment, so only use it if that's truly the best option.
+### Hero
 
-Typography carries the personality of the page. You don't need a different typeface for display or headline text and body content: use one family or two, and if two, make them clearly distinct.
+In a web design, the hero is the first thing that viewers see. Start with the most characteristic thing in the world of the subject. Show it in the most applicable form: a headline, an image, an animation, a live demo, an interactive moment, or a different treatment.
 
-Choose your typefaces deliberately, not the default families you would reach for on any other project, and set a clear type scale following the default guidance of The Elements of Typographic Style with intentional weights, widths, and spacing. When type is used as a headline or visual element, use the type treatment itself as an active part of the design, not a neutral delivery vehicle for the content.
+Choose deliberately. A big number with a small label, supporting stats, and a gradient accent is the default treatment. Use it only if it is truly the best option.
 
-Default to line lengths of less than 80 characters. Serif typefaces can have slightly longer line lengths; give serif body text slightly more line-height than a sans-serif.
+### Typography
 
-Avoid these default typographic treatments; they are the commonest tells of a generated page:
-- Accenting just a single word or phrase in a headline, like putting one word in italic/bold or a different color.
-- Using all caps for labels.
-- Adding unnecessary typographic labels above content.
+Typography gives the page its personality.
 
-Visual structure is information. Structural devices like outlines, borders, numbering, eyebrows, dividers, labels, etc., encode useful information about the content rather than decorate it. Many generic designs use numbered markers (01 / 02 / 03), but that's only appropriate if the content actually is a sequence — like a stepped process or a timeline. Before adding numbered markers, check the content really is a sequence.
+- You do not need a different typeface for display or headline text and body content. Use one or two families. If you use two, make them clearly different.
+- Choose the typefaces deliberately. Do not use the default families that you use on all other projects.
+- Set a clear type scale. Follow the default guidance of The Elements of Typographic Style, with intentional weights, widths, and spacing.
+- When type is a headline or a visual element, make the type treatment an active part of the design. Do not use it only as a neutral container for the content.
+- Use line lengths of less than 80 characters by default. Serif typefaces can have slightly longer lines. Give serif body text slightly more line-height than sans-serif body text.
 
-Use non-user-triggered motion sparingly and deliberately, only to draw attention. A single orchestrated moment — one page-load sequence or one reveal — lands better than scattered effects; fade-and-slide-up entrances on each section and hover transitions on every card are the generic default and read as AI-generated. Motion that answers a person's action (opening, expanding, confirming) is welcome when it shows what changed.
+Do not use these default typographic treatments. They are the most frequent signs of a generated page:
 
-Consider written content carefully. Often a design brief may not contain real content, and it's up to you to come up with copy and placeholder content. Copy can make a design feel as templated as the design itself. See the below section on writing for more guidance.
+- Accent on one word or phrase in a headline, for example one word in italic, bold, or a different color.
+- All caps for labels.
+- Unnecessary typographic labels above content.
+
+### Visual structure
+
+Visual structure is information. Structural devices give useful information about the content. They are not decoration. Examples are outlines, borders, numbering, eyebrows, dividers, and labels.
+
+Many generic designs use numbered markers (01 / 02 / 03). These markers are correct only if the content is a sequence, for example a stepped process or a timeline. Before you add numbered markers, make sure that the content is a sequence.
+
+### Motion
+
+- Use motion that the user does not start only a small number of times, and only to get attention.
+- One orchestrated moment, such as one page-load sequence or one reveal, has more effect than many scattered effects.
+- A fade-and-slide-up entrance on each section and a hover transition on each card are generic defaults. Users read them as AI-generated.
+- Motion that answers an action of the user (open, expand, confirm) is good when it shows what changed.
+
+### Written content
+
+Examine the written content carefully. Frequently, a design brief has no real content, and you must write the copy and placeholder content. Copy can make a design look as templated as the visual design can. See the section on writing below.
 
 ## Process: plan, review against the brief, build, critique
 
-For calibration, AI-generated design right now clusters around some traits:
-1. a warm cream background (near #F4F1EA) with a high-contrast serif display and a terracotta or warm-clay accent (often near #D97757 — Anthropic's own Claude-interaction accent, so on a user's brief it reads as a tell);
-2. a near-black background with a single bright acid-green or vermilion accent;
-3. a broadsheet-style layout with hairline rules, zero border-radius, and dense newspaper-like columns;
-4. the SaaS-card kit: content chopped into identical rounded cards, one border-radius on everything regardless of hierarchy, the same soft grey shadow (rgba(0,0,0,.1)) under each, and gradient washes as decoration;
-5. template chrome that appears whatever the subject: a tracked-out ALL-CAPS eyebrow label above every heading; meta strings joined with middle dots ('A · B · C'); labels built as 'WORD — fragment' with a spaced em dash; tinted near-black (#0B0B0B, #111) standing in for black; a monospace face for small data labels; a '→' appended to link and button text.
+### Known defaults
 
-All traits are legitimate for some briefs, but they are defaults rather than choices, and they appear regardless of subject. Where the brief pins down a visual direction, follow it exactly — the brief's own words always win, including when it asks for one of these looks. Where it leaves an axis free, don't spend that freedom on one of these defaults. As with a hired human designer, there's often a careful balance between doing what you're good at and taking each project as a chance to experiment and learn.
+At this time, AI-generated design frequently has these traits:
 
-Work in two passes. First, brainstorm a short design plan based on the client's design brief: create a compact token system with color, type, layout, and principles.
-- Color: describe the core base palette as 4–6 named hex values.
-- Type: the typefaces and their roles.
-- Layout: a layout concept, using one-sentence prose descriptions and ASCII wireframes to ideate and compare. Include alignment guidance; should the content be left aligned, center aligned, justified?
-- Principles: the high-level guidance for what makes this page unique.
+1. A warm cream background (near #F4F1EA) with a high-contrast serif display and a terracotta or warm-clay accent. The accent is frequently near #D97757. This is the accent that Anthropic uses for Claude interactions, so on the brief of a user it is a sign of generated design.
+2. A near-black background with one bright acid-green or vermilion accent.
+3. A broadsheet layout with hairline rules, zero border-radius, and dense columns like a newspaper.
+4. The SaaS-card kit: content cut into identical rounded cards, one border-radius on all elements at all levels of hierarchy, the same soft grey shadow (rgba(0,0,0,.1)) under each card, and gradient washes as decoration.
+5. Template chrome that appears for all subjects:
+   - a tracked-out ALL-CAPS eyebrow label above each heading;
+   - meta strings joined with middle dots ('A · B · C');
+   - labels in the form 'WORD — fragment' with a spaced em dash;
+   - tinted near-black (#0B0B0B, #111) in place of black;
+   - a monospace face for small data labels;
+   - a '→' added to link and button text.
 
-Then review that plan against the brief before building: if any part of it reads like the generic default you would produce for any similar page (work through a similar prompt to see if you arrive somewhere similar) rather than a choice made for this specific brief — revise that part, say what you changed and why. Only after you've confirmed the relative uniqueness of your design plan should you start to write the code, following the revised plan.
+Each trait is correct for some briefs. But they are defaults, not choices, and they appear for all subjects.
 
-When writing the code, be careful of structuring your CSS selector specificities. It's easy to generate CSS classes that cancel each other out (especially with a type-based selector like .section and an element-based selector like .cta). This can happen often with padding/margin between sections.
+- When the brief specifies a visual direction, follow it exactly. The words of the brief always win, also when the brief asks for one of these looks.
+- When the brief leaves an axis free, do not use that freedom on one of these defaults.
+
+A hired human designer must balance two things: use their strengths, and use each project to experiment and learn. The same balance applies to you.
+
+### Pass 1: plan
+
+Write a short design plan from the design brief of the client. Make a compact token system:
+
+- **Color:** the core base palette as 4–6 named hex values.
+- **Type:** the typefaces and their roles.
+- **Layout:** a layout concept. Use one-sentence prose descriptions and ASCII wireframes to make and compare ideas. Include alignment guidance: left aligned, center aligned, or justified.
+- **Principles:** the high-level guidance that makes this page unique.
+
+### Pass 2: review the plan, then build
+
+1. Review the plan against the brief before you build.
+2. Find each part that looks like the generic default that you make for all similar pages. To test this, think through a similar prompt and see if you get a similar result.
+3. Change each such part to a choice for this specific brief. Say what you changed and why.
+4. Write the code only after you confirm that the design plan is sufficiently unique. Follow the revised plan.
+
+Caution: CSS selector specificity can cause classes to cancel each other. This occurs easily with a type-based selector such as `.section` and an element-based selector such as `.cta`. It occurs frequently with padding and margin between sections. Structure the selector specificity carefully.
 
 ## Restraint and self-critique
 
-Spend your boldness in one place. Let one element be the memorable thing, keep everything around it quiet and disciplined, and cut any decoration that does not serve the brief. Build to a quality floor without announcing it: responsive down to mobile, visible keyboard focus, reduced motion respected, visually accessible, harmonious color palettes. Critique your own work as you build, taking screenshots to review if your environment supports it — a picture is worth 1000 tokens. Consider Chanel's advice: before leaving the house, take a look in the mirror and remove one accessory. Human creatives have memory and always try to do something new, so if you have a space to quickly jot down notes about what you've tried, it can help you in future passes.
+- Put your boldness in one place. Make one element the memorable thing. Keep all elements around it quiet and disciplined.
+- Remove each decoration that does not serve the brief.
+- Build to a minimum quality level, and do not announce it:
+  - responsive down to mobile;
+  - visible keyboard focus;
+  - reduced motion respected;
+  - visually accessible;
+  - harmonious color palettes.
+- Critique your work while you build. If your environment can take screenshots, take them and review them. A screenshot gives more information than many tokens of description.
+- Before you finish, remove one decoration. (Coco Chanel gave this advice: before you leave the house, look in the mirror and remove one accessory.)
+- Human designers remember earlier work and try to do something new each time. Save what you tried and what worked with `lore_remember`, so that later passes can use it. Search Lore for these notes before you start.
 
-## More on writing in design
+## Writing in design
 
-Words appear in a design for one reason: to make it easier to understand and use. They are design content, not decoration. Bring the same intentionality and minimalism to copywriting that you would bring to spacing and color. Before writing anything, ask what the design needs to say, and how it can best be said to help the person navigate the experience.
+Words appear in a design for one reason: to make it easier to understand and use. They are design content, not decoration. Write copy with the same intention and minimalism that you use for spacing and color. Before you write, decide what the design must say. Then decide how to say it so that it helps the person use the product.
 
-Write from the end user's perspective. Name things by what users will understand in simple language, not by how the system is built. A user manages notifications, not webhook config. Describe what something is or does in plain terms rather than selling it. Being specific and legible to new users is always better than being clever.
-
-Use active voice as default. A CTA says exactly what happens when it is used: "Save changes," not "Submit." An action keeps the same name through the whole flow, so the button that says "Publish" produces a toast that says "Published." The vocabulary of an interface is the signposting for someone navigating the product. Cohesion and consistency are how people learn their way around.
-
-Treat failure and emptiness as moments for direction, not mood. Explain what went wrong and how to fix it, in the interface's voice rather than a person's. Errors don't apologize, and they are never vague about what happened. An empty screen is an invitation to act.
-
-Keep the tone conversational: plain verbs, sentence case, no filler, with tone matched to the brand and the audience. Let each written element do exactly one job.
+- **Write for the end user.** Name things with simple words that users understand. Do not name things by how the system is built. For example, a user manages notifications, not webhook config.
+- **Describe, do not sell.** Say what something is or does in plain words. Specific words that new users understand are always better than clever words.
+- **Use the active voice by default.** A call to action says exactly what occurs when the user uses it: "Save changes," not "Submit."
+- **Keep names consistent.** An action keeps the same name in the full flow. If the button says "Publish", the toast says "Published." The vocabulary of an interface is how a person finds their way in the product. Cohesion and consistency help people learn the product.
+- **Use failure and empty states to give direction.** Explain what went wrong and how to fix it. Use the voice of the interface, not the voice of a person. Errors do not apologize. Errors always say clearly what occurred. An empty screen tells the user what to do next.
+- **Keep the tone conversational.** Use plain verbs, sentence case, and no filler. Match the tone to the brand and the audience. Give each written element exactly one job.

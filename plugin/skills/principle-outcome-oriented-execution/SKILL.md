@@ -1,21 +1,21 @@
 ---
 name: principle-outcome-oriented-execution
-description: "Apply during planned rewrites and migrations with explicit phase boundaries. Converge on the target architecture; don't preserve smooth intermediate states with throwaway compatibility code."
+description: "Use for planned rewrites and migrations with explicit phase boundaries. Converge on the target architecture. Do not keep smooth intermediate states with throwaway compatibility code."
 disable-model-invocation: true
 ---
 
 # Outcome-Oriented Execution
 
-Optimize for the intended, verifiable end state rather than preserving smooth intermediate states.
+Optimize for the planned end state that you can verify. Do not optimize to keep intermediate states smooth.
 
-**Why:** Keeping every intermediate step fully stable often creates temporary compatibility code that becomes long-lived debt. Converge on the target architecture and prove correctness at explicit verification boundaries.
+**Why:** If you keep each intermediate step fully stable, you often add temporary compatibility code. That code often stays and becomes debt. Converge on the target architecture. Prove correctness at explicit verification boundaries.
 
 **Core rule:**
-- Prioritize end-state integrity over transitional stability
-- Intermediate breakage is acceptable when it is planned, scoped, and reversible
+- The integrity of the end state is more important than stability during the transition.
+- Breakage in an intermediate state is acceptable when it is planned, limited in scope, and reversible.
 
 **Guardrails:**
-- Use this for planned rewrites and migrations with explicit phase boundaries
-- Declare where temporary breakage is acceptable
-- Keep high-signal checks for actively touched areas while migrating
-- Require full static and runtime verification at plan completion
+- Use this principle for planned rewrites and migrations with explicit phase boundaries.
+- Declare where temporary breakage is acceptable.
+- During the migration, keep high-signal checks for the areas that you change.
+- At the end of the plan, do full static and runtime verification.

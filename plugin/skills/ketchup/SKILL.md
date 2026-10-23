@@ -1,43 +1,106 @@
 ---
 name: ketchup
-description: "Catch the user up on what changed in this chat since their last message, in plain words and small visuals. List every item waiting on them with what they need to decide it from the reply alone. Use for /ketchup."
+description: "Tell the user what changed in this chat since their last message, in plain words and small visuals. List each item that waits on the user, with all the facts to decide it from the reply alone. Use for /ketchup."
 disable-model-invocation: true
 ---
 
 # Ketchup
 
-Catch the user up on what changed in this chat since the last message they wrote before `/ketchup`, and help them understand each change, not only where it stands. Then lay out every call waiting on them so they can make it from your reply alone. Notifications and subagent results are not their messages. Assume the user remembers their last message and nothing after it.
+Tell the user what changed in this chat since the last message that the user wrote before `/ketchup`. Help the user understand each change, not only its status. Then show each decision that waits on the user, so that the user can make it from your reply alone.
 
-Use [`/bro`](../bro/SKILL.md)'s voice, not its task: plain words, short sentences, no jargon, like one person catching up another. Say what changed for the user, not how you did it. Say "the tests pass", not "CI is green". Leave out hashes, file paths, commands, build numbers, and test counts unless the user needs one to act. Call each PR, branch, or agent by a name the user would know, not by a label you invented. If a fact needs context to make sense, give the context or leave the fact out.
+- Notifications and subagent results are not messages from the user.
+- Assume that the user remembers their last message and nothing after it.
 
-## Gather what changed
+Use the voice of [`/bro`](../bro/SKILL.md), not its task: plain words, short sentences, no jargon, as one person tells another the news.
 
-Keep this turn read-only. Make visuals only from what you already have: do not change code, start an app or a job, or post anything. Collect your own work since that message, reports from subagents, and messages from anyone else in this chat. Check the current state of each PR, CI run, or agent this chat touched. Check each number you will show against the facts it comes from, and say so when you correct one.
+- Say what changed for the user, not how you did it. Say "the tests pass", not "CI is green".
+- Do not include hashes, file paths, commands, build numbers, and test counts, unless the user needs one to act.
+- Call each PR, branch, or agent by a name that the user knows, not by a label that you invented.
+- If a fact needs context to make sense, give the context or do not include the fact.
 
-An action item is a call or step only the user can take, such as a product choice, an approval, an irreversible action, or access you lack. Include any still waiting on the user, even one raised before their last message. Work you can still do yourself is not an action item. Never make up a call to fill the reply. A step the user did not ask for and the work does not need is not an action item, unless it is irreversible and waiting on the user: give it one line and no visual.
+## Collect what changed
 
-One call can cover many items, such as each PR in a set awaiting merge. For each item, collect its link, what it changes for users, the evidence behind your pick, its risk, and your pick. Write "unknown" for a fact the call needs that you do not know. Leave out a link you do not have.
+Keep this turn read-only. Make visuals only from what you already have. Do not change code, start an app or a job, or post anything.
+
+1. Collect your own work since that message, reports from subagents, and messages from other people in this chat.
+2. Check the current state of each PR, CI run, or agent that this chat touched.
+3. Check each number that you will show against the facts that it comes from. If you correct one, say so.
+
+An action item is a decision or step that only the user can do. Examples are a product choice, an approval, an action that you cannot undo, or access that you do not have.
+
+- Include each action item that still waits on the user, also one from before their last message.
+- Work that you can still do yourself is not an action item.
+- Never invent a decision to fill the reply.
+- A step that the user did not ask for, and that the work does not need, is not an action item. The exception is a step that you cannot undo and that waits on the user. Give it one line and no visual.
+
+One decision can cover many items, for example each PR in a set that waits for merge. For each item, collect these facts:
+
+- its link
+- what it changes for users
+- the evidence for your recommendation
+- its risk
+- your recommendation
+
+Write "unknown" for a fact that the decision needs and that you do not know. Do not include a link that you do not have.
 
 ## Write the reply
 
-Spend words on the calls, not on the story. Keep what happened under 100 words, not counting pictures, and shorter when less happened. Leave out work that changed nothing for the user. Give each item about 30 words. The reply grows with the number of items: two items need well under 150 words in all, not counting pictures, and thirty need far more. Never cut items or shrink them to stay under a word count: no count in place of a list, and no link in place of an item. A link can add depth, but the reply alone must be enough to decide.
+Use words for the decisions, not for the story.
 
-Open with one short sentence that names what waits on the user, or says nothing does. The action items give the detail. If nothing happened and nothing waits on the user, say so and stop.
+- Keep the "what happened" part under 100 words, without pictures. Make it shorter when less happened.
+- Do not include work that changed nothing for the user.
+- Give each item approximately 30 words.
+- The reply gets longer with the number of items. Two items need much less than 150 words in total, without pictures. Thirty items need much more.
+- Never remove items or make them shorter to stay under a word count. Do not give a count instead of a list, or a link instead of an item. A link can add detail, but the reply alone must be sufficient to decide.
 
-Then show what happened, pictures first. Embed inline the screenshots and videos the work produced, then any diagram that explains a change. Then sum up in one short bullet per thing the user asked for: what came of it, and whether it is done, still running, failed, or not checked. Write each line the way you would say it out loud: "Search was slow from a missing index", not "Search review: done" or "Slow search: missing index". Name any bug found and fixed on the way. Each line must stay true when read alone. Never mark something done that still waits on the user, and leave out anything the action items say. Under the summary, give at most three short lines that change what the user knows or must do. Then name in one line any work left that you can do yourself.
+Start with one short sentence. It names what waits on the user, or says that nothing waits. The action items give the detail. If nothing happened and nothing waits on the user, say so and stop.
 
-Then list the action items. Ask the call the user owns, such as merge, approve, or pick, and give your pick. A step you would take first goes in your pick. So does anything that must happen first, and anything that cannot be undone. Give the number or link of each PR, issue, or agent a call is about, also in a call between options.
+Then show what happened. Show pictures first:
 
-Fit the shape to the call. A call about one item is one bullet: the call, your pick, what it changes for users, the evidence behind your pick, and its risk, with the item named once. When items share a call, write the call and your pick once, then give each item its own bullet, riskiest first: its link and name, what it changes for users, the evidence behind your pick, and its risk. Name an item's pick only where it differs from the call's. Give each item's risk even when it is low, such as "Low risk: only the colors change." Say what waiting costs only when it is more than a delay, such as a deadline or lost data.
+1. Put the screenshots and videos that the work made inline in the reply.
+2. Then add each diagram that explains a change.
+3. Then give one short bullet for each thing that the user asked for. Say what the result is, and if it is done, still running, failed, or not checked.
+   - Write each line as you say it aloud: "Search was slow from a missing index", not "Search review: done" or "Slow search: missing index".
+   - Name each bug that you found and fixed during the work.
+   - Each line must be true when a person reads it alone.
+   - Never mark something as done if it still waits on the user.
+   - Do not repeat what the action items say.
+4. Under the summary, give a maximum of three short lines that change what the user knows or must do.
+5. Then, in one line, name the remaining work that you can do yourself.
 
-For a call between options, give every option the work weighed, each with what it gets the user and what it costs, and the current state when there is one. Those costs are the call's risk, so add no separate risk line. When the screenshots above show the options, write each option's gain and cost under its screenshot.
+Then list the action items:
+
+- Ask the decision that the user owns, for example merge, approve, or select. Give your recommendation.
+- A step that you do first goes in your recommendation. So does each thing that must occur first, and each thing that you cannot undo.
+- Give the number or link of each PR, issue, or agent that a decision is about. Do this also in a decision between options.
+
+Make the shape agree with the decision:
+
+- A decision about one item is one bullet. It has the decision, your recommendation, what it changes for users, the evidence for your recommendation, and its risk. Name the item one time.
+- If items share a decision, write the decision and your recommendation one time. Then give each item its own bullet, with the highest risk first. Each bullet has the link and name, what it changes for users, the evidence for your recommendation, and its risk. Name the recommendation for an item only if it is different from the recommendation for the decision.
+- Give the risk of each item, also when it is low. For example: "Low risk: only the colors change."
+- Say what a delay costs only if it is more than a delay, for example a deadline or lost data.
+
+For a decision between options, give each option that the work considered. For each option, say what it gives the user and what it costs, and the current state if there is one. Those costs are the risk of the decision, so do not add a separate risk line. If the screenshots above show the options, write the gain and cost of each option under its screenshot.
 
 ## Visuals
 
-A visual is a picture: a screenshot, a video, a Mermaid diagram, a chart or diagram from `/visualize`, or a generated image. A Markdown table is not a visual, even with before and after columns.
+A visual is a picture: a screenshot, a video, a Mermaid diagram, a chart or diagram from `/visualize` (or a different chart tool, if `/visualize` is not available), or a generated image. A Markdown table is not a visual, also with before and after columns.
 
-When something is easier to grasp as a picture than as sentences, draw it: how a design or system works, a PR stack or dependency chain with each PR's state, a before and after of a fix, or options side by side. Never draw a status list, a list of action items, or boxes with nothing connecting them. Never give a fact twice, in text or across visuals.
+If something is easier to understand as a picture than as sentences, draw it. Examples:
 
-Keep each visual small enough to read at a glance: at most six boxes, with at most eight words in each. Write labels as plain words a person would say, not tags like "Tests: pass". A fact that needs a sentence belongs in the text, or nowhere.
+- how a design or system works
+- a PR stack or dependency chain, with the state of each PR
+- a before and after of a fix
+- options side by side
 
-Embed screenshots and videos inline when the change is visible, not only as links. If a visible change has none, mark its summary line "No screenshot yet," and say there what changed on screen. Draw diagrams and charts from facts you have: a Mermaid diagram for how things connect and a `/visualize` chart for numbers. Never invent a number, and never draw or generate a picture of a screen you did not capture. Link only artifacts that exist.
+Rules for visuals:
+
+- Never draw a status list, a list of action items, or boxes with no connections.
+- Never give a fact two times, in text or in different visuals.
+- Keep each visual small, so that a person can read it immediately: a maximum of six boxes, with a maximum of eight words in each box.
+- Write labels as plain words that a person says, not tags such as "Tests: pass". A fact that needs a sentence goes in the text, or nowhere.
+- Put screenshots and videos inline when the change is visible, not only as links. If a visible change has no screenshot or video, mark its summary line "No screenshot yet," and say there what changed on screen.
+- Draw diagrams and charts from facts that you have. Use a Mermaid diagram for how things connect, and a `/visualize` chart for numbers.
+- Never invent a number. Never draw or generate a picture of a screen that you did not capture.
+- Link only artifacts that exist.

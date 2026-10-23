@@ -1,24 +1,21 @@
 ---
 name: stripe-best-practices
 description: >-
-  Guides Stripe integration decisions across development and test environment
-  planning (separate sandboxes vs the shared test mode sandbox), API selection
-  (Checkout Sessions vs PaymentIntents), Connect platform setup (Accounts v2,
-  controller properties), billing/subscriptions, tax and registrations (Stripe
-  Tax, automatic_tax, product tax codes), Treasury financial accounts,
-  integration options (Checkout, Payment Element), migrating from deprecated
-  Stripe APIs, and security best practices (API key management, API key
-  permissions, webhooks, OAuth). Use when planning, building, modifying,
-  testing, or reviewing any Stripe integration, including choosing a development
-  environment, accepting payments, building marketplaces, integrating Stripe,
-  processing payments, setting up subscriptions, collecting sales tax, VAT, or
-  GST, creating connected accounts, or implementing secure key handling.
-
+  Stripe integration decisions: sandboxes, Checkout Sessions vs PaymentIntents,
+  Connect (Accounts v2), billing and subscriptions, Stripe Tax, Treasury, API
+  key and webhook security. Use when you plan, build, test, review, or migrate
+  a Stripe integration.
 ---
 
-Latest Stripe API version: **2026-09-30.endive**. Always use the latest API version and SDK unless the user specifies otherwise.
+Latest Stripe API version: **2026-09-30.endive**. Always use the latest API version and SDK, unless the user specifies a different version.
 
-Development and testing environment default: For new integration development, use separate [sandboxes](https://docs.stripe.com/sandboxes.md) instead of the account’s shared test mode sandbox. Sandboxes isolate settings and test data from live mode. Use separate sandboxes for local development and CI. When stronger isolation is useful, dedicate sandboxes to development teams or testing scenarios. Use the shared test mode sandbox only for an existing integration that depends on it or when a required feature doesn’t support general sandboxes.
+Default development and test environment:
+
+- For new integration development, use separate [sandboxes](https://docs.stripe.com/sandboxes.md). Do not use the shared test mode sandbox of the account.
+- Sandboxes isolate settings and test data from live mode.
+- Use separate sandboxes for local development and for CI.
+- For stronger isolation, give sandboxes to specific development teams or test scenarios.
+- Use the shared test mode sandbox only in these conditions: an existing integration depends on it, or a necessary feature does not support general sandboxes.
 
 Latest SDK versions:
 
@@ -32,13 +29,17 @@ Latest SDK versions:
 | Go | 87.0.0 |
 | .NET | 53.0.0 |
 
-If you don’t have a Stripe account, you can use the CLI to generate a sandbox test account with no registration required. Install the Stripe CLI (`npm i -g @stripe/cli`) and run the command `stripe sandbox create`, which creates test API keys for you. When you recommend this, explain that [a sandbox is a Stripe test environment](https://docs.stripe.com/sandboxes.md).
+If you do not have a Stripe account, use the CLI to make a sandbox test account. No registration is necessary.
 
-If `stripe sandbox create` is used, don’t use MCP.
+1. Install the Stripe CLI: `npm i -g @stripe/cli`.
+2. Run `stripe sandbox create`. It makes test API keys for you.
+3. Tell the user that [a sandbox is a Stripe test environment](https://docs.stripe.com/sandboxes.md).
 
-If you try to use MCP after running sandbox creation, first make sure `stripe sandbox claim` is run. Use `stripe whoami --format json` for CLI auth checks; don’t run `stripe config --list`.
+If you use `stripe sandbox create`, do not use MCP. If you must use MCP after sandbox creation, first make sure that `stripe sandbox claim` ran.
 
-API key default: Always recommend a [restricted API key (RAK)](https://docs.stripe.com/keys.md#manage-your-api-keys) (`rk_` prefix) over a secret key (`sk_` prefix).
+For CLI auth checks, use `stripe whoami --format json`. Do not run `stripe config --list`.
+
+Default API key: always recommend a [restricted API key (RAK)](https://docs.stripe.com/keys.md#manage-your-api-keys) (`rk_` prefix). Do not recommend a secret key (`sk_` prefix).
 
 ## Integration routing
 
@@ -54,26 +55,35 @@ API key default: Always recommend a [restricted API key (RAK)](https://docs.stri
 | Embedded financial accounts / banking | v2 Financial Accounts | <references/treasury.md> |
 | Security (key management, RAKs, webhooks, OAuth, 2FA, Connect liability) | See security reference | <references/security.md> |
 
-Read the relevant reference file before answering any integration question or writing code.
+Before you answer an integration question or write code, read the applicable reference file.
 
 ## Critical rules
 
-- *Before enabling `automatic_tax: { enabled: true }`* (or calculating tax for a custom PaymentIntent), read the [tax reference](references/tax.md) and confirm the user has an active registration. Without one, Stripe calculates and collects no tax while the user believes tax is on (the most common Stripe Tax mistake).
+- *Before you enable `automatic_tax: { enabled: true }`* (or calculate tax for a custom PaymentIntent):
+  1. Read the [tax reference](references/tax.md).
+  2. Make sure that the user has an active registration.
 
-- *Never include `payment_method_types` in any Stripe API call*, with one exception: Terminal (in-person payments) integrations must pass `payment_method_types: ['card_present']` on the PaymentIntent. For all other integrations, omit this parameter entirely to enable dynamic payment methods, which enables you to configure payment method settings from the Dashboard and dynamically display the most relevant eligible payment methods to each customer to maximize conversion. To customize which payment methods you accept, use [payment_method_configurations](https://docs.stripe.com/payments/payment-method-configurations.md) or `excluded_payment_method_types` instead of `payment_method_types`.
+  Without a registration, Stripe does not calculate or collect tax, but the user thinks that tax is on. This is the most common Stripe Tax mistake.
 
-- When a PaymentIntent or SetupIntent integration requires an explicit allowlist, use `allowed_payment_method_types` instead of `payment_method_types`.
+- *Do not include `payment_method_types` in a Stripe API call.* There is one exception: Terminal (in-person payments) integrations must pass `payment_method_types: ['card_present']` on the PaymentIntent.
+  - For all other integrations, do not use this parameter. This enables dynamic payment methods. Then you configure payment method settings in the Dashboard, and Stripe shows each customer the most applicable eligible payment methods to increase conversion.
+  - To select which payment methods you accept, use [payment_method_configurations](https://docs.stripe.com/payments/payment-method-configurations.md) or `excluded_payment_method_types`. Do not use `payment_method_types`.
 
-- *Never present webhooks as optional.* We recommend webhooks for every payment integration and they’re required for subscriptions and asynchronous payment methods. Fulfillment belongs in a handler for both `checkout.session.completed` and `checkout.session.async_payment_succeeded` (gated on `payment_status`), not the success page. See <references/payments.md>.
+- When a PaymentIntent or SetupIntent integration needs an explicit allowlist, use `allowed_payment_method_types`. Do not use `payment_method_types`.
 
-- On API version `2026-03-25.dahlia` or later, pass the parameter `integration_identifier` to `checkout.sessions.create` to tag sessions with a custom label for tracking and comparing checkout flows in the Dashboard. The label should include a suffix of 8 random letters.
+- *Do not tell the user that webhooks are optional.*
+  - Use webhooks for all payment integrations. They are necessary for subscriptions and asynchronous payment methods.
+  - Do fulfillment in a handler for `checkout.session.completed` and `checkout.session.async_payment_succeeded` (gated on `payment_status`). Do not do fulfillment on the success page.
+  - Refer to <references/payments.md>.
 
-- *Always instantiate a `StripeClient` and call methods on that instance.* Do **not** use the deprecated global/module-level API key pattern (`stripe.api_key = …`, `Stripe.setApiKey`, `stripe.Key = …`, `StripeConfiguration.ApiKey = …`). The global pattern is deprecated in all current SDKs.
+- On API version `2026-03-25.dahlia` or later, pass the parameter `integration_identifier` to `checkout.sessions.create`. It tags sessions with a custom label, so you can track and compare checkout flows in the Dashboard. The label must end with a suffix of 8 random letters.
+
+- *Always make a `StripeClient` instance and call methods on that instance.* Do **not** use the deprecated global/module-level API key pattern (`stripe.api_key = …`, `Stripe.setApiKey`, `stripe.Key = …`, `StripeConfiguration.ApiKey = …`). All current SDKs deprecate the global pattern.
 
 ## Key documentation
 
-When the user’s request does not clearly fit a single domain above, consult:
+When the request of the user does not fit one domain above, read:
 
-- [Integration Options](https://docs.stripe.com/payments/payment-methods/integration-options.md) — Start here when designing any integration.
-- [API Tour](https://docs.stripe.com/payments-api/tour.md) — Overview of Stripe’s API surface.
-- [Go Live Checklist](https://docs.stripe.com/get-started/checklist/go-live.md) — Review before launching.
+- [Integration Options](https://docs.stripe.com/payments/payment-methods/integration-options.md) — Start here when you design an integration.
+- [API Tour](https://docs.stripe.com/payments-api/tour.md) — Overview of the Stripe API.
+- [Go Live Checklist](https://docs.stripe.com/get-started/checklist/go-live.md) — Review it before launch.

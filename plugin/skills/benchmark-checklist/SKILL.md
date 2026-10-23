@@ -1,39 +1,54 @@
 ---
 name: benchmark-checklist
-description: "Vet a perf measurement (limiter, tuning, limits, errors, repeatability, relevance, and whether the work happened) before you report or act on it. Use when you run a benchmark or report a speedup or regression you measured."
+description: "Check a perf measurement (limiter, tuning, limits, errors, repeatability, relevance, and whether the work ran) before you report it or act on it. Use when you run a benchmark or report a speedup or regression that you measured."
 disable-model-invocation: true
 ---
 
 # Benchmark checklist
 
-Use this when you produce a performance number: a PR's before and after, a regression claim, a hillclimb harness, or a library or config choice. Answer each question with evidence from a run, not a guess about the code.
+Use this checklist when you produce a performance number. Examples are the before and after of a PR, a regression claim, a hillclimb harness, or a choice of library or config. Answer each question with evidence from a run. Do not guess from the code.
 
-For a quick ballpark the user asked for, one run is enough. Still check questions 4 and 7, and say that it is one run. Skip the rest unless that run looks wrong. A choice between options is never a ballpark.
+If the user asks for a quick ballpark, one run is sufficient. You must still check questions 4 and 7, and say that it is one run. Do not do the other questions unless that run looks wrong. A choice between options is never a ballpark.
 
 ## Before you run anything
 
-- Write down the claim you expect to make, in the words you would ship ("export is 30% faster at p50 on the 60k-row dataset"). The questions test that sentence.
-- Read the measurement script. Note what it times, counts, and ignores.
-- Check the load average with `uptime` and the core count with `nproc`. If the machine is busy, find out what is running. If you cannot stop it, interleave the sides so both see the same noise, and say so in the report.
+- Write down the claim that you expect to make, in the words that you will ship ("export is 30% faster at p50 on the 60k-row dataset"). The questions test that sentence.
+- Read the measurement script. Write down what it times, what it counts, and what it ignores.
+- Check the load average with `uptime` and the core count with `nproc`. If the machine is busy, find out what runs on it. If you cannot stop it, interleave the two sides so that both sides get the same noise. Say this in the report.
 
 ## The questions
 
-1. **Why not double?** Name the limiter. Profile in a run you do not report, because profilers and tracers slow the work down. Use CPU per process (`top`, `pidstat`), a runtime profiler (`node --cpu-prof`, `py-spy`, `perf`), I/O wait, and syscall counts (`strace -c` on Linux), then map the hot spot to source. Watch the load generator too: if it saturates first, you measured the load generator. If a change did not move the number, the limiter explains why, so find it before you call the change useless.
-2. **Was it tuned?** Run every side the way production runs it: release builds, production flags and env, batching and transaction settings, connection pools, caches as warm or cold as production sees them, and the same versions and data. If one side runs on defaults, you compared configurations, not implementations. A limiter that is a setting (a commit per row, a debug build, a missing index) means that side is untuned. Tune it and measure again before you pick a winner. If you cannot tune it, do not pick a winner from that run. When the user is choosing what to adopt, narrowing the claim to the code as it ships today does not fix this, because they adopt the option, not today's settings.
-3. **Did it break limits?** Do the arithmetic. Compare bytes per second with disk and network bandwidth, operations per second times cost per operation with your cores, and the time saved with the time the changed piece took. Removing a piece that takes 10% of the run can make the run at most about 11% faster. A result past a limit measured something other than the work, such as a cache, a no-op, or a bug.
-4. **Did it error?** Count failures and non-success responses, and check that outputs are correct, not just present. Rejections are often fast, and timeouts and retries are slow. If the script does not count errors, add the count.
-5. **Does it reproduce?** Run each side at least 5 times, alternating (A, B, A, B, and so on) so warmup, lazy initialization, caches, and drift favor neither. Report the median and range. A gap smaller than the run-to-run variation is no measurable difference. When the call is close, use a rank-sum test or the harness's own statistics.
-6. **Does it matter?** Next to any micro result, measure the end-to-end path a user waits on, with realistic data sizes and concurrency, and report the micro result as a share of the whole. A helper that takes 1% of a request can make the request at most 1% faster, however fast the helper gets.
-7. **Did it even happen?** Confirm the work ran inside the timed region: the request reached the server, the rows were written, the bytes were read, and the code used the result. Lazy code (generators nobody iterates, promises nobody awaits, results the JIT can discard) and timeouts produce numbers for work that never happened.
+1. **Why not double?** Name the limiter. Do these steps:
+   - Profile in a run that you do not report. Profilers and tracers make the work slower.
+   - Use CPU per process (`top`, `pidstat`), a runtime profiler (`node --cpu-prof`, `py-spy`, `perf`), I/O wait, and syscall counts (`strace -c` on Linux).
+   - Map the hot spot to the source.
+   - Monitor the load generator too. If it saturates first, you measured the load generator.
+   - If a change did not move the number, the limiter tells you why. Find the limiter before you say that the change has no use.
+2. **Was it tuned?** Run each side as production runs it. This includes release builds, production flags and env, batch and transaction settings, connection pools, caches as warm or cold as in production, and the same versions and data. If one side runs on defaults, you compared configurations, not implementations.
+   - A limiter that is a setting (a commit per row, a debug build, a missing index) means that the side is not tuned. Tune it and measure again before you select a winner.
+   - If you cannot tune it, do not select a winner from that run.
+   - If the user must choose an option to adopt, do not make the claim narrower to "the code as it ships today". This does not fix the problem, because the user adopts the option, not the current settings.
+3. **Did it go past a limit?** Do the arithmetic:
+   - Compare bytes per second with the disk and network bandwidth.
+   - Compare operations per second, multiplied by the cost per operation, with your cores.
+   - Compare the time saved with the time of the changed part. If you remove a part that takes 10% of the run, the run can be at most approximately 11% faster.
+   - A result past a limit measured something other than the work, for example a cache, a no-op, or a bug.
+4. **Did it error?** Count failures and responses that are not success. Make sure that the outputs are correct, not only present. Rejections are frequently fast. Timeouts and retries are slow. If the script does not count errors, add the count.
+5. **Does it reproduce?** Run each side a minimum of 5 times, in alternation (A, B, A, B, and so on). Then warmup, lazy initialization, caches, and drift do not help one side. Report the median and the range. A gap that is smaller than the run-to-run variation is no measurable difference. If the result is close, use a rank-sum test or the statistics of the harness.
+6. **Is it important?** For each micro result, also measure the end-to-end path that a user waits on. Use realistic data sizes and concurrency. Report the micro result as a percentage of the whole. If a helper takes 1% of a request, the request can be at most 1% faster, however fast the helper becomes.
+7. **Did the work occur?** Make sure that the work ran inside the timed region: the request got to the server, the rows were written, the bytes were read, and the code used the result. Lazy code and timeouts give numbers for work that did not occur. Examples of lazy code are generators that nothing iterates, promises that nothing awaits, and results that the JIT can discard.
 
 ## Report
 
-- Lead with the verdict: faster, slower, no measurable difference, or inconclusive.
-- Give the number with its unit, the run count, the range, and the limiter. For example, "p50 41 ms → 33 ms, median of 7 runs per side, range 32 to 35 ms after, bound by JSON parsing on one core."
-- Call the verdict inconclusive when you claim a difference but cannot name the limiter, when a side ran untuned, or when you could not check questions 4 and 7. Name the gap.
-- Keep a PR body to one primary number, per the **Opening a PR** playbook. Put the runs, range, and limiter evidence in a linked artifact or notes file.
+- Start with the verdict: faster, slower, no measurable difference, or inconclusive.
+- Give the number with its unit, the run count, the range, and the limiter. For example: "p50 41 ms → 33 ms, median of 7 runs per side, range 32 to 35 ms after, bound by JSON parsing on one core."
+- The verdict is inconclusive in these conditions. Name the gap.
+  - You claim a difference, but you cannot name the limiter.
+  - One side ran without tuning.
+  - You could not check questions 4 and 7.
+- Put only one primary number in a PR body, as the **Opening a PR** playbook says. Put the runs, the range, and the limiter evidence in a linked artifact or notes file.
 
 ## Other perf material
 
-- Vet the **Perf issue** playbook's baseline before the playbook plans from it, and every number after that.
-- Vet the **Hillclimb** playbook's harness before it is frozen. The frozen harness then prints error and work counts, so each keep-or-revert checks questions 4 and 7 for free.
+- Check the baseline of the **Perf issue** playbook with this checklist before the playbook plans from it. Check each number after that too.
+- Check the harness of the **Hillclimb** playbook before you freeze it. The frozen harness then prints error and work counts. Thus each keep-or-revert decision checks questions 4 and 7 automatically.

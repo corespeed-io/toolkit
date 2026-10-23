@@ -70,4 +70,4 @@ export default defineConfig({
 
 **Scripted requests:** add GitHub Actions as a [Trusted Source](https://vercel.com/docs/deployment-protection/methods-to-bypass-deployment-protection/trusted-sources#add-a-github-actions-service) instead of storing a secret. Scope the rule to the repository and the environments the job may reach, grant the job `id-token: write`, and send the token from `core.getIDToken()` in the `x-vercel-trusted-oidc-idp-token` header.
 
-For agent or local access to a protected URL: `⤳ skill: access-protected-vercel-deployment`.
+For agent or local access to a protected URL: use `vercel curl` (see the `vercel-cli` skill, `references/monitoring-and-debugging.md`).

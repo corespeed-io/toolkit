@@ -1,42 +1,57 @@
 ---
 name: tdd
-description: "Use only when the user explicitly asks for TDD, a failing test, or a regression test, OR when the bug has an obvious cheap local test target. Skip when the test path is unclear, expensive, integration-heavy, or not requested."
+description: "Use only when the user explicitly asks for TDD, a failing test, or a regression test, OR when the bug has a clear, cheap local test target. Do not use when the test path is not clear, is expensive, needs much integration, or nobody asked for it."
 disable-model-invocation: true
 ---
 
 # TDD Bug Fix
 
-When fixing a bug with a clear, cheap test path, make the broken behavior executable before changing production code. The goal is a focused regression test that fails before the fix and passes after it.
+When you fix a bug that has a clear, cheap test path, make the broken behavior executable before you change production code. The goal is a focused regression test that fails before the fix and passes after it.
 
-Do not force a test when it would be impractical. If the available test would require broad harness setup, brittle mocks, slow end-to-end infrastructure, production-only state, vague reproduction steps, or large unrelated fixture churn, skip adding a new test and use the closest useful verification instead.
+Do not force a test if it is not practical. Do not add a new test if it needs one of these:
+
+- a large harness setup
+- brittle mocks
+- slow end-to-end infrastructure
+- state that only production has
+- reproduction steps that are not clear
+- many changes to fixtures that are not related
+
+In these cases, use the nearest useful verification instead.
 
 ## Workflow
 
-1. **Understand the bug.** Identify the intended behavior, current behavior, affected path, and smallest observable reproduction.
-2. **Choose the narrowest executable check.** Prefer the closest unit, component, integration, or regression test already used for that codepath. If no practical test path is obvious, do not create one from scratch just to satisfy the workflow.
-3. **Write the failing test first.** Add the smallest focused test that would have caught the bug. The test should encode intended behavior, not mirror the current implementation.
-4. **Run the new test before fixing.** Confirm it fails for the intended reason. If it passes or fails for an unrelated reason, correct the test or reproduction before editing the implementation.
-5. **Fix the bug.** Make the smallest production change that satisfies the intended behavior while preserving nearby contracts.
-6. **Rerun the regression test.** Confirm the test now passes.
+1. **Understand the bug.** Find the intended behavior, the current behavior, the affected path, and the smallest observable reproduction.
+2. **Choose the narrowest executable check.** Prefer the nearest unit, component, integration, or regression test that the codepath already uses. If no practical test path is clear, do not create one from zero only to follow this workflow.
+3. **Write the failing test first.** Add the smallest focused test that finds the bug. The test must encode the intended behavior. It must not copy the current implementation.
+4. **Run the new test before you fix the bug.** Make sure that it fails for the intended reason. If it passes, or fails for a reason that is not related, correct the test or the reproduction before you edit the implementation.
+5. **Fix the bug.** Make the smallest production change that gives the intended behavior. Keep the nearby contracts.
+6. **Run the regression test again.** Make sure that the test now passes.
 
-## If a Failing Test Is Impractical
+## If a failing test is not practical
 
-Use the closest executable regression check instead: a targeted script, manual reproduction command, browser automation, snapshot comparison, log assertion, or focused integration check.
+Use the nearest executable regression check instead: a targeted script, a manual reproduction command, browser automation, a snapshot comparison, a log assertion, or a focused integration check.
 
-Prefer no new test over a bad test. A bad test is one that mostly tests mocks, encodes current implementation details, depends on timing or unrelated global state, needs expensive infrastructure for a small fix, or would be deleted immediately after proving the fix.
+No new test is better than a bad test. A bad test has one of these properties:
+
+- It tests mostly mocks.
+- It encodes details of the current implementation.
+- It depends on timing or on global state that is not related.
+- It needs expensive infrastructure for a small fix.
+- You will delete it immediately after it proves the fix.
 
 ## Guardrails
 
-- Do not change tests merely to match a wrong implementation.
-- Do not weaken existing assertions unless the expected behavior has genuinely changed and the reason is clear.
-- Keep the regression test focused on the bug. Avoid broad fixture churn or unrelated coverage expansion.
-- If the bug is flaky, make the test deterministic where possible and document the signal being locked down.
-- If the bug exposes a broader class of failures, first land the focused regression path, then consider additional sibling coverage.
+- Do not change tests only to agree with a wrong implementation.
+- Do not make existing assertions weaker, unless the expected behavior really changed and the reason is clear.
+- Keep the regression test focused on the bug. Do not make large changes to fixtures or add coverage that is not related.
+- If the bug is flaky, make the test deterministic where possible. Write down the signal that the test locks.
+- If the bug shows a larger class of failures, first land the focused regression path. Then think about more coverage for the related cases.
 
-## Final Response
+## Final response
 
-Report the evidence, not just the outcome:
+Report the evidence, not only the result:
 
-- Name the failing-before test or executable check and the failure it produced.
-- Name the passing-after test run and any nearby validation performed.
-- If failing-before evidence could not be demonstrated, state why and describe the closest regression check used instead.
+- Name the test or executable check that failed before the fix, and the failure that it gave.
+- Name the test run that passed after the fix, and each nearby validation that you did.
+- If you could not show a failure before the fix, say why. Describe the nearest regression check that you used instead.
