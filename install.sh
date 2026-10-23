@@ -6,6 +6,7 @@ CODEX="$(command -v codex || echo /Applications/ChatGPT.app/Contents/Resources/c
 export CODEX
 
 mkdir -p ~/.claude ~/.codex
+rm -f ~/.claude/CLAUDE.md  # it can be a symlink; do not write through it
 printf '@%s/AGENTS.md\n' "$T" > ~/.claude/CLAUDE.md
 ln -sfn "$T/AGENTS.md" ~/.codex/AGENTS.md
 

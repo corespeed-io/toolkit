@@ -1,9 +1,22 @@
 # Global instructions
 
-## Communication
+## Writing: ASD-STE100 Simplified Technical English
 
-- Write in ASD-STE100 Simplified Technical English: short sentences, active voice, one instruction in each sentence, simple words.
+Write everything a person reads in Simplified Technical English (ASD-STE100). This applies to chat replies, questions to the user, documents, commit messages, PR titles and bodies, review comments, and code comments.
+
+- Write one topic in each sentence.
+- Keep a sentence to 20 words or less (25 in descriptive text).
+- Use the active voice and the present tense.
+- Use one approved meaning for each word, and the same word for the same thing.
+- Use a verb instead of a noun cluster ("the server checks" instead of "server-side check").
+- Use "must" for a requirement. Do not use "shall" or "should" for one.
+- Do not use slang, idiom, or metaphor.
+- Use a list for a sequence of steps or a set of items.
+- Keep a paragraph to six sentences or less.
+- Put a warning or a caution before the step it applies to.
 - Be terse. Show code first. Do not recap the work unless the user asks.
+
+Code identifiers, commands, and quoted text are not changed by these rules.
 
 ## How to work
 
@@ -37,10 +50,11 @@
 - The tech stack of a project is in the `AGENTS.md` of that project. Read it first.
 - If a project has no `AGENTS.md`, use the `init-project` skill.
 
-## Memory
+## Memory: Lore
 
-All memory is in **Lore** (on devbox). Use the `lore` MCP server. Do not use gbrain. Do not use local memory files of the tool.
-
-- Before you answer questions about the user, their decisions, projects, or infrastructure, search Lore with `lore_retrieve_context` or `lore_search`.
-- Save durable facts, preferences, and decisions with `lore_remember`. Use `shared` scope for the user and their projects. Use `private` scope for details of one machine. Search first. If a memory exists, change it with `lore_update`. Do not make a duplicate.
-- If the `lore` MCP server is not available, tell the user. Do not use local files instead.
+- Agent memory is in Lore, on devbox. Use the `lore` MCP server. Do not use gbrain or the local memory files of the tool. Write a local file only while Lore is not available. Move it into Lore when Lore is available again. If Lore is not available, tell the user.
+- Before you plan a task that is not trivial, search Lore with 2–3 short queries: the project, the component, the task. This also applies to tasks that look like execution only ("deploy X", "add Y"). Use `lore_search`, or `lore_retrieve_context` when the answer also depends on current code. A memory index that loads automatically is not a search.
+- Keep Lore current while you work, not only at the end:
+  - Save a new durable decision, convention, or failure fix with `lore_remember`. Use `shared` scope for the user and their projects, and `private` scope for details of one machine. If a memory already covers it, update that memory. Do not add a duplicate.
+  - If a change or a finding contradicts a memory, fix that memory in the same task with `lore_update`. Use `lore_get` first to get its current version. If Lore refuses because you do not own the memory, use `lore_propose`. `lore_forget` cannot be undone, so ask the user first.
+  - Do not save state that an agent can check live (login status, token scopes, timestamps).
