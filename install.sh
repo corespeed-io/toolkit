@@ -7,8 +7,8 @@ CODEX=$(command -v codex || echo /Applications/ChatGPT.app/Contents/Resources/co
 ln -sfn "$V/CLAUDE.md" ~/.claude/CLAUDE.md
 ln -sfn "$V/AGENTS.md" ~/.codex/AGENTS.md
 
-claude plugin marketplace add "$V" 2>/dev/null || claude plugin marketplace update vault
-claude plugin install personal@vault 2>/dev/null || claude plugin update personal@vault
+claude plugin marketplace add "$V" 2>/dev/null || claude plugin marketplace update toolkit
+claude plugin install personal@toolkit 2>/dev/null || claude plugin update personal@toolkit
 
-"$CODEX" plugin marketplace add "$V" 2>/dev/null || "$CODEX" plugin marketplace upgrade vault || true
-"$CODEX" plugin add personal@vault
+"$CODEX" plugin marketplace add "$V" 2>/dev/null || "$CODEX" plugin marketplace upgrade toolkit || true
+"$CODEX" plugin add personal@toolkit
