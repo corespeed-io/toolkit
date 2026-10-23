@@ -23,7 +23,7 @@ After a change:
 
 1. Increase `version` in `plugin/.claude-plugin/plugin.json` and `plugin/.codex-plugin/plugin.json`.
 2. Run `~/toolkit/install.sh`.
-3. Commit. Push only if the user tells you to.
+3. Commit. Do not push: the `sync.sh push` Stop hook pushes toolkit commits at the end of the turn.
 4. Tell the user to restart Claude Code and Codex.
 
-Other machines sync by themselves after a push: the `sync.sh` SessionStart hook pulls the repo (fast-forward only) and runs `install.sh`. The new version loads in the session after that. Sync errors are in `~/.cache/toolkit-sync/error`, and the next session shows them.
+Other machines sync by themselves after a push: the `sync.sh pull` SessionStart hook pulls the repo (fast-forward only) and runs `install.sh`. The new version loads in the session after that. Sync errors are in `~/.cache/toolkit-sync/error`, and the next session shows them.
