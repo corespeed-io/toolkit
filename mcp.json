@@ -1,0 +1,6 @@
+{
+  "lore": {
+    "command": "sh",
+    "args": ["-c", "if [ -x \"$HOME/.local/bin/lore-mcp\" ]; then exec \"$HOME/.local/bin/lore-mcp\"; else exec ssh -T -o BatchMode=yes -o ServerAliveInterval=30 devbox '~/.local/bin/lore-mcp'; fi"]
+  }
+}

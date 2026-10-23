@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": ["Bash(*)", "Write(*)", "Edit(*)", "WebSearch(*)", "WebFetch(*)", "mcp__lore__*"]
+  },
+  "effortLevel": "high",
+  "tui": "fullscreen",
+  "autoMemoryEnabled": false,
+  "autoDreamEnabled": false,
+  "skipDangerousModePermissionPrompt": true,
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true
+}
