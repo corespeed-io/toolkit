@@ -1,0 +1,14 @@
+[
+  { "repo": "anthropics/skills", "path": "skills", "skills": ["skill-creator", "frontend-design", "webapp-testing", "mcp-builder"] },
+  { "repo": "vercel/vercel-plugin", "path": "skills", "skills": ["react-best-practices", "ai-sdk", "ai-gateway", "vercel-cli", "deployments-cicd", "env-vars"] },
+  { "repo": "vercel/vercel-plugin", "ref": "8dd20004a7e7f44e78d119d52e30cba2564a8e1b", "path": "skills", "skills": ["nextjs"],
+    "note": "Upstream removed nextjs on 2026-10-01 in favor of the docs bundled with Next.js. Pinned to the last commit that has it." },
+  { "repo": "vercel-labs/agent-skills", "path": "skills", "skills": ["web-design-guidelines"] },
+  { "repo": "shadcn-ui/ui", "path": "skills", "skills": ["shadcn"] },
+  { "repo": "supabase/agent-skills", "path": "skills", "skills": ["supabase", "supabase-postgres-best-practices"] },
+  { "repo": "stripe/ai", "path": "skills", "skills": ["stripe-best-practices"] },
+  { "repo": "railwayapp/railway-skills", "path": "plugins/railway/skills", "skills": ["use-railway"] },
+  { "repo": "cloudflare/skills", "path": "skills", "skills": ["cloudflare", "cf-cli", "workers-best-practices", "durable-objects", "agents-sdk"] },
+  { "repo": "cursor/plugins", "path": "harness/pstack/claude-code/skills", "skills": "*",
+    "agents": "harness/pstack/claude-code/agents", "license": "harness/pstack/claude-code/LICENSE" }
+]

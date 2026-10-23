@@ -1,0 +1,408 @@
+{
+  "agents-sdk": {
+    "repo": "cloudflare/skills",
+    "path": "skills/agents-sdk",
+    "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f"
+  },
+  "agents/comment-sicko.md": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/agents/comment-sicko.md",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "agents/poteto-agent.md": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/agents/poteto-agent.md",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "ai-gateway": {
+    "repo": "vercel/vercel-plugin",
+    "path": "skills/ai-gateway",
+    "commit": "89e9ab9e4a15de0b18f3df6bc89d29152a00ff1b"
+  },
+  "ai-sdk": {
+    "repo": "vercel/vercel-plugin",
+    "path": "skills/ai-sdk",
+    "commit": "89e9ab9e4a15de0b18f3df6bc89d29152a00ff1b"
+  },
+  "architect": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/architect",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "arena": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/arena",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "automate-me": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/automate-me",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "benchmark-checklist": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/benchmark-checklist",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "blast-radius": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/blast-radius",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "bro": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/bro",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "cf-cli": {
+    "repo": "cloudflare/skills",
+    "path": "skills/cf-cli",
+    "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f"
+  },
+  "cloudflare": {
+    "repo": "cloudflare/skills",
+    "path": "skills/cloudflare",
+    "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f"
+  },
+  "correct": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/correct",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "create-formal-verification-skill": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/create-formal-verification-skill",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "create-verification-skill": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/create-verification-skill",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "deployments-cicd": {
+    "repo": "vercel/vercel-plugin",
+    "path": "skills/deployments-cicd",
+    "commit": "89e9ab9e4a15de0b18f3df6bc89d29152a00ff1b"
+  },
+  "durable-objects": {
+    "repo": "cloudflare/skills",
+    "path": "skills/durable-objects",
+    "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f"
+  },
+  "env-vars": {
+    "repo": "vercel/vercel-plugin",
+    "path": "skills/env-vars",
+    "commit": "89e9ab9e4a15de0b18f3df6bc89d29152a00ff1b"
+  },
+  "figure-it-out": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/figure-it-out",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "frontend-design": {
+    "repo": "anthropics/skills",
+    "path": "skills/frontend-design",
+    "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44"
+  },
+  "how": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/how",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "in-your-own-words": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/in-your-own-words",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "interrogate": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/interrogate",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "ketchup": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/ketchup",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "maintain-formal-verification-skill": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/maintain-formal-verification-skill",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "maintain-verification-skill": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/maintain-verification-skill",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "make-bot-ui": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/make-bot-ui",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "mcp-builder": {
+    "repo": "anthropics/skills",
+    "path": "skills/mcp-builder",
+    "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44"
+  },
+  "nextjs": {
+    "repo": "vercel/vercel-plugin",
+    "path": "skills/nextjs",
+    "commit": "8dd20004a7e7f44e78d119d52e30cba2564a8e1b",
+    "pinned": true
+  },
+  "no-comments": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/no-comments",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "poteto-help": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/poteto-help",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "poteto-mode": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/poteto-mode",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-attack-the-premise": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-attack-the-premise",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-boundary-discipline": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-boundary-discipline",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-build-the-lever": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-build-the-lever",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-encode-lessons-in-structure": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-encode-lessons-in-structure",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-exhaust-the-design-space": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-exhaust-the-design-space",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-experience-first": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-experience-first",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-explain-the-number": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-explain-the-number",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-fix-root-causes": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-fix-root-causes",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-foundational-thinking": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-foundational-thinking",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-guard-the-context-window": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-guard-the-context-window",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-laziness-protocol": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-laziness-protocol",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-make-operations-idempotent": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-make-operations-idempotent",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-migrate-callers-then-delete-legacy-apis": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-migrate-callers-then-delete-legacy-apis",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-minimize-reader-load": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-minimize-reader-load",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-model-the-domain": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-model-the-domain",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-never-block-on-the-human": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-never-block-on-the-human",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-outcome-oriented-execution": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-outcome-oriented-execution",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-prove-it-works": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-prove-it-works",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-redesign-from-first-principles": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-redesign-from-first-principles",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-separate-before-serializing-shared-state": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-separate-before-serializing-shared-state",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-sequence-verifiable-units": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-sequence-verifiable-units",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-subtract-before-you-add": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-subtract-before-you-add",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-test-behavior-not-implementation": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-test-behavior-not-implementation",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "principle-type-system-discipline": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/principle-type-system-discipline",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "react-best-practices": {
+    "repo": "vercel/vercel-plugin",
+    "path": "skills/react-best-practices",
+    "commit": "89e9ab9e4a15de0b18f3df6bc89d29152a00ff1b"
+  },
+  "recall": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/recall",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "reflect": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/reflect",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "setup-pstack": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/setup-pstack",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "shadcn": {
+    "repo": "shadcn-ui/ui",
+    "path": "skills/shadcn",
+    "commit": "3d98900e9b73c45f035f8109e9d41ba6a51685e7"
+  },
+  "sharpen": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/sharpen",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "show-me-your-work": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/show-me-your-work",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "skill-creator": {
+    "repo": "anthropics/skills",
+    "path": "skills/skill-creator",
+    "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44"
+  },
+  "statechart": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/statechart",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "stripe-best-practices": {
+    "repo": "stripe/ai",
+    "path": "skills/stripe-best-practices",
+    "commit": "8a8818e856376003701bb0d4a569c26bacac1d0e"
+  },
+  "supabase": {
+    "repo": "supabase/agent-skills",
+    "path": "skills/supabase",
+    "commit": "c9be0e931b7930f7d02126d04774d904c381e7d7"
+  },
+  "supabase-postgres-best-practices": {
+    "repo": "supabase/agent-skills",
+    "path": "skills/supabase-postgres-best-practices",
+    "commit": "c9be0e931b7930f7d02126d04774d904c381e7d7"
+  },
+  "swarm": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/swarm",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "tdd": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/tdd",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "teach": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/teach",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "technical-writing": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/technical-writing",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "typescript-best-practices": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/typescript-best-practices",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "unslop": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/unslop",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "use-railway": {
+    "repo": "railwayapp/railway-skills",
+    "path": "plugins/railway/skills/use-railway",
+    "commit": "526e95524e964ed326689cbac4464d97a58ab81c"
+  },
+  "vercel-cli": {
+    "repo": "vercel/vercel-plugin",
+    "path": "skills/vercel-cli",
+    "commit": "89e9ab9e4a15de0b18f3df6bc89d29152a00ff1b"
+  },
+  "web-design-guidelines": {
+    "repo": "vercel-labs/agent-skills",
+    "path": "skills/web-design-guidelines",
+    "commit": "063bee94c3f4df8453406c830b0a7df0f2860278"
+  },
+  "webapp-testing": {
+    "repo": "anthropics/skills",
+    "path": "skills/webapp-testing",
+    "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44"
+  },
+  "why": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/why",
+    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "workers-best-practices": {
+    "repo": "cloudflare/skills",
+    "path": "skills/workers-best-practices",
+    "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f"
+  }
+}
