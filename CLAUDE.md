@@ -1,1 +1,1 @@
-@/Users/spenc/toolkit/AGENTS.md
+@AGENTS.md
