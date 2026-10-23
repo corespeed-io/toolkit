@@ -1,0 +1,11 @@
+{
+  "name": "vault",
+  "owner": { "name": "spinsirr" },
+  "plugins": [
+    {
+      "name": "personal",
+      "source": "./plugin",
+      "description": "My personal skills"
+    }
+  ]
+}
