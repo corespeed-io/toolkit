@@ -31,7 +31,7 @@ push() {
   git fetch -q origin || { echo "git fetch failed in $T."; return 1; }
   behind=$(git rev-list --count HEAD..@{u})
   if [ "$behind" != 0 ]; then
-    git pull -q --rebase --autostash || { git rebase --abort 2>/dev/null; echo "Rebase onto origin failed in $T. Resolve it, then push."; return 1; }
+    git pull -q --rebase --autostash >/dev/null 2>&1 || { git rebase --abort 2>/dev/null; echo "Rebase onto origin failed in $T. Resolve it, then push."; return 1; }
   fi
   git push -q || { echo "git push failed in $T."; return 1; }
   [ "$behind" = 0 ] || ./install.sh
