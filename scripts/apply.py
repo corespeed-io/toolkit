@@ -1,4 +1,4 @@
-"""Merge shared settings into Claude Code and Codex, and register MCP servers in both."""
+"""Merge shared settings into one tool (Claude Code or Codex) and register its MCP servers."""
 from __future__ import annotations
 
 import json
@@ -75,28 +75,32 @@ def run(*cmd: str, check: bool = True) -> None:
         sys.exit(f"Failed: {' '.join(cmd)}\n{result.stdout}{result.stderr}")
 
 
-def main() -> None:
-    codex = os.environ["CODEX"]
-
-    claude_settings = HOME / ".claude/settings.json"
-    current = json.loads(claude_settings.read_text()) if claude_settings.exists() else {}
-    claude_settings.write_text(json.dumps(merge(current, json.loads((TOOLKIT / "settings/claude.json").read_text())), indent=2) + "\n")
-
-    codex_config = HOME / ".codex/config.toml"
-    shared = [l for l in (TOOLKIT / "settings/codex.toml").read_text().splitlines() if "=" in l and not l.startswith("#")]
-    codex_config.write_text(set_toml_keys(codex_config.read_text() if codex_config.exists() else "", shared))
-
-    env = load_env()
-    for name, raw in json.loads((TOOLKIT / "mcp.json").read_text()).items():
+def apply_claude(servers: dict, env: dict[str, str]) -> None:
+    settings = HOME / ".claude/settings.json"
+    current = json.loads(settings.read_text()) if settings.exists() else {}
+    settings.write_text(json.dumps(merge(current, json.loads((TOOLKIT / "settings/claude.json").read_text())), indent=2) + "\n")
+    for name, raw in servers.items():
         server = expand(raw, for_tool(env, "claude"))
         run("claude", "mcp", "remove", "-s", "user", name, check=False)
         run("claude", "mcp", "add-json", "-s", "user", name, json.dumps({"type": "stdio", **server}))
+        print(f"Claude Code MCP server added: {name}")
+
+
+def apply_codex(servers: dict, env: dict[str, str]) -> None:
+    codex = os.environ["CODEX"]
+    config = HOME / ".codex/config.toml"
+    shared = [l for l in (TOOLKIT / "settings/codex.toml").read_text().splitlines() if "=" in l and not l.startswith("#")]
+    config.write_text(set_toml_keys(config.read_text() if config.exists() else "", shared))
+    for name, raw in servers.items():
         server = expand(raw, for_tool(env, "codex"))
         run(codex, "mcp", "remove", name, check=False)
         env_args = [a for k, v in server.get("env", {}).items() for a in ("--env", f"{k}={v}")]
         run(codex, "mcp", "add", name, *env_args, "--", server["command"], *server.get("args", []))
-        print(f"MCP server added: {name}")
+        print(f"Codex MCP server added: {name}")
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 2 or sys.argv[1] not in ("claude", "codex"):
+        sys.exit("Usage: apply.py claude|codex")
+    servers = json.loads((TOOLKIT / "mcp.json").read_text())
+    (apply_claude if sys.argv[1] == "claude" else apply_codex)(servers, load_env())
