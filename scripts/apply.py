@@ -139,7 +139,7 @@ def link_missing(src_dir: Path, dest_dir: Path, pattern: str) -> list[str]:
 def apply_ensemble() -> None:
     """Agent Ensemble sandbox. Run from the environment setup script, after the toolkit is cloned to ~/toolkit.
 
-    This only adds. It does not change the environment instructions, a skill that is already installed, or a hook.
+    This only adds. It does not change the environment instructions, the skills, or the hooks.
     Lore is not reachable from a sandbox, so this does not register mcp.json.
     """
     agents = ensemble_agents((TOOLKIT / "AGENTS.md").read_text(), (TOOLKIT / "ensemble/instructions.md").read_text())
@@ -154,13 +154,11 @@ def apply_ensemble() -> None:
     codex_md.parent.mkdir(exist_ok=True)
     codex_md.write_text(with_block(codex_md.read_text() if codex_md.exists() else "", agents))
 
-    plugin = TOOLKIT / "plugin"
-    kept = set(link_missing(plugin / "skills", HOME / ".claude/skills", "*"))
-    kept |= set(link_missing(plugin / "skills", HOME / ".agents/skills", "*"))
-    kept |= set(link_missing(plugin / "agents", HOME / ".claude/agents", "*.md"))
-    print(f"Toolkit added to the sandbox: instructions in ~/{TOOLKIT_AGENTS}, skills, and subagents.")
+    # The environment's skill source installs the skills. The skills CLI does not install subagents, and some skills use them.
+    kept = link_missing(TOOLKIT / "plugin/agents", HOME / ".claude/agents", "*.md")
+    print(f"Toolkit added to the sandbox: instructions in ~/{TOOLKIT_AGENTS}, and subagents.")
     if kept:
-        print(f"Already installed from another source, not changed: {', '.join(sorted(kept))}")
+        print(f"Already installed from another source, not changed: {', '.join(kept)}")
 
 
 if __name__ == "__main__":

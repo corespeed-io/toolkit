@@ -28,10 +28,10 @@ After a change:
 
 ## On Agent Ensemble
 
-The environment setup script clones the toolkit to `~/toolkit` and runs `python3 ~/toolkit/scripts/apply.py ensemble`. It only adds: it links the skills and subagents that are not installed yet, and it imports `~/toolkit-AGENTS.md`. Hooks are not used. Lore is not available. The memory section comes from `ensemble/instructions.md`.
+The environment installs the skills from its skill source `spinsirr/toolkit`. Its setup script clones the toolkit to `~/toolkit` and runs `python3 ~/toolkit/scripts/apply.py ensemble`, which imports `~/toolkit-AGENTS.md` and links the subagents. Hooks are not used. Lore is not available. The memory section comes from `ensemble/instructions.md`.
 
 - A rule for all machines goes in `AGENTS.md`. A rule only for Agent Ensemble goes in `ensemble/instructions.md`.
-- Edit the files in `~/toolkit`. Do not run `install.sh`.
+- Edit the files in `~/toolkit`. Do not run `install.sh`. The installed skills are copies, so an edit loads only in sessions that start after the merge.
 - Do step 1 above and commit. There is no Stop hook here. Run `python3 ~/toolkit/scripts/ensemble_pr.py`. It pushes the commits to `ensemble/<AGENT_ID>` and opens a PR, or updates the open one. The sandbox is deleted after the session, so this step is necessary.
 - Give the user the PR link. The user merges it. New sessions get the change after the merge.
 - If the script fails, tell the user. Do not push in another way.
