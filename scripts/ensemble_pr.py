@@ -1,7 +1,8 @@
-"""Stop hook on Agent Ensemble: push the toolkit commits of this session and open a PR for them.
+"""Agent Ensemble: push the toolkit commits of this session and open a PR for them. Run it again to update the PR.
+
+  python3 ~/toolkit/scripts/ensemble_pr.py
 
 The sandbox is deleted after the session, so a commit that stays local is lost.
-Exit 2 gives the message to the agent, which tells the user. stop_hook_active prevents a loop.
 """
 from __future__ import annotations
 
@@ -20,7 +21,7 @@ BASE = "main"
 
 def fail(message: str) -> None:
     print(f"Toolkit PR: {message}", file=sys.stderr)
-    sys.exit(2)
+    sys.exit(1)
 
 
 def git(*args: str) -> str:
@@ -46,14 +47,12 @@ def github(method: str, path: str, token: str, body: dict | None = None) -> list
 
 
 def main() -> None:
-    event = json.load(sys.stdin)
-    if event.get("stop_hook_active") or not (TOOLKIT / ".git").exists():
-        return
     if git("status", "--porcelain"):
-        fail(f"{TOOLKIT} has changes that are not committed. Commit them (see add-to-toolkit) or revert them.")
+        fail(f"{TOOLKIT} has changes that are not committed. Commit them or revert them.")
     git("fetch", "-q", "origin", BASE)
     commits = git("log", "--reverse", "--format=%s", f"origin/{BASE}..HEAD").splitlines()
     if not commits:
+        print(f"Toolkit PR: no commits after origin/{BASE}. Nothing to push.")
         return
     token = os.environ.get("TOOLKIT_GH_TOKEN")
     if not token:
@@ -66,7 +65,9 @@ def main() -> None:
     # A credential helper reads the token from the environment, so the token is not in argv.
     helper = "!f() { echo username=x-access-token; echo password=$TOOLKIT_GH_TOKEN; }; f"
     git("-c", "credential.helper=", "-c", f"credential.helper={helper}", "push", "-q", "--force", "origin", f"HEAD:refs/heads/{branch}")
-    if github("GET", f"/repos/{owner}/{repo}/pulls?state=open&head={owner}:{branch}", token):
+    existing = github("GET", f"/repos/{owner}/{repo}/pulls?state=open&head={owner}:{branch}", token)
+    if existing:
+        print(f"Toolkit PR updated: {existing[0]['html_url']}")
         return
     title = commits[0] if len(commits) == 1 else f"Toolkit: {len(commits)} changes from an Agent Ensemble session"
     body = "\n".join([*(f"- {c}" for c in commits), "", f"From Agent Ensemble session `{os.environ['AGENT_ID']}`."])

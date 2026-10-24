@@ -37,7 +37,8 @@
 
 ## Skill use in this environment
 
-- The skills, subagents, and hooks come from the toolkit at `~/toolkit`. To change one, use the `add-to-toolkit` skill.
+- The toolkit at `~/toolkit` adds skills and subagents. To change one, use the `add-to-toolkit` skill.
+- When the environment also installs a skill with the same name, the environment version is the one that loads.
 - Lore is not available here. When a skill tells you to use Lore (`lore_search`, `lore_remember`, and so on), use the CoreSpeed Memory tool that does the same thing.
 - Never claim that an installed skill proves its CLI, account, or API connection works.
 

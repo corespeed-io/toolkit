@@ -7,7 +7,6 @@ from __future__ import annotations
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -15,8 +14,9 @@ from pathlib import Path
 TOOLKIT = Path(__file__).resolve().parent.parent
 HOME = Path.home()
 LORE_SECTION = "\n## Memory: Lore\n"
-# A fresh sandbox has nothing to pull, and it has no macOS notifications.
-SANDBOX_SKIP = ("sync.sh", "notify.py")
+TOOLKIT_AGENTS = "toolkit-AGENTS.md"
+IMPORT_LINE = f"@~/{TOOLKIT_AGENTS}"
+BLOCK_MARK = "<!-- toolkit: apply.py ensemble writes below this line -->"
 
 
 def merge(base: dict, extra: dict) -> dict:
@@ -115,57 +115,52 @@ def ensemble_agents(base: str, ensemble: str) -> str:
     return head + "\n" + ensemble.strip("\n") + "\n" + (rest[next_section:] if next_section >= 0 else "")
 
 
-def ensemble_hooks(hooks: dict, plugin_root: str) -> dict:
-    """The plugin hooks as user settings, without the hooks that do not apply in a sandbox, plus the PR hook."""
-    out: dict = {}
-    for event, groups in hooks.items():
-        for group in groups:
-            kept = [
-                {**h, "command": h["command"].replace("${CLAUDE_PLUGIN_ROOT}", plugin_root)}
-                for h in group["hooks"]
-                if not any(skip in h["command"] for skip in SANDBOX_SKIP)
-            ]
-            if kept:
-                out.setdefault(event, []).append({**group, "hooks": kept})
-    pr_hook = {"type": "command", "command": f'python3 "{plugin_root}/hooks/ensemble_pr.py"', "timeout": 60}
-    out.setdefault("Stop", []).append({"hooks": [pr_hook]})
-    return out
+def with_block(text: str, block: str) -> str:
+    """text with the toolkit block at the end. A second run replaces the block. It does not add another one."""
+    head = text.split(BLOCK_MARK, 1)[0].rstrip("\n")
+    return (head + "\n\n" if head else "") + BLOCK_MARK + "\n" + block
 
 
-def link_each(src_dir: Path, dest_dir: Path, pattern: str) -> None:
-    """Symlink each item into dest_dir, so that an edit in the sandbox is an edit in the toolkit repo."""
+def link_missing(src_dir: Path, dest_dir: Path, pattern: str) -> list[str]:
+    """Symlink each item that dest_dir does not have. Return the names that dest_dir already has from another source."""
     dest_dir.mkdir(parents=True, exist_ok=True)
+    kept = []
     for src in sorted(src_dir.glob(pattern)):
         dest = dest_dir / src.name
-        if dest.is_symlink() or dest.is_file():
-            dest.unlink()
-        elif dest.is_dir():
-            shutil.rmtree(dest)
+        if dest.is_symlink() and dest.resolve() == src.resolve():
+            continue
+        if dest.exists() or dest.is_symlink():
+            kept.append(src.name)
+            continue
         dest.symlink_to(src)
+    return kept
 
 
 def apply_ensemble() -> None:
     """Agent Ensemble sandbox. Run from the environment setup script, after the toolkit is cloned to ~/toolkit.
 
-    Lore is not reachable from a sandbox, so this does not register mcp.json. The environment supplies CoreSpeed MCP.
+    This only adds. It does not change the environment instructions, a skill that is already installed, or a hook.
+    Lore is not reachable from a sandbox, so this does not register mcp.json.
     """
     agents = ensemble_agents((TOOLKIT / "AGENTS.md").read_text(), (TOOLKIT / "ensemble/instructions.md").read_text())
-    (HOME / "AGENTS.md").write_text(agents)
-    (HOME / ".claude").mkdir(exist_ok=True)
-    (HOME / ".claude/CLAUDE.md").write_text("@~/AGENTS.md\n")
-    (HOME / ".codex").mkdir(exist_ok=True)
-    (HOME / ".codex/AGENTS.md").write_text(agents)
+    (HOME / TOOLKIT_AGENTS).write_text(agents)
+    claude_md = HOME / ".claude/CLAUDE.md"
+    claude_md.parent.mkdir(exist_ok=True)
+    current = claude_md.read_text() if claude_md.exists() else ""
+    if IMPORT_LINE not in current.splitlines():
+        claude_md.write_text(current.rstrip("\n") + ("\n\n" if current.strip() else "") + IMPORT_LINE + "\n")
+    # Codex does not follow @imports, so its instructions file gets a copy.
+    codex_md = HOME / ".codex/AGENTS.md"
+    codex_md.parent.mkdir(exist_ok=True)
+    codex_md.write_text(with_block(codex_md.read_text() if codex_md.exists() else "", agents))
 
     plugin = TOOLKIT / "plugin"
-    link_each(plugin / "skills", HOME / ".claude/skills", "*")
-    link_each(plugin / "skills", HOME / ".agents/skills", "*")
-    link_each(plugin / "agents", HOME / ".claude/agents", "*.md")
-
-    settings = HOME / ".claude/settings.json"
-    current = json.loads(settings.read_text()) if settings.exists() else {}
-    hooks = ensemble_hooks(json.loads((plugin / "hooks/hooks.json").read_text())["hooks"], str(plugin))
-    settings.write_text(json.dumps(merge(current, {"hooks": hooks}), indent=2) + "\n")
-    print(f"Toolkit applied to the sandbox: {len(list((plugin / 'skills').iterdir()))} skills, hooks, AGENTS.md")
+    kept = set(link_missing(plugin / "skills", HOME / ".claude/skills", "*"))
+    kept |= set(link_missing(plugin / "skills", HOME / ".agents/skills", "*"))
+    kept |= set(link_missing(plugin / "agents", HOME / ".claude/agents", "*.md"))
+    print(f"Toolkit added to the sandbox: instructions in ~/{TOOLKIT_AGENTS}, skills, and subagents.")
+    if kept:
+        print(f"Already installed from another source, not changed: {', '.join(sorted(kept))}")
 
 
 if __name__ == "__main__":
