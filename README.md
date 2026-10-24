@@ -28,4 +28,4 @@ In the environment:
 
 `apply.py ensemble` only links each subagent that is not installed yet. The `skills` CLI does not install subagents, and some skills use them.
 
-Write-back: `add-to-toolkit` runs `scripts/ensemble_pr.py`, which pushes to `ensemble/<AGENT_ID>` and opens a PR. It needs `TOOLKIT_GH_TOKEN` in the environment: a fine-grained token for this repo only, with Contents and Pull requests read and write.
+A sandbox session cannot push to this repo, so `add-to-toolkit` gives the user the change to make.
