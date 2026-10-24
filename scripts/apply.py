@@ -13,10 +13,6 @@ from pathlib import Path
 
 TOOLKIT = Path(__file__).resolve().parent.parent
 HOME = Path.home()
-LORE_SECTION = "\n## Memory: Lore\n"
-TOOLKIT_AGENTS = "toolkit-AGENTS.md"
-IMPORT_LINE = f"@~/{TOOLKIT_AGENTS}"
-BLOCK_MARK = "<!-- toolkit: apply.py ensemble writes below this line -->"
 
 
 def merge(base: dict, extra: dict) -> dict:
@@ -106,21 +102,6 @@ def apply_codex(servers: dict, env: dict[str, str]) -> None:
         print(f"Codex MCP server added: {name}")
 
 
-def ensemble_agents(base: str, ensemble: str) -> str:
-    """AGENTS.md with its Lore section changed to the Agent Ensemble sections."""
-    head, found, rest = base.partition(LORE_SECTION)
-    if not found:
-        sys.exit(f"AGENTS.md has no {LORE_SECTION.strip()!r} section to replace")
-    next_section = rest.find("\n## ")
-    return head + "\n" + ensemble.strip("\n") + "\n" + (rest[next_section:] if next_section >= 0 else "")
-
-
-def with_block(text: str, block: str) -> str:
-    """text with the toolkit block at the end. A second run replaces the block. It does not add another one."""
-    head = text.split(BLOCK_MARK, 1)[0].rstrip("\n")
-    return (head + "\n\n" if head else "") + BLOCK_MARK + "\n" + block
-
-
 def link_missing(src_dir: Path, dest_dir: Path, pattern: str) -> list[str]:
     """Symlink each item that dest_dir does not have. Return the names that dest_dir already has from another source."""
     dest_dir.mkdir(parents=True, exist_ok=True)
@@ -139,24 +120,12 @@ def link_missing(src_dir: Path, dest_dir: Path, pattern: str) -> list[str]:
 def apply_ensemble() -> None:
     """Agent Ensemble sandbox. Run from the environment setup script, after the toolkit is cloned to ~/toolkit.
 
-    This only adds. It does not change the environment instructions, the skills, or the hooks.
-    Lore is not reachable from a sandbox, so this does not register mcp.json.
+    The environment supplies the instructions and installs the skills from its skill source, so this only adds the
+    subagents: the skills CLI does not install them, and some skills use them. Lore is not reachable from a sandbox,
+    so this does not register mcp.json.
     """
-    agents = ensemble_agents((TOOLKIT / "AGENTS.md").read_text(), (TOOLKIT / "ensemble/instructions.md").read_text())
-    (HOME / TOOLKIT_AGENTS).write_text(agents)
-    claude_md = HOME / ".claude/CLAUDE.md"
-    claude_md.parent.mkdir(exist_ok=True)
-    current = claude_md.read_text() if claude_md.exists() else ""
-    if IMPORT_LINE not in current.splitlines():
-        claude_md.write_text(current.rstrip("\n") + ("\n\n" if current.strip() else "") + IMPORT_LINE + "\n")
-    # Codex does not follow @imports, so its instructions file gets a copy.
-    codex_md = HOME / ".codex/AGENTS.md"
-    codex_md.parent.mkdir(exist_ok=True)
-    codex_md.write_text(with_block(codex_md.read_text() if codex_md.exists() else "", agents))
-
-    # The environment's skill source installs the skills. The skills CLI does not install subagents, and some skills use them.
     kept = link_missing(TOOLKIT / "plugin/agents", HOME / ".claude/agents", "*.md")
-    print(f"Toolkit added to the sandbox: instructions in ~/{TOOLKIT_AGENTS}, and subagents.")
+    print("Toolkit subagents added to the sandbox.")
     if kept:
         print(f"Already installed from another source, not changed: {', '.join(kept)}")
 
