@@ -28,9 +28,15 @@ After a change:
 
 ## On Agent Ensemble
 
-The environment installs the skills from its skill source `spinsirr/toolkit`. Its setup script runs `python3 ~/toolkit/scripts/apply.py ensemble`, which links the subagents. The instructions come from the environment, not from `AGENTS.md`. Hooks are not used. Lore is not available.
+Agent Ensemble uses the fork `corespeed-io/toolkit`, because the platform can write only to `corespeed-io` repositories. The environment installs the skills from that fork. Its setup script clones the fork to `~/toolkit` and runs `python3 ~/toolkit/scripts/apply.py ensemble`, which links the subagents. The instructions come from the environment, not from `AGENTS.md`. Hooks are not used. Lore is not available.
 
-A sandbox session cannot push to this repo. Do not try to push it in another way. Give the user the exact change (file path and text) to make on a machine that has the toolkit.
+To change the toolkit from a session:
+
+1. Start a child session with `spawn_agent`, with `repo: "corespeed-io/toolkit"`. Give it the exact change (file paths and text) and tell it to do step 1 above, commit on a new branch, push, and open a PR against `main` of `corespeed-io/toolkit`.
+2. Give the user the PR link. The user merges it. Sessions that start after the merge get the change.
+3. Do not push the clone in `~/toolkit`. It is only a source for the subagents.
+
+You cannot edit the environment instructions. For a change to them, give the user the exact text.
 
 ## Sync
 
