@@ -1,4 +1,7 @@
-"""Merge shared settings into one tool (Claude Code or Codex) and register its MCP servers."""
+"""Merge shared settings into one tool (Claude Code or Codex) and register its MCP servers.
+
+`apply.py ensemble` sets up an Agent Ensemble sandbox instead: see apply_ensemble.
+"""
 from __future__ import annotations
 
 import json
@@ -99,8 +102,39 @@ def apply_codex(servers: dict, env: dict[str, str]) -> None:
         print(f"Codex MCP server added: {name}")
 
 
+def link_missing(src_dir: Path, dest_dir: Path, pattern: str) -> list[str]:
+    """Symlink each item that dest_dir does not have. Return the names that dest_dir already has from another source."""
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    kept = []
+    for src in sorted(src_dir.glob(pattern)):
+        dest = dest_dir / src.name
+        if dest.is_symlink() and dest.resolve() == src.resolve():
+            continue
+        if dest.exists() or dest.is_symlink():
+            kept.append(src.name)
+            continue
+        dest.symlink_to(src)
+    return kept
+
+
+def apply_ensemble() -> None:
+    """Agent Ensemble sandbox. Run from the environment setup script, after the toolkit is cloned to ~/toolkit.
+
+    The environment supplies the instructions and installs the skills from its skill source, so this only adds the
+    subagents: the skills CLI does not install them, and some skills use them. Lore is not reachable from a sandbox,
+    so this does not register mcp.json.
+    """
+    kept = link_missing(TOOLKIT / "plugin/agents", HOME / ".claude/agents", "*.md")
+    print("Toolkit subagents added to the sandbox.")
+    if kept:
+        print(f"Already installed from another source, not changed: {', '.join(kept)}")
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2 or sys.argv[1] not in ("claude", "codex"):
-        sys.exit("Usage: apply.py claude|codex")
+    if len(sys.argv) != 2 or sys.argv[1] not in ("claude", "codex", "ensemble"):
+        sys.exit("Usage: apply.py claude|codex|ensemble")
+    if sys.argv[1] == "ensemble":
+        apply_ensemble()
+        sys.exit(0)
     servers = json.loads((TOOLKIT / "mcp.json").read_text())
     (apply_claude if sys.argv[1] == "claude" else apply_codex)(servers, load_env())

@@ -26,4 +26,21 @@ After a change:
 3. Commit. Do not push: the `sync.sh push` Stop hook pushes toolkit commits at the end of the turn.
 4. Tell the user to restart Claude Code and Codex.
 
+## On Agent Ensemble
+
+The environment installs the skills from `spinsirr/toolkit`. Its setup script clones it to `~/toolkit` and runs `python3 ~/toolkit/scripts/apply.py ensemble`, which links the subagents. The instructions come from the environment, not from `AGENTS.md`. Hooks are not used. Lore is not available.
+
+The platform cannot push to `spinsirr/toolkit`. It can push to the fork `corespeed-io/toolkit`, which holds only branches: its `main` is not used. To change the toolkit from a session:
+
+1. Start a child session with `spawn_agent`, with `repo: "corespeed-io/toolkit"`. Give it the exact change (file paths and text), and these steps:
+   1. `git fetch https://github.com/spinsirr/toolkit.git main && git checkout -b <topic> FETCH_HEAD`
+   2. Make the change and do step 1 above. Commit.
+   3. `git push origin <topic>`
+   4. Reply with `https://github.com/spinsirr/toolkit/compare/main...corespeed-io:toolkit:<topic>?expand=1`.
+2. Give the user that link. The user opens the PR and merges it. Sessions that start after the merge get the change.
+
+Do not push the clone in `~/toolkit`. You cannot edit the environment instructions. For a change to them, give the user the exact text.
+
+## Sync
+
 Other machines sync by themselves after a push: the `sync.sh pull` SessionStart hook pulls the repo (fast-forward only) and runs `install.sh`. The new version loads in the session after that. Sync errors are in `~/.cache/toolkit-sync/error`, and the next session shows them.
