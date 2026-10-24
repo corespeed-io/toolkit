@@ -4,7 +4,7 @@ Use this when the user reports that the skill gave incorrect guidance, is missin
 
 ## Steps
 
-0. **Record the correction in Lore** — Save the correct guidance with `lore_remember` (`shared` scope), or update the existing memory with `lore_update`. This copy of the skill is in the owner's toolkit (`~/toolkit/plugin/skills/supabase`) and can differ from upstream. If the problem comes from a local change, fix it there and do not file an upstream issue.
+0. **Record the correction in memory** — Save the correct guidance (`shared` scope), or update the existing memory. This copy of the skill is in the owner's toolkit (`~/toolkit/plugin/skills/supabase`) and can differ from upstream. If the problem comes from a local change, fix it there and do not file an upstream issue.
 
 1. **Ask permission** — Ask the user if they'd like to submit feedback to the skill maintainers. If they decline, move on.
 

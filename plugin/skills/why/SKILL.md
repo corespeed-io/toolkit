@@ -1,6 +1,6 @@
 ---
 name: why
-description: "Use for 'why does X work this way', 'why we picked Y', design rationale, regressions, postmortems, or data-backed thresholds. Searches Lore, git, and each available MCP evidence category in parallel, and gives a cited read on decisions and tradeoffs. Use how for runtime behavior."
+description: "Use for 'why does X work this way', 'why we picked Y', design rationale, regressions, postmortems, or data-backed thresholds. Searches memory, git, and each available MCP evidence category in parallel, and gives a cited read on decisions and tradeoffs. Use how for runtime behavior."
 disable-model-invocation: true
 ---
 
@@ -33,7 +33,7 @@ Before you start investigators, collect the seed context yourself:
 - the last few commits that touch the target
 - PR numbers from merge commits (pattern `(#1234)` in the subject line)
 - linked ticket IDs
-- Lore memories about the target: search with `lore_search` (2–3 short queries: the project, the component, the question). Lore has the saved decisions of the owner. If Lore is not available, tell the user.
+- Memories about the target: search memory (2–3 short queries: the project, the component, the question). Memory has the saved decisions of the owner. If memory is not available, tell the user.
 
 Use these commands:
 
@@ -109,7 +109,7 @@ Start one synthesizer. Give it these items:
 
 Show the output of the synthesizer to the user. You can make small edits for clarity or add context from the conversation. **Do not rewrite the confidence language.**
 
-If the result is a durable decision that Lore does not have, save it with `lore_remember` (`shared` scope). If it contradicts a memory, fix that memory with `lore_update` (use `lore_get` first).
+If the result is a durable decision that memory does not have, save it (`shared` scope). If it contradicts a memory, update that memory (read it first).
 
 ## Output format
 

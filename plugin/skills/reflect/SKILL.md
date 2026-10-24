@@ -1,12 +1,12 @@
 ---
 name: reflect
-description: "Start three parallel review subagents on the active transcript, find learnings, and route each one to a concrete edit on an existing skill or to Lore. Use when the user says reflect or /reflect."
+description: "Start three parallel review subagents on the active transcript, find learnings, and route each one to a concrete edit on an existing skill or to memory. Use when the user says reflect or /reflect."
 disable-model-invocation: true
 ---
 
 # Reflect
 
-Mine the current conversation for durable learnings. Then route them into skill edits, or into Lore for facts that are not skill rules.
+Mine the current conversation for durable learnings. Then route them into skill edits, or into memory for facts that are not skill rules.
 
 Use this skill when the user says "reflect" or "/reflect". Do not use it when the conversation is trivial or off-topic, or when an existing skill already covers it and the parent followed that skill correctly. A one-time event is not a learning.
 
@@ -63,11 +63,11 @@ Follow the Routing of each approved row exactly:
 - `tune description: <skill path>` (the skill exists, but it did not trigger when it should): give it to `skill-creator` and run its description-optimization loop.
 - `new skill via create-skill: <kebab-name>`: give the creation to `skill-creator`. Do not invent the shape yourself.
 
-Route durable facts to Lore, not to local files:
+Route durable facts to memory, not to local files:
 
-- A finding can be a durable decision, convention, or failure fix about the user or a project, and not a rule for a skill. Save it with `lore_remember` (`shared` scope; `private` scope for details of one machine). Do this without waiting for approval.
-- Search with `lore_search` first. If a memory already covers it, update that memory with `lore_update` (use `lore_get` first). Do not add a duplicate.
-- Never write learnings to local memory files, `MEMORY.md`, or rule directories of the tool. If Lore is not available, tell the user.
+- A finding can be a durable decision, convention, or failure fix about the user or a project, and not a rule for a skill. Save it to memory (`shared` scope; `private` scope for details of one machine). Do this without waiting for approval.
+- Search memory first. If a memory already covers it, update that memory (read it first). Do not add a duplicate.
+- Never write learnings to local memory files, `MEMORY.md`, or rule directories of the tool. If memory is not available, tell the user.
 
 If your environment has a SKILL.md validator, run it on each skill that you changed before you say that you are done.
 
@@ -77,6 +77,6 @@ Give a short list, with no introduction:
 
 - Edits applied: `<skill path>`. What changed, one line each.
 - New skills created: `<skill path>`. One line each (rare).
-- Lore memories saved or updated: `<memory id>`. One line each.
+- Memories saved or updated: `<memory id>`. One line each.
 - Backlog filed to the devex tracker: `<issue title>` (`<tags>`). One line each.
 - Dropped: one line for each rejected finding, with the reason from the synthesizer.
