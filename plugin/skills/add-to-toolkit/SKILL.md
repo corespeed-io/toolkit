@@ -28,7 +28,7 @@ After a change:
 
 ## On Agent Ensemble
 
-The environment installs the skills from `spinsirr/toolkit`. Its setup script clones it to `~/toolkit` and runs `python3 ~/toolkit/scripts/apply.py ensemble`, which links the subagents. The instructions come from the environment, not from `AGENTS.md`. Hooks are not used. Lore is not available.
+The environment installs the skills from `spinsirr/toolkit`. Its setup script clones it to `~/toolkit` and runs `python3 ~/toolkit/scripts/apply.py ensemble`, which imports `AGENTS.md` and links the subagents. The environment instructions hold only the rules for Agent Ensemble. Hooks are not used. Memory is CoreSpeed Memory, not Lore.
 
 The platform cannot push to `spinsirr/toolkit`. It can push to the fork `corespeed-io/toolkit`, which holds only branches: its `main` is not used. To change the toolkit from a session:
 
@@ -39,7 +39,7 @@ The platform cannot push to `spinsirr/toolkit`. It can push to the fork `corespe
    4. Reply with `https://github.com/spinsirr/toolkit/compare/main...corespeed-io:toolkit:<topic>?expand=1`.
 2. Give the user that link. The user opens the PR and merges it. Sessions that start after the merge get the change.
 
-Do not push the clone in `~/toolkit`. You cannot edit the environment instructions. For a change to them, give the user the exact text.
+Do not push the clone in `~/toolkit`. A rule for all machines goes in `AGENTS.md`. You cannot edit the environment instructions: for a rule only for Agent Ensemble, give the user the exact text.
 
 ## Sync
 

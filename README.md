@@ -24,8 +24,8 @@ In the environment:
   git clone -q https://github.com/spinsirr/toolkit.git ~/toolkit
   python3 ~/toolkit/scripts/apply.py ensemble
   ```
-- Instructions: the environment's own. `AGENTS.md` is not used there, because Lore is not available in a sandbox.
+- Instructions: only the rules for Agent Ensemble. `AGENTS.md` has the rest, and its memory section names the service for each place: Lore on my machines, CoreSpeed Memory on Agent Ensemble.
 
-`apply.py ensemble` only links each subagent that is not installed yet. The `skills` CLI does not install subagents, and some skills use them.
+`apply.py ensemble` only adds. It imports `AGENTS.md` from `~/.claude/CLAUDE.md`, appends a copy to `~/.codex/AGENTS.md`, and links each subagent that is not installed yet. The `skills` CLI does not install subagents, and some skills use them.
 
 This repo is the only source. The platform can push only to `corespeed-io` repositories, so a session pushes a branch to the fork [corespeed-io/toolkit](https://github.com/corespeed-io/toolkit) and gives you a compare link. You open the PR here. The fork's `main` is not used, so nothing needs to be synced.

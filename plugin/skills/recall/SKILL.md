@@ -1,6 +1,6 @@
 ---
 name: recall
-description: "Rebuild recent working context from Lore, chat history, live state, and the shared record (user reports, past fixes, incidents), then give a short current-state brief. Use for 'recall my work on X', 'catch me up', 'what have I been working on', 'where did I leave off', before you start or resume work."
+description: "Rebuild recent working context from memory, chat history, live state, and the shared record (user reports, past fixes, incidents), then give a short current-state brief. Use for 'recall my work on X', 'catch me up', 'what have I been working on', 'where did I leave off', before you start or resume work."
 disable-model-invocation: true
 ---
 
@@ -12,7 +12,7 @@ Keep it short and on the topic. Read only what the threads in scope need, then s
 
 The context is in three records:
 
-- **Lore** (the `lore` MCP server) has the durable decisions, conventions, and failure fixes that agents saved.
+- **Memory** (the service that `AGENTS.md` names) has the durable decisions, conventions, and failure fixes that agents saved.
 - **Your chat history** has what you did and decided.
 - **The shared record** has all that occurred around the same code under other names: the symptoms that users report again and again, the fixes that shipped and were reverted, the errors that still occur in prod. The **why** skill searches this record across source control, the issue tracker, chat and issue channels, long-form docs, and error tracking. A feature with many bugs keeps most of its story there. Do not rebuild it from your transcripts alone.
 
@@ -34,7 +34,7 @@ Transcripts are in these locations. Each line is one chat message.
    - Set the topic, if the user named one.
    - Set the workspace. The default is the active workspace. Never read the transcripts of a different project unless the user asks.
    - State the scope back to the user. Never change "all" to "recent N" without saying so.
-3. Search Lore first. Use `lore_search` with 2–3 short queries: the project, the component, the topic. Use `lore_retrieve_context` if the answer also depends on current code. If Lore is not available, tell the user and continue.
+3. Search memory first, with 2–3 short queries: the project, the component, the topic. If memory is not available, tell the user and continue.
 4. Mine your chat history in parallel.
    - Start parallel subagents. Give each subagent a slice of the transcripts. If the tool lets you choose, use a fast, cheap model, as the Subagents section of the **poteto-mode** skill says.
    - Tell each subagent these rules:
@@ -52,7 +52,7 @@ Transcripts are in these locations. Each line is one chat message.
    - Skip this step only for pure activity recall with no named target ("what did I do this week"). There, your own history and live state are the full answer.
 6. Verify against live state. Check the PRs, branches, and tickets that the mining and the search found, with `git` and `gh`. If the answer depends on what an agent really did (the tools it ran, the files it read, the errors it got), read the full transcript, not only a trimmed local copy.
 7. Write the brief to the contract below. Group by thread. Stay on the named topic.
-8. Keep Lore current. If you found a durable decision, convention, or failure fix that Lore does not have, save it with `lore_remember`. If a finding contradicts a memory, fix it with `lore_update` (use `lore_get` first). Do not save state that an agent can check live.
+8. Keep memory current. If you found a durable decision, convention, or failure fix that memory does not have, save it. If a finding contradicts a memory, update it (read it first). Do not save state that an agent can check live.
 
 ## Output contract
 
@@ -65,6 +65,6 @@ Start with the capsule, then the thread status, then the problems, then the next
 
 Do not include an adjacent feature or ticket unless it blocks this one. If the capsule and thread lines are longer than one screen, remove detail before you remove threads.
 
-Write the brief with the **unslop** skill. Cite chat findings by UUID. Cite Lore findings by memory id. Cite shared-record findings by their source (PR #, ticket ID, chat permalink, error-tracker issue). Remove private context before any public output.
+Write the brief with the **unslop** skill. Cite chat findings by UUID. Cite memory findings by memory id. Cite shared-record findings by their source (PR #, ticket ID, chat permalink, error-tracker issue). Remove private context before any public output.
 
 **Reply:** the brief, to the contract above.

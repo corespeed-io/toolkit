@@ -41,7 +41,7 @@ This skill works in Claude Code and in Codex. Some steps depend on the harness:
 
 ### Owner rules
 
-- **Memory.** Before you research, search Lore (`lore_search`) for earlier decisions about the skill or its domain. Save durable decisions and lessons with `lore_remember` (or `lore_update` if a memory already covers them). Do not write memory to local files.
+- **Memory.** Before you research, search memory for earlier decisions about the skill or its domain. Save durable decisions and lessons in memory (or update the memory that already covers them). Do not write memory to local files.
 - **Git.** If the skill is in a git repository and you are on `main` or `master`, make a branch first. Make a small commit at each iteration that works. Do not push unless the user tells you to.
 
 ## Communicate with the user
@@ -70,7 +70,7 @@ First, understand the intent of the user. The current conversation can already c
 
 ### Interview and research
 
-Find the answers about edge cases, input/output formats, example files, success criteria, and dependencies. First, get them from the conversation, Lore, and the files. Ask the user only for the answers that you cannot find and that are real preference decisions. Do not write test prompts until you have this information.
+Find the answers about edge cases, input/output formats, example files, success criteria, and dependencies. First, get them from the conversation, memory, and the files. Ask the user only for the answers that you cannot find and that are real preference decisions. Do not write test prompts until you have this information.
 
 Check the available MCP servers. If they help the research (search docs, find similar skills, find best practices), do the research in parallel with subagents if the harness has them. If not, do it yourself. Prepare the context so that the user has less work.
 

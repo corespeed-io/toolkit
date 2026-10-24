@@ -50,11 +50,14 @@ Code identifiers, commands, and quoted text are not changed by these rules.
 - The tech stack of a project is in the `AGENTS.md` of that project. Read it first.
 - If a project has no `AGENTS.md`, use the `init-project` skill.
 
-## Memory: Lore
+## Memory
 
-- Agent memory is in Lore, on devbox. Use the `lore` MCP server. Do not use gbrain or the local memory files of the tool. Write a local file only while Lore is not available. Move it into Lore when Lore is available again. If Lore is not available, tell the user.
-- Before you plan a task that is not trivial, search Lore with 2–3 short queries: the project, the component, the task. This also applies to tasks that look like execution only ("deploy X", "add Y"). Use `lore_search`, or `lore_retrieve_context` when the answer also depends on current code. A memory index that loads automatically is not a search.
-- Keep Lore current while you work, not only at the end:
-  - Save a new durable decision, convention, or failure fix with `lore_remember`. Use `shared` scope for the user and their projects, and `private` scope for details of one machine. If a memory already covers it, update that memory. Do not add a duplicate.
-  - If a change or a finding contradicts a memory, fix that memory in the same task with `lore_update`. Use `lore_get` first to get its current version. If Lore refuses because you do not own the memory, use `lore_propose`. `lore_forget` cannot be undone, so ask the user first.
+- The memory service depends on where you run. The rules below apply to both.
+  - My machines: Lore, the `lore` MCP server on devbox. Lore also has `lore_retrieve_context`, for an answer that also depends on current code. Write a local file only while Lore is not available, and move it into Lore when Lore is available again.
+  - Agent Ensemble: CoreSpeed Memory, the `corespeed` MCP server. Lore is not available there.
+- When a skill says "memory", it means this service. Do not use gbrain or the local memory files of the tool. If the memory service is not available, tell the user. Do not say that memory was searched or saved.
+- Before you plan a task that is not trivial, search memory with 2–3 short queries: the project, the component, the task. This also applies to tasks that look like execution only ("deploy X", "add Y"). A memory index that loads automatically is not a search.
+- Keep memory current while you work, not only at the end:
+  - Save a new durable decision, convention, or failure fix. Use `shared` scope for the user and their projects, and `private` scope for details of one machine. If a memory already covers it, update that memory. Do not add a duplicate.
+  - If a change or a finding contradicts a memory, fix that memory in the same task. Read its current version first. If the service refuses because you do not own the memory, propose the change through the service. Deleting a memory cannot be undone, so ask the user first.
   - Do not save state that an agent can check live (login status, token scopes, timestamps).

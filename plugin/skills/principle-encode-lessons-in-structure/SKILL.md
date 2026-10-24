@@ -12,4 +12,4 @@ If the lesson needs judgment and you cannot encode it, make the instruction more
 
 **Corollary:** If the fix is structural, use only the structural fix. The instruction is the symptom.
 
-**Durable lessons that are not code:** save a durable decision, convention, or failure fix in Lore. Use `lore_search` first, then `lore_remember`, or `lore_update` if a memory already covers it. Do not write lessons to local memory files or rules files.
+**Durable lessons that are not code:** save a durable decision, convention, or failure fix in memory. Search memory first, then save it, or update the memory that already covers it. Do not write lessons to local memory files or rules files.

@@ -13,6 +13,7 @@ from pathlib import Path
 
 TOOLKIT = Path(__file__).resolve().parent.parent
 HOME = Path.home()
+BLOCK_MARK = "<!-- toolkit: apply.py ensemble writes below this line -->"
 
 
 def merge(base: dict, extra: dict) -> dict:
@@ -102,6 +103,12 @@ def apply_codex(servers: dict, env: dict[str, str]) -> None:
         print(f"Codex MCP server added: {name}")
 
 
+def with_block(text: str, block: str) -> str:
+    """text with the toolkit block at the end. A second run replaces the block. It does not add another one."""
+    head = text.split(BLOCK_MARK, 1)[0].rstrip("\n")
+    return (head + "\n\n" if head else "") + BLOCK_MARK + "\n" + block
+
+
 def link_missing(src_dir: Path, dest_dir: Path, pattern: str) -> list[str]:
     """Symlink each item that dest_dir does not have. Return the names that dest_dir already has from another source."""
     dest_dir.mkdir(parents=True, exist_ok=True)
@@ -120,12 +127,23 @@ def link_missing(src_dir: Path, dest_dir: Path, pattern: str) -> list[str]:
 def apply_ensemble() -> None:
     """Agent Ensemble sandbox. Run from the environment setup script, after the toolkit is cloned to ~/toolkit.
 
-    The environment supplies the instructions and installs the skills from its skill source, so this only adds the
-    subagents: the skills CLI does not install them, and some skills use them. Lore is not reachable from a sandbox,
-    so this does not register mcp.json.
+    This only adds. The environment installs the skills from its skill source and keeps its own instructions.
+    This adds AGENTS.md next to those instructions, and the subagents: the skills CLI does not install them, and
+    some skills use them. Lore is not reachable from a sandbox, so this does not register mcp.json.
     """
+    claude_md = HOME / ".claude/CLAUDE.md"
+    claude_md.parent.mkdir(exist_ok=True)
+    current = claude_md.read_text() if claude_md.exists() else ""
+    line = f"@{TOOLKIT}/AGENTS.md"
+    if line not in current.splitlines():
+        claude_md.write_text(current.rstrip("\n") + ("\n\n" if current.strip() else "") + line + "\n")
+    # Codex does not follow @imports, so its instructions file gets a copy.
+    codex_md = HOME / ".codex/AGENTS.md"
+    codex_md.parent.mkdir(exist_ok=True)
+    codex_md.write_text(with_block(codex_md.read_text() if codex_md.exists() else "", (TOOLKIT / "AGENTS.md").read_text()))
+
     kept = link_missing(TOOLKIT / "plugin/agents", HOME / ".claude/agents", "*.md")
-    print("Toolkit subagents added to the sandbox.")
+    print("Toolkit AGENTS.md and subagents added to the sandbox.")
     if kept:
         print(f"Already installed from another source, not changed: {', '.join(kept)}")
 
