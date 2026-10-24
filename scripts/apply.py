@@ -1,15 +1,22 @@
-"""Merge shared settings into one tool (Claude Code or Codex) and register its MCP servers."""
+"""Merge shared settings into one tool (Claude Code or Codex) and register its MCP servers.
+
+`apply.py ensemble` sets up an Agent Ensemble sandbox instead: see apply_ensemble.
+"""
 from __future__ import annotations
 
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 TOOLKIT = Path(__file__).resolve().parent.parent
 HOME = Path.home()
+LORE_SECTION = "\n## Memory: Lore\n"
+# A fresh sandbox has nothing to pull, and it has no macOS notifications.
+SANDBOX_SKIP = ("sync.sh", "notify.py")
 
 
 def merge(base: dict, extra: dict) -> dict:
@@ -99,8 +106,73 @@ def apply_codex(servers: dict, env: dict[str, str]) -> None:
         print(f"Codex MCP server added: {name}")
 
 
+def ensemble_agents(base: str, ensemble: str) -> str:
+    """AGENTS.md with its Lore section changed to the Agent Ensemble sections."""
+    head, found, rest = base.partition(LORE_SECTION)
+    if not found:
+        sys.exit(f"AGENTS.md has no {LORE_SECTION.strip()!r} section to replace")
+    next_section = rest.find("\n## ")
+    return head + "\n" + ensemble.strip("\n") + "\n" + (rest[next_section:] if next_section >= 0 else "")
+
+
+def ensemble_hooks(hooks: dict, plugin_root: str) -> dict:
+    """The plugin hooks as user settings, without the hooks that do not apply in a sandbox, plus the PR hook."""
+    out: dict = {}
+    for event, groups in hooks.items():
+        for group in groups:
+            kept = [
+                {**h, "command": h["command"].replace("${CLAUDE_PLUGIN_ROOT}", plugin_root)}
+                for h in group["hooks"]
+                if not any(skip in h["command"] for skip in SANDBOX_SKIP)
+            ]
+            if kept:
+                out.setdefault(event, []).append({**group, "hooks": kept})
+    pr_hook = {"type": "command", "command": f'python3 "{plugin_root}/hooks/ensemble_pr.py"', "timeout": 60}
+    out.setdefault("Stop", []).append({"hooks": [pr_hook]})
+    return out
+
+
+def link_each(src_dir: Path, dest_dir: Path, pattern: str) -> None:
+    """Symlink each item into dest_dir, so that an edit in the sandbox is an edit in the toolkit repo."""
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    for src in sorted(src_dir.glob(pattern)):
+        dest = dest_dir / src.name
+        if dest.is_symlink() or dest.is_file():
+            dest.unlink()
+        elif dest.is_dir():
+            shutil.rmtree(dest)
+        dest.symlink_to(src)
+
+
+def apply_ensemble() -> None:
+    """Agent Ensemble sandbox. Run from the environment setup script, after the toolkit is cloned to ~/toolkit.
+
+    Lore is not reachable from a sandbox, so this does not register mcp.json. The environment supplies CoreSpeed MCP.
+    """
+    agents = ensemble_agents((TOOLKIT / "AGENTS.md").read_text(), (TOOLKIT / "ensemble/instructions.md").read_text())
+    (HOME / "AGENTS.md").write_text(agents)
+    (HOME / ".claude").mkdir(exist_ok=True)
+    (HOME / ".claude/CLAUDE.md").write_text("@~/AGENTS.md\n")
+    (HOME / ".codex").mkdir(exist_ok=True)
+    (HOME / ".codex/AGENTS.md").write_text(agents)
+
+    plugin = TOOLKIT / "plugin"
+    link_each(plugin / "skills", HOME / ".claude/skills", "*")
+    link_each(plugin / "skills", HOME / ".agents/skills", "*")
+    link_each(plugin / "agents", HOME / ".claude/agents", "*.md")
+
+    settings = HOME / ".claude/settings.json"
+    current = json.loads(settings.read_text()) if settings.exists() else {}
+    hooks = ensemble_hooks(json.loads((plugin / "hooks/hooks.json").read_text())["hooks"], str(plugin))
+    settings.write_text(json.dumps(merge(current, {"hooks": hooks}), indent=2) + "\n")
+    print(f"Toolkit applied to the sandbox: {len(list((plugin / 'skills').iterdir()))} skills, hooks, AGENTS.md")
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2 or sys.argv[1] not in ("claude", "codex"):
-        sys.exit("Usage: apply.py claude|codex")
+    if len(sys.argv) != 2 or sys.argv[1] not in ("claude", "codex", "ensemble"):
+        sys.exit("Usage: apply.py claude|codex|ensemble")
+    if sys.argv[1] == "ensemble":
+        apply_ensemble()
+        sys.exit(0)
     servers = json.loads((TOOLKIT / "mcp.json").read_text())
     (apply_claude if sys.argv[1] == "claude" else apply_codex)(servers, load_env())
