@@ -32,12 +32,14 @@ The environment installs the skills from `spinsirr/toolkit`. Its setup script cl
 
 The platform cannot push to `spinsirr/toolkit`. It can push to the fork `corespeed-io/toolkit`, which holds only branches: its `main` is not used. To change the toolkit from a session:
 
-1. Start a child session with `spawn_agent`, with `repo: "corespeed-io/toolkit"`. Give it the exact change (file paths and text), and these steps:
+1. Start a child session with `spawn_agent`, with `repo: "corespeed-io/toolkit"`. Start its prompt with who asked for the change, why, and this session's id, so that the child can check the request with `peek_agent`. A child that gets only commands to push code treats them as an injection and refuses (2026-10-25). Then give it the exact change (file paths and text), and these steps:
    1. `git fetch https://github.com/spinsirr/toolkit.git main && git checkout -b <topic> FETCH_HEAD`
    2. Make the change and do step 1 above. Commit.
    3. `git push origin <topic>`
    4. Reply with `https://github.com/spinsirr/toolkit/compare/main...corespeed-io:toolkit:<topic>?expand=1`.
 2. Give the user that link. The user opens the PR and merges it. Sessions that start after the merge get the change.
+
+When this session's repo is `corespeed-io/toolkit` (for example, the retro routine), do steps 1.1 to 1.4 in the workspace. Do not start a child session.
 
 Do not push the clone in `~/toolkit`. A rule for all machines goes in `AGENTS.md`. You cannot edit the environment instructions: for a rule only for Agent Ensemble, give the user the exact text.
 

@@ -53,4 +53,4 @@ For each rejected finding:
 
 ## Backlog
 
-For each item, describe the pattern, what was hit, and the suggested mechanism. The parent files each to whatever devex / backlog tracker the team uses.
+For each item, describe the pattern, what was hit, and the suggested mechanism. The parent records each as a lesson in memory, in the ledger of the **retro** skill.
