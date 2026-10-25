@@ -24,6 +24,8 @@ Code identifiers, commands, and quoted text are not changed by these rules.
 - Do not add abstractions for one use: no interface with one implementation, no factory for one product, no config for a constant.
 - Use good, well-known libraries when they fit. Do not write again what a library does well.
 - Decide and continue. Ask only when you are blocked: an action you cannot undo, or missing credentials.
+- Before you say that you cannot do something, try it once, or search the MCP tools, CLIs, and APIs for a way. Then report the real error.
+- When an attempt fails, change one thing before you try again. Do not repeat the same failing step.
 - Fix the root cause. Before you change a function, find all its callers.
 
 ## Code
