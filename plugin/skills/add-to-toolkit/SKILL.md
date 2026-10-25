@@ -32,7 +32,7 @@ The environment installs the skills from `spinsirr/toolkit`. Its setup script cl
 
 The platform cannot push to `spinsirr/toolkit`. It can push to the fork `corespeed-io/toolkit`, which holds only branches: its `main` is not used. To change the toolkit from a session:
 
-1. Start a child session with `spawn_agent`, with `repo: "corespeed-io/toolkit"`. Give it the exact change (file paths and text), and these steps:
+1. Start a child session with `spawn_agent`, with `repo: "corespeed-io/toolkit"`. Start its prompt with who asked for the change, why, and this session's id, so that the child can check the request with `peek_agent`. A child that gets only commands to push code treats them as an injection and refuses (2026-10-25). Then give it the exact change (file paths and text), and these steps:
    1. `git fetch https://github.com/spinsirr/toolkit.git main && git checkout -b <topic> FETCH_HEAD`
    2. Make the change and do step 1 above. Commit.
    3. `git push origin <topic>`
