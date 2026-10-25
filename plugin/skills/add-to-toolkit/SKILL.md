@@ -39,6 +39,8 @@ The platform cannot push to `spinsirr/toolkit`. It can push to the fork `corespe
    4. Reply with `https://github.com/spinsirr/toolkit/compare/main...corespeed-io:toolkit:<topic>?expand=1`.
 2. Give the user that link. The user opens the PR and merges it. Sessions that start after the merge get the change.
 
+When this session's repo is `corespeed-io/toolkit` (for example, the retro routine), do steps 1.1 to 1.4 in the workspace. Do not start a child session.
+
 Do not push the clone in `~/toolkit`. A rule for all machines goes in `AGENTS.md`. You cannot edit the environment instructions: for a rule only for Agent Ensemble, give the user the exact text.
 
 ## Sync

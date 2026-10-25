@@ -54,7 +54,9 @@ Move each Accepted item to Backlog if a lint rule, script, metadata flag, or run
 
 Show the full Accepted / Rejected / Backlog output of the synthesizer. Wait for explicit approval before you apply an Accepted edit. The user selects the subset and can change routings. Skill changes affect all future agents in the org. Do not apply them automatically.
 
-File each Backlog item to the devex or backlog tracker of the team without waiting. Only the Accepted list waits for approval.
+Record each Accepted and Backlog item as a lesson in memory without waiting, in the ledger format of the **retro** skill. Only the edits wait for approval.
+
+The skills come from the toolkit. Make each skill edit in the toolkit, not in the installed copy, and follow `add-to-toolkit`: on my machines in `~/toolkit`, on Agent Ensemble as a PR. Set the lesson to `proposed`.
 
 Follow the Routing of each approved row exactly:
 
@@ -78,5 +80,5 @@ Give a short list, with no introduction:
 - Edits applied: `<skill path>`. What changed, one line each.
 - New skills created: `<skill path>`. One line each (rare).
 - Memories saved or updated: `<memory id>`. One line each.
-- Backlog filed to the devex tracker: `<issue title>` (`<tags>`). One line each.
+- Lessons recorded: `<key>` (`<status>`). One line each.
 - Dropped: one line for each rejected finding, with the reason from the synthesizer.
