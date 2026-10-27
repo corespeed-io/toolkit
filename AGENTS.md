@@ -39,6 +39,12 @@ Code identifiers, commands, and quoted text are not changed by these rules.
 - Write one focused test for logic that is not trivial. Do not test trivial code.
 - Run the code before you say that it works. If it fails, show the output.
 
+## Work that the user sees
+
+- Change only what the user criticized. Do not remove a feature, or change a default for later work, unless the user asks.
+- An outward action (a post, a message, a publish) must use the type, account, channel, and destination that the user approved. To change one of them, ask first.
+- Before you send or publish a fact (a product claim, a handle, a command for the user to run), check it against its source.
+
 ## Git
 
 - If you are on `main` or `master`, make a branch first.
