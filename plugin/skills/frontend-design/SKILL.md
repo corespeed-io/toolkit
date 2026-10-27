@@ -102,6 +102,7 @@ Write a short design plan from the design brief of the client. Make a compact to
 2. Find each part that looks like the generic default that you make for all similar pages. To test this, think through a similar prompt and see if you get a similar result.
 3. Change each such part to a choice for this specific brief. Say what you changed and why.
 4. Write the code only after you confirm that the design plan is sufficiently unique. Follow the revised plan.
+5. When the first screen works, send the user a preview link. Wait for their feedback before you build further, say that the work is ready, or start a code review. Before you send the link, check that the preview shows the latest commit.
 
 Caution: CSS selector specificity can cause classes to cancel each other. This occurs easily with a type-based selector such as `.section` and an element-based selector such as `.cta`. It occurs frequently with padding and margin between sections. Structure the selector specificity carefully.
 

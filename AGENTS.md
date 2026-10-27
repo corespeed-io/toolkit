@@ -41,7 +41,6 @@ Code identifiers, commands, and quoted text are not changed by these rules.
 
 ## Work that the user sees
 
-- For a UI change, show the user a preview before you build further, say it is ready, or start a review. First check that the preview shows the latest commit.
 - Change only what the user criticized. Do not remove a feature, or change a default for later work, unless the user asks.
 - An outward action (a post, a message, a publish) must use the type, account, channel, and destination that the user approved. To change one of them, ask first.
 - Before you send or publish a fact (a product claim, a handle, a command for the user to run), check it against its source.
