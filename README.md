@@ -28,4 +28,6 @@ In the environment:
 
 `apply.py ensemble` only adds. It imports `AGENTS.md` from `~/.claude/CLAUDE.md`, appends a copy to `~/.codex/AGENTS.md`, and links each subagent that is not installed yet. The `skills` CLI does not install subagents, and some skills use them.
 
-This repo is the only source. The platform can push only to `corespeed-io` repositories, so a session pushes a branch to the fork [corespeed-io/toolkit](https://github.com/corespeed-io/toolkit) and gives you a compare link. You open the PR here. The fork's `main` is not used, so nothing needs to be synced.
+This repo is the only source. The platform can push only to `corespeed-io` repositories, so a session pushes a branch to the fork [corespeed-io/toolkit](https://github.com/corespeed-io/toolkit). The Fork PRs workflow (`.github/workflows/fork-prs.yml`) opens a PR here for each new fork branch, every 15 minutes. It needs Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests". The fork's `main` is not used, so nothing needs to be synced.
+
+Self-improvement: sessions record lessons in memory when you correct them (`AGENTS.md`, Memory). The daily `retro` routine curates them and proposes fixes on the branch `retro/next`.
