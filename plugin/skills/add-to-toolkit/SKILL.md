@@ -37,7 +37,7 @@ The platform cannot push to `spinsirr/toolkit`. It can push to the fork `corespe
    2. Make the change and do step 1 above. Commit.
    3. `git push origin <topic>`
    4. Reply with `https://github.com/spinsirr/toolkit/compare/main...corespeed-io:toolkit:<topic>?expand=1`.
-2. Give the user that link. The user opens the PR and merges it. Sessions that start after the merge get the change.
+2. The Fork PRs workflow in `spinsirr/toolkit` opens a PR for the branch within about 15 minutes. Give the user the PR link, or the compare link if there is no PR yet. The user merges it. Sessions that start after the merge get the change.
 
 When this session's repo is `corespeed-io/toolkit` (for example, the retro routine), do steps 1.1 to 1.4 in the workspace. Do not start a child session.
 

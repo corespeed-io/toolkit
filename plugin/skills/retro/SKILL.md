@@ -1,11 +1,15 @@
 ---
 name: retro
-description: "Review the user's recent agent sessions, record each correction as a lesson in memory, propose toolkit changes as PRs, and check whether merged fixes stopped the correction. Use for /retro, the daily retro routine, or 'what do agents keep getting wrong'."
+description: "Curate the lesson ledger: merge the lessons that sessions recorded, propose toolkit fixes as one PR, and check whether merged fixes stopped the mistake. Use for /retro, the daily retro routine, or 'what do agents keep getting wrong'."
 ---
 
 # Retro
 
-This is the self-improvement loop of the toolkit. `reflect` reviews one conversation. Retro reviews many sessions, and it checks the result of each fix.
+This is the curator of the toolkit's self-improvement loop. The roles are separate:
+
+- **Record:** each session adds a lesson to the ledger when the user corrects it (`AGENTS.md`, Memory). `reflect` does the same for one conversation on request.
+- **Curate:** retro reads the ledger, merges duplicates, proposes fixes, and checks the result of each fix.
+- **Judge:** the user reviews and merges each PR. Retro never merges.
 
 The rules:
 
@@ -15,44 +19,45 @@ The rules:
 
 ## The lesson ledger
 
-Each lesson is one memory in the service that `AGENTS.md` names, with `shared` scope. `reflect` uses the same ledger.
+Each lesson is one memory in the service that `AGENTS.md` names, with `shared` scope.
 
 - The text starts with `[rsi-lesson:<key>]`. `<key>` is a short kebab-case name for the class of mistake, for example `push-without-asking`. Use the same key each time the same mistake occurs.
 - Then: the rule in one sentence, the status, the occurrences, and the fix.
 - Status is one of:
   - `open`: seen, no fix yet.
-  - `proposed`: a fix branch exists. Give the compare link.
+  - `proposed`: the fix is on the retro branch. Give the PR or compare link.
   - `fixed`: the fix PR is merged. Give the PR and the merge date.
   - `verified`: fixed, and not seen again for 14 days after the merge.
   - `regressed`: seen again in a session that started after the fix was merged.
-- Occurrences: one line each, `<date> <session id>: <what the agent did> → <what the user wanted>`. Keep the last 10.
+  - `rejected`: the user closed the fix PR. Record the reason. Do not propose the same fix again.
+- Occurrences: one line each, `<date> <session id>: <what the agent did> → <what the user wanted>`. Keep the last 10. Do not quote secrets or personal data. A one-time slip that the agent fixed at once is not a lesson.
 - Tags: `rsi: lesson`, `key: <key>`, `status: <status>`.
 
 To find a lesson, search memory for `rsi-lesson` plus the topic. Read the memory before you update it.
 
-## 1. Choose the sessions
+## 1. Read the ledger
 
-- On Agent Ensemble: `list_agents` with `owner` set to the user, sorted by `activity`. Take the sessions with activity since the last retro. The routine prompt gives the previous run. With no previous run, take the last 24 hours.
-- Skip the runs of this routine, sessions with no message from the user, and sessions that are still running.
-- On a local machine: the transcripts in `~/.claude/projects/` and `~/.codex/sessions/` for the same window.
+Search memory for `rsi-lesson` (several queries, and `limit` 50). This is the main input. Note the occurrences added since the previous run. The routine prompt gives the previous run; with no previous run, use the last 24 hours.
 
-## 2. Find the corrections
+## 2. Spot-check the sessions
 
-Start subagents in parallel, about five sessions each, so that the transcripts stay out of the main context. Each one reads its sessions with `peek_agent` (follow `before` to read all of a long session) and returns findings only.
+Sessions can miss a lesson, so check a sample. Keep it small: the ledger is the record, not the transcripts.
 
-A finding is one of these, with the session id and a short quote of the user:
+- Take the user's sessions with activity since the previous run (`list_agents`, `owner` set to the user, sorted by `activity`). Skip the runs of this routine. Take at most 10.
+- Read only the part after the previous run. `after` and `before` of `peek_agent` are event sequence numbers, not times: a time returns an empty page with no error. Use `budget` 4000 and at most 2 pages for each session.
+  - If the previous report has a cursor for the session, read with `after` set to it.
+  - Otherwise read the newest page (no `after` or `before`), then one more page with `before` set to the `older` value of that page.
+- Look only at the user's messages and the agent's reply to each. Note each session's `last_seq` as its cursor for the report.
+- Look for a correction, a rejected action, or a stated rule that is not in the ledger. Add each one as an occurrence.
+- Use subagents for this, about five sessions each. Wait for all of them in the foreground before you continue. Do not end the turn while a subagent runs: the first final message of the run is its report.
+- If you did not read all of a session's new part, write that in the report.
 
-- The user corrected the agent: "no", "wrong", "not that", "I said", a rejected tool call, or the same request asked again.
-- The user stated a rule: "always", "never", "from now on", "remember".
-- The agent failed in the same way two or more times in one session.
+## 3. Curate the ledger
 
-A one-time slip that the agent fixed at once is not a finding. A question about the product is not a finding. Do not quote secrets or personal data.
-
-## 3. Update the ledger
-
-For each finding, find its lesson. If none matches, make a new one with status `open`. Add the occurrence. If the status is `fixed` or `verified`, and the session started after the fix was merged, set the status to `regressed`.
-
-Then check each `proposed` lesson: find its PR with `gh api "repos/spinsirr/toolkit/pulls?state=all&head=corespeed-io:<branch>"`. If it is merged, set `fixed` with the merge date. If it is closed without a merge, set `open` and record why, if the PR says. Set `verified` for each `fixed` lesson with no occurrence in the 14 days after the merge.
+- Merge lessons that are the same class of mistake under different keys. Keep one key, move the occurrences to it, and archive the other memory.
+- Check the PR of each `proposed` lesson: `gh api "repos/spinsirr/toolkit/pulls?state=all&head=corespeed-io:retro/next"`. Merged: set `fixed` with the merge date. Closed without a merge: set `rejected` with the reason, if the PR says.
+- Set `regressed` for a `fixed` or `verified` lesson with an occurrence in a session that started after the merge.
+- Set `verified` for a `fixed` lesson with no occurrence in the 14 days after the merge.
 
 ## 4. Choose what to fix
 
@@ -67,22 +72,30 @@ For a `regressed` lesson, more text did not work. Use the **encode-lessons-in-st
 Route each fix to one place:
 
 - A rule for one skill: that skill in `plugin/skills/`. A large edit goes through the **skill-creator** skill.
-- A rule for all places: `AGENTS.md`.
+- A rule for all places: `AGENTS.md`. Keep `AGENTS.md` short: add one bullet, or merge into an existing one. Do not rewrite a section.
 - A rule only for Agent Ensemble: the report, as exact text for the environment instructions.
 - A fact that is not a rule: memory only. No PR.
 
-## 5. Make the branch
+Each fix states what must happen next: "`<key>` does not occur again in the 14 days after the merge." Put this line in the commit message. Step 3 of a later run checks it.
 
-Put all fixes of one run on one branch, `retro/<date>`. Follow `add-to-toolkit`. When this session's repo is `corespeed-io/toolkit`, do the steps in the workspace and do not start a child session. Set each lesson in the branch to `proposed` with the compare link.
+## 5. Update the retro branch
+
+All fixes go on one branch, `retro/next`, on the fork `corespeed-io/toolkit`. Follow `add-to-toolkit` (when this session's repo is the fork, work in the workspace).
+
+- If `retro/next` has an open PR, rebase it on `spinsirr/toolkit` main and add commits to it.
+- Otherwise (no branch, or its PR is merged or closed), reset `retro/next` to `spinsirr/toolkit` main.
+- Raise the plugin version once on the branch: one patch level above main. After a rebase, check it again.
+- Push with `--force-with-lease`. The Fork PRs workflow in `spinsirr/toolkit` opens the PR within about 15 minutes. Do not wait for it: give the PR link if it exists, or the compare link `https://github.com/spinsirr/toolkit/compare/main...corespeed-io:toolkit:retro/next?expand=1`.
 
 ## 6. Report
 
 The final message, with no introduction:
 
 1. **Regressed**: each `regressed` lesson, with the session that shows it.
-2. **Proposed**: the compare link, and one line for each fix with its lesson key.
+2. **Proposed**: the PR link, and one line for each new fix with its lesson key.
 3. **For the environment instructions**: exact text, if there is any.
 4. **Verified**: lessons that changed to `verified` in this run.
-5. **Ledger**: counts by status, and the number of sessions reviewed.
+5. **Ledger**: counts by status, the occurrences added since the previous run (by sessions, and by this run's spot-check), and the sessions that were not fully read.
+6. **Cursors**: one line, `<session id>=<last_seq>` for each session that you read. The next run reads it from the continuity header.
 
 If nothing changed, say so in one line.

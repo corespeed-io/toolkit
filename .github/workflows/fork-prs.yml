@@ -1,0 +1,37 @@
+# Open a PR for each branch of the fork corespeed-io/toolkit.
+# Agent Ensemble sessions can push only to the fork: the platform's GitHub App cannot open a PR here (HTTP 403).
+# The workflow reads branch names and commit titles from the fork and never runs its code.
+name: Fork PRs
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  open:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open a PR for each new fork branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          FORK: corespeed-io/toolkit
+        run: |
+          set -euo pipefail
+          owner="${FORK%%/*}"
+          for branch in $(gh api "repos/$FORK/branches" --paginate --jq '.[].name | select(. != "main")'); do
+            sha=$(gh api "repos/$FORK/branches/$branch" --jq .commit.sha)
+            ahead=$(gh api "repos/$REPO/compare/main...$owner:toolkit:$sha" --jq .ahead_by)
+            [ "$ahead" -gt 0 ] || continue
+            # One PR for each head commit: after a merge or a close, the same commit does not get a new PR.
+            seen=$(gh api "repos/$REPO/pulls?state=all&per_page=100&head=$owner:$branch" --jq "[.[] | select(.state == \"open\" or .head.sha == \"$sha\")] | length")
+            [ "$seen" = 0 ] || continue
+            title=$(gh api "repos/$FORK/commits/$sha" --jq '.commit.message | split("\n")[0]')
+            gh pr create -R "$REPO" --base main --head "$owner:$branch" --title "$title" \
+              --body "Opened by the Fork PRs workflow for the branch \`$branch\` of $FORK (head $sha)."
+          done

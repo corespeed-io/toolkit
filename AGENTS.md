@@ -69,3 +69,4 @@ Code identifiers, commands, and quoted text are not changed by these rules.
   - Save a new durable decision, convention, or failure fix. Use `shared` scope for the user and their projects, and `private` scope for details of one machine. If a memory already covers it, update that memory. Do not add a duplicate.
   - If a change or a finding contradicts a memory, fix that memory in the same task. Read its current version first. If the service refuses because you do not own the memory, propose the change through the service. Deleting a memory cannot be undone, so ask the user first.
   - Do not save state that an agent can check live (login status, token scopes, timestamps).
+- Record a lesson when it happens, not at the end. When the user corrects you, rejects an action, or states a rule ("always", "never", "from now on"), add one occurrence to the lesson ledger at once (format in the `retro` skill). Search `rsi-lesson` first and update the lesson if it exists.
