@@ -32,6 +32,7 @@ jobs:
             seen=$(gh api "repos/$REPO/pulls?state=all&per_page=100&head=$owner:$branch" --jq "[.[] | select(.state == \"open\" or .head.sha == \"$sha\")] | length")
             [ "$seen" = 0 ] || continue
             title=$(gh api "repos/$FORK/commits/$sha" --jq '.commit.message | split("\n")[0]')
-            gh pr create -R "$REPO" --base main --head "$owner:$branch" --title "$title" \
+            # --no-maintainer-edit: this token has no permission on the fork ("Fork collab can't be granted", 2026-10-29).
+            gh pr create -R "$REPO" --base main --head "$owner:$branch" --no-maintainer-edit --title "$title" \
               --body "Opened by the Fork PRs workflow for the branch \`$branch\` of $FORK (head $sha)."
           done
