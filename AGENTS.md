@@ -15,6 +15,7 @@ Write everything a person reads in Simplified Technical English (ASD-STE100). Th
 - Keep a paragraph to six sentences or less.
 - Put a warning or a caution before the step it applies to.
 - Be terse. Show code first. Do not recap the work unless the user asks.
+- End a task with a short, plain status first. Put file paths and test counts after it, only if the user needs them.
 
 Code identifiers, commands, and quoted text are not changed by these rules.
 
