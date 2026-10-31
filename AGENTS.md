@@ -46,6 +46,7 @@ Code identifiers, commands, and quoted text are not changed by these rules.
 
 - Change only what the user criticized, and plan only for the problems the user named. Give a side finding in one line at most. Do not remove a feature, or change a default for later work, unless the user asks.
 - An outward action (a post, a message, a publish) must use the type, account, channel, and destination that the user approved. To change one of them, ask first.
+- When the user corrects the purpose or the main premise of a document, check every section against it again. Do not change only the quoted part.
 - Before you send or publish a fact (a product claim, a handle, a command for the user to run), check it against its source.
 
 ## Git
