@@ -17,7 +17,7 @@ Write everything a person reads in Simplified Technical English (ASD-STE100). Th
 - Be terse. Show code first. Do not recap the work unless the user asks.
 - End a task with a short, plain status first. Put file paths and test counts after it, only if the user needs them.
 
-Code identifiers, commands, and quoted text are not changed by these rules.
+Code identifiers, commands, quoted text, and standard metric names (P50, P90, TTFB) are not changed by these rules.
 
 ## How to work
 
