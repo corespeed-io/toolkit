@@ -28,6 +28,7 @@ Code identifiers, commands, quoted text, and standard metric names (P50, P90, TT
 - Before you say that you cannot do something, try it once, or search the MCP tools, CLIs, and APIs for a way. Then report the real error.
 - When an attempt fails, change one thing before you try again. Do not repeat the same failing step.
 - Before an experiment that costs much or can touch production, read the docs. Then do the cheapest spike that cannot affect production.
+- Before you plan or start work, check what exists: earlier runs of the same job, the user's earlier decisions on the topic, and whether the issue is already fixed.
 - Fix the root cause. Before you change a function, find all its callers.
 
 ## Code
