@@ -40,6 +40,17 @@ When you make a Worker or prepare it for production, enable [Workers Logs](https
 
 Refer to the [configuration example](references/configuration.md#enable-workers-logs-and-traces).
 
+## Put compute near regional databases
+
+A Worker can send many sequential queries to one regional database. For this Worker, configure explicit placement before deployment. The placement must match the provider and the region of the database.
+
+- If the location of the database is not known, ask the user.
+- Keep the existing placement choices.
+- Make sure that the handler can use placement.
+- Measure the request duration of the deployed Worker.
+
+Refer to [database placement](references/configuration.md#place-compute-near-regional-databases).
+
 ## Anti-patterns to report
 
 | Anti-pattern | Consequence and preferred pattern |

@@ -7,7 +7,7 @@ description: >-
   a Stripe integration.
 ---
 
-Latest Stripe API version: **2026-09-30.endive**. Always use the latest API version and SDK, unless the user specifies a different version.
+Latest Stripe API version: **2026-10-28.endive**. Always use the latest API version and SDK, unless the user specifies a different version.
 
 Default development and test environment:
 

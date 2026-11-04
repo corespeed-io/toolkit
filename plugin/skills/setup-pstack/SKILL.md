@@ -47,7 +47,7 @@ The default mapping from role to model is the file shape in step 5 below. If `~/
 **(c) Show the roles and confirm.** Show each role with its model. Mark each real value that is not in the detected set as one that needs a choice. Also list each line that step 2 removed. Ask whether to accept the table as it is, or to change specific roles. Give the detected models, `inherit-parent`, and `auto` as the options. `inherit-parent` and `auto` both mean that the role runs on the parent chat model. In Claude Code, use `AskUserQuestion` when it is available.
 
 - For panel roles (`arena runners`, `architect runners`, `interrogate reviewers`), the value is a list. One subagent runs for each entry, alias entries included. The length of the list sets the count.
-- `arena cross-judge pool` is also a list. Arena selects one value from it, if possible a model that is different from the parent model.
+- `arena cross-judge pool` is also a list, but Arena runs one judge. The judge never runs on the parent model. The model is the first token of an entry (`opus`, `sonnet`, `haiku`, `fable`), and the effort does not make a different model. Arena tries only the entries with a model that is different from the parent model, in list order. Thus, put the list in order of preference. An `inherit-parent` or `auto` value never judges.
 - `swarm workers` is the default model for each worker, unless a race or a comparison sets a different model for each arm.
 
 ### 4. Validate

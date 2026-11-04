@@ -16,6 +16,7 @@ The Principles section below is the base for each trigger. In your reply, name e
 
 The other triggers:
 
+- Your first message on a task → tell the user, in your own words, their goal and the problem that they solve. If the task ships a change, also tell them the smallest change that you expect to meet the goal. Do not wait for a confirmation. If the evidence shows that the change the user asked for cannot meet the goal, show the evidence and stop. Restate the goal of the user in each subagent brief, and at the start of the `## Why` section of each PR. Also start each final report with it, your final reply included. The exception is a one-line edit that the user fully specified.
 - A change that is not trivial, an architecture decision, or "are we sure?" → the **how** skill.
 - You want to ask the user a "which approach", "how should I", or "what should this do" question → classify the question first.
   - If you can get the answer by running something (behavior, timing, layout, output, perf, or whether an eval separates), the user does not answer it. Make a sketch with the Prototype playbook (`playbooks/prototype.md`), and let the result decide.
@@ -73,7 +74,7 @@ Read the full leaf skill for each principle that you apply. Each entry tells whe
 - **Fix Root Causes.** Debugging. Trace each symptom back to the first place where the system went wrong, and fix it there. A guard is a fix only when the state that it handles is legitimate.
 - **Sequence Work into Verifiable Units** (**principle-sequence-verifiable-units**). Multi-step work (sweeps, migrations, runs of similar edits), and how you stack commits and PRs. Break the work into small units that each end in a check. Verify each unit before the next. Order the delivery so that the sequence proves itself.
 - **Test Behavior, Not Implementation.** You write, change, or keep a test. Assert what the users of the code can see. Then the test fails when that behavior breaks, and it passes when only the internals change.
-- **Explain the Number.** Before you trust, report, or act on a number that you measured (a speedup, a regression, a throughput, a latency, or an eval result). Find what limits it. Make sure that it measured the work that you think it measured.
+- **Explain the Number.** Before you measure, and before you trust, report, or act on a number that you measured (a speedup, a regression, a throughput, a latency, or an eval result). Find what limits it. Make sure that it measured the work that you think it measured.
 
 **Delegation**
 
@@ -110,6 +111,7 @@ The chat that receives `/poteto-mode` runs the playbook. Do not spawn a `poteto-
 - Run the subagent in the background. Claude Code subagents run in the background by default.
 - Give it write access. In some tools, a read-only subagent loses the MCP servers.
 - Give file paths. Do not paste the context in the prompt.
+- Also run a steer or a resume of a running subagent in the background. A call in the foreground holds your turn, and other reports must wait.
 - Set the model for each role explicitly, per **Models** below.
 
 **Models.** `/setup-pstack` writes the model for each role to `~/.claude/rules/pstack-models.md`. The skills read this file in Claude Code and in Codex. Claude Code also loads it into each new session. A role line has one of these values:
@@ -133,7 +135,14 @@ The role lines override these defaults and the model choices in the routed skill
 - Trivial mechanical edits use the code role of the playbook.
 - Prose and judgment read `judgment and prose`.
 
-If the subagent tool cannot choose a model, or it rejects a value, do not set a model. Run the role on the parent model and say so in the reply. In Codex, the agent role configuration usually sets the model, so most roles run on the parent model there. A panel then has less model diversity. Say that in the reply.
+If the subagent tool cannot choose a model, do not set a model. Run the role on the parent model and say so in the reply.
+
+A model value is rejected when an error from the tool says that the model is not valid, or when the error lists the valid values and that value is not in the list. Do not pass a rejected value again. If the tool rejects the role's line or default, do these steps:
+
+1. Use the fallback of the calling skill, if it has one. Skip each fallback value that the tool already rejected.
+2. If the calling skill has no fallback, use the nearest valid value of the same model family from the list in the error.
+3. If the error has no list, or the fallback has no more values and does not say what to do next, do not set a model. The role runs on the parent model.
+4. Say in the reply what you did. In Codex, the agent role configuration usually sets the model, so most roles run on the parent model there. A panel then has less model diversity. Say that in the reply.
 
 **Match the effort to the job.** Before each spawn, start from the role's line or default.
 
@@ -144,7 +153,7 @@ If the subagent tool cannot choose a model, or it rejects a value, do not set a 
 - Change only the effort. Keep the model that the role names, so that a panel stays diverse.
 - A role on `auto` or `inherit-parent` stays on the parent model.
 - If the tool has no effort setting, skip this step.
-- If the tool rejects the changed effort, do not try a different change. Use the role's line or default, and say so.
+- If the tool rejects the changed effort, do not try a different change. Use the role's line or default, and say so. If the tool also rejects the line or default, follow the steps for a rejected model value above.
 
 You own the work of each subagent. Review the diff and write your own summary. Do not pass on what the subagent said. A second opinion is the same prompt on a different model. When the two agree, the signal is strong.
 
@@ -201,7 +210,7 @@ Use **figure-it-out** also when no bundled playbook fits. It designs a special, 
 - **Autonomous run.** A long task to drive to completion without a stop ("run until done", "/loop until X").
 - **Orchestrate.** A standing project given to one coordinator chat: many days, many stacked PRs, tens to hundreds of subagents, and few human turns ("run this whole project", "own this migration until it lands"). Autonomous run is different: it drives one task to a predicate. If one agent can finish the work inside the session budget, use that playbook, even when the words sound like a program.
 - **Autopilot-full.** A queue of independent PRs, run to merged with full autonomy. One owner for each PR does the work from build through merge. The root does a swarm verification of each PR before its owner merges it ("autopilot this queue", "full autopilot", programs with one owner for each PR).
-- **Autopilot-stack.** A queue of changes, built and verified with full autonomy, and delivered as one linear reviewed stack on the base branch. The operator lands it ("autopilot-stack", "stack them, don't ship", "build the stack, I'll land it").
+- **Autopilot-stack.** Autopilot-full without the merge. A queue of PRs, built and verified with full autonomy, and then given to the operator, who lands them. A PR goes on a stack only when it builds on a different PR ("autopilot-stack", "autopilot, don't merge", "stack them, don't ship", "build the stack, I'll land it").
 - **Session pickup.** Continue or take over the in-progress work of an earlier agent from a transcript, a cloud-agent URL, or a pushed branch.
 - **Pause safely.** Stop in-progress work cleanly so that it can continue later. Use it on an explicit pause, before you go offline, before a restart of the tool, or before context compaction. It is the complement of Session pickup.
 - **Multi-phase or multi-PR plan.** Work that spans phases or stacked PRs. File: `playbooks/multi-phase-plan.md`.

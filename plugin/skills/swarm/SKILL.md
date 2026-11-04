@@ -52,4 +52,4 @@ Read the final results.
 
 ## Phase D: Report
 
-Return one consolidated report in the chat. Include the table, a one-line summary of each issue, the gaps or dropouts, and the race rule when you used one.
+Return one consolidated report in the chat. Include a result table, a one-line summary of each issue, the gaps or dropouts, and the race rule when you used one.

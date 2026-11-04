@@ -16,8 +16,9 @@ Each candidate gets the same prompt, so the prompt is the contract.
 2. Derive the rubric: 3–6 concrete criteria that you can grade, which tell what success is on *this* task. The rubric is the tool for the pick in Phase D. The candidates see only the task.
 3. Pick the runners.
    - Use the `arena runners` line in `~/.claude/rules/pstack-models.md`. If the file or the line does not exist, use one runner on `opus xhigh` and one on `sonnet xhigh`.
-   - An `auto` or `inherit-parent` entry in this line or in the cross-judge line means the parent model. Do not set a model for it.
+   - An `auto` or `inherit-parent` entry in this line means the parent model. Do not set a model for it.
    - If the subagent tool cannot choose a model (for example in Codex), or it rejects an entry, run that seat on the parent model and say so. The arena then gets its diversity from separate attempts, not from different models.
+   - Do not drop a seat. Run at least two runners, or one when the line has one entry.
    - Spawn more runners when the arena covers more than one design direction.
    - Use the same model N times when the work depends on the amount of generation more than on judgment.
    - Pick each subagent's reasoning effort for the job, per the Subagents section of the **poteto-mode** skill.
@@ -36,11 +37,21 @@ If a candidate makes no output, continue with N-1 and record the dropout.
 
 ## Phase C: Cross-judge
 
-When all Phase B candidates are complete, choose one model from the `arena cross-judge pool` line in `~/.claude/rules/pstack-models.md`. If the file or the line does not exist, choose from `opus xhigh` and `sonnet xhigh`. Prefer a model that is different from the parent model. Spawn one judge subagent on that model, and tell it not to edit files. The judge sees the rubric and the candidates by path label. It scores each criterion and recommends a base with a rationale. It runs in parallel with your reading in Phase D. Do not spawn it while the candidates still write.
+When all Phase B candidates are complete, spawn one judge subagent, and tell it not to edit files. Do not spawn it while the candidates still write. Choose its model from the `arena cross-judge pool` line in `~/.claude/rules/pstack-models.md`. If the file or the line does not exist, use the pool `opus xhigh, sonnet xhigh`.
+
+- The judge never runs on the parent model. The model is the first token of an entry (`opus`, `sonnet`, `haiku`, `fable`). The effort does not make a different model.
+- Try only the entries with a model that is different from the parent model, in pool order. An `auto` or `inherit-parent` entry is the parent model, so it never judges.
+- With the default pool, an `opus` parent gets `sonnet xhigh`. A parent on a different model gets `opus xhigh` first.
+- If the subagent tool rejects an entry, use the same model at the closest effort. If there is none, try the next entry.
+- If no pool entry runs, try the entries of the default pool in the same way.
+- If none of those runs (for example in Codex, where the subagent tool cannot choose a model), skip the judge. Pick the base alone in Phase D, and say so.
+- If you do not know the parent model, try the real entries of the pool in pool order. Say that the model check did not run.
+
+The judge sees the rubric and the candidates by path label. It scores each criterion and recommends a base with a rationale. It runs in parallel with your reading in Phase D.
 
 ## Phase D: Pick a base
 
-Read each candidate from start to end before you pick. Score each one against the rubric, one criterion at a time, not by a general feeling. Compare your scores with the cross-judge. If you agree on the base, the pick is confirmed. If you do not agree, one of you is biased or the rubric was not clear. Read both rationales before you decide.
+Read each candidate from start to end before you pick. Score each one against the rubric, one criterion at a time, not by a general feeling. If Phase C ran a judge, compare your scores with the cross-judge. If you agree on the base, the pick is confirmed. If you do not agree, one of you is biased or the rubric was not clear. Read both rationales before you decide.
 
 Pick the base that a future maintainer can extend most easily without breaking invariants. When two candidates seem equal, prefer the cleaner boundary or the smaller API, per the Laziness Protocol.
 
@@ -64,7 +75,7 @@ Do not hide the problem.
 One synthesized artifact, with a short synthesis note next to it. The note names:
 
 - the base and why you picked it,
-- the verdict of the cross-judge,
+- the verdict of the cross-judge, or that Phase C skipped the judge,
 - each graft and its source candidate,
 - what you rejected and why,
 - any convergence or dropouts,
