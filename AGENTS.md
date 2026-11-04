@@ -30,6 +30,7 @@ Code identifiers, commands, quoted text, and standard metric names (P50, P90, TT
 - Before an experiment that costs much or can touch production, read the docs. Then do the cheapest spike that cannot affect production.
 - Before you plan or start work, check what exists: earlier runs of the same job, the user's earlier decisions on the topic, and whether the issue is already fixed.
 - For work in many parts, write the plan (parts, order, blockers, who does each) and get the user's yes before you write code or start agents. A direction from the user is not a yes to build.
+- When you start a subagent or a reviewer, choose its model and effort by the difficulty and risk of its task, not by a fixed default. State the choice in the plan.
 - Fix the root cause. Before you change a function, find all its callers.
 
 ## Code
