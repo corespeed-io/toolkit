@@ -59,6 +59,8 @@ With only the skill, the next agent must be able to do these tasks:
 
 Put the coverage record and the sync commit in the skill. Tell the next agent to move the sync commit forward only after it confirms that the verification describes the code at the new commit. Use the real commands, paths, and nouns of this repo. Do not leave placeholders.
 
+If the check is a TLA+ model, tell the next agent to read each result with the [`/statechart`](../statechart/SKILL.md) skill. For each invariant violation that the checker finds, `/statechart` shows the shortest path in plain words. When the check passes, `/statechart` draws a chart of how the system moves between states. Refer to `/statechart` only by its name. Its commands, options, and file paths change between releases and machines. Do not copy them into the generated skill or its scripts.
+
 ## Prove it before you give it to the user
 
 1. Follow the new skill one time, as the next agent does, on a scratch change that breaks the property in the real code. The skill must find the break.

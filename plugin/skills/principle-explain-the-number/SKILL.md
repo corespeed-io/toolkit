@@ -1,11 +1,12 @@
 ---
 name: principle-explain-the-number
-description: "Use before you trust, report, or act on a measured number: speedup, regression, throughput, latency, or eval result. Find what limits it, and make sure it measured the work you think."
+description: "Use before you measure, and before you trust, report, or act on a measured number: speedup, regression, throughput, latency, or eval result. Find what limits it, and make sure it measured the work you think."
 disable-model-invocation: true
 ---
 
 # Explain the Number
 
+- **Write the decision before you run.** Name the result that changes a decision, and name the noise floor. Stop when the spread from run to run is larger than the effect.
 - **Ask "why not double?"** Name the resource or code path that limits the result. Examples are a core, a lock, the disk, the network, or the load generator itself. Get it from a profile or from system counters that you record during a run. Then map it to the source code. A guess from the code is not a limiter. If you cannot say why the number is not two times better, you do not know what you measured.
 - **List what else the number can measure, and use evidence to remove each possibility.** The usual causes are:
   - errors
@@ -21,6 +22,10 @@ For a performance number, do the full procedure with the [benchmark-checklist](.
 - Does the gap stay the same across trials and models?
 - Is the scenario important?
 
-You did not apply this principle if the evidence for a number has no run count, no spread, or no named limiter. You also did not apply it if the time saved is more than the time that the changed part used.
+You did not apply this principle in these conditions:
+
+- A run started before you named the result that changes a decision.
+- The evidence for a number has no run count, no spread, or no named limiter.
+- The time saved is more than the time that the changed part used.
 
 This principle is different from [Prove It Works](../principle-prove-it-works/SKILL.md). That principle checks that an output is real.

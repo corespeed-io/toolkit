@@ -19,7 +19,7 @@ vercel
 vercel deploy
 ```
 
-With the Git integration, Vercel automatically creates a preview deployment for each push to a branch that is not the production branch. Each preview deployment has a unique URL for tests.
+With the Git integration, each push to a branch that is not the production branch makes a preview deployment. Each preview deployment has a unique URL for tests. The first deployment of a project goes to production. To remove it, ask the user first. Then run `vercel remove <id> --yes`.
 
 ### Production Deployment
 

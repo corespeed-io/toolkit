@@ -24,7 +24,7 @@ The owner uses the Cloudflare CLI (`cf`). Use `cf` unless the project already us
   - Use `cf`. Load the `cf-cli` skill.
   - Do not install Wrangler. Do not make a Wrangler configuration file.
 
-The product guidance below applies to the two CLIs. Some guidance names a Wrangler command or file. To find the `cf` equivalent, use `cf cli search "<task>"` or the [Wrangler to cf reference](https://developers.cloudflare.com/cf/wrangler/reference/index.md). Do not translate from memory.
+The product guidance below, and the documentation that it links to, applies to the two CLIs. Many documentation pages show only Wrangler commands and configuration. In a `cf` project, do not run these commands and do not add a Wrangler configuration file. Use one CLI in each project. The only exception is the `npx wrangler` commands that the `cf-cli` skill lists as not yet supported by `cf`. Some guidance names a Wrangler command or file. To find the `cf` equivalent, use `cf cli search "<task>"` or the [Wrangler to cf reference](https://developers.cloudflare.com/cf/wrangler/reference/index.md). Do not translate from memory.
 
 ## Help the user find the correct product
 
@@ -101,7 +101,7 @@ How to use the table:
 | Proxy a TCP or UDP application | Spectrum | Protect and accelerate non-HTTP application traffic | [Spectrum docs](https://developers.cloudflare.com/spectrum/index.md) |
 | Connect a network directly to Cloudflare | Network Interconnect | Dedicated network connectivity is required | [Network Interconnect docs](https://developers.cloudflare.com/network-interconnect/index.md) |
 | Improve routing across the network | Argo Smart Routing | Optimize traffic paths to the origin | [Argo Smart Routing docs](https://developers.cloudflare.com/argo-smart-routing/index.md) |
-| Reduce Worker-to-backend latency | Smart Placement | Place Worker execution closer to the backends it calls | [Smart Placement](references/smart-placement/README.md) |
+| Reduce Worker-to-backend latency | Workers placement | Use explicit region hints for known regional databases, or traffic-based Smart Placement | [Workers placement docs](https://developers.cloudflare.com/workers/configuration/placement/index.md) |
 | Redirect URLs, rewrite paths or headers, or change origin routing | Rules | Use Redirect, Transform, or Origin Rules when configuration can express the required behavior | [Rules docs](https://developers.cloudflare.com/rules/index.md) |
 | Make small HTTP request or response changes | Snippets | Lightweight edge logic meets the need | [Snippets docs](https://developers.cloudflare.com/rules/snippets/index.md) |
 | Protect forms from automated abuse | Turnstile | Add bot challenges and server-side token validation | [Turnstile docs](https://developers.cloudflare.com/turnstile/index.md) |

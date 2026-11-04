@@ -30,6 +30,7 @@ Docs index: https://developers.cloudflare.com/cf/llms.txt
 | Using `cf` with coding agents (safety rules) | https://developers.cloudflare.com/cf/agents/index.md |
 | CI, API tokens, unattended authentication | https://developers.cloudflare.com/cf/ci/index.md |
 | Environment variables | https://developers.cloudflare.com/cf/environment-variables/index.md |
+| Find slow or expensive D1 databases and queries with `cf sql query` | https://developers.cloudflare.com/d1/observability/find-expensive-queries/index.md |
 
 ## First: check the installation and sign in
 
@@ -92,6 +93,8 @@ cf <command> --help                   # arguments and options (e.g. cf deploy --
     2. Run `cf migrate`.
     3. Resolve the `TODO(@cloudflare)` comments in the generated `cloudflare.config.ts`.
 - If no configuration file exists, use `cf`, as [Use cf with coding agents](https://developers.cloudflare.com/cf/agents/index.md) recommends. Do not install Wrangler. Do not make a Wrangler configuration file.
+
+Product documentation often shows only Wrangler commands and `wrangler.jsonc` configuration. In a `cf` project, translate these commands to `cf`. Do not run them. Do not add a Wrangler configuration file. Use one CLI in each project. The only exceptions are the commands in [Commands that `cf` does not support yet](#commands-that-cf-does-not-support-yet).
 
 To find the `cf` equivalent of a Wrangler command, use the [Wrangler to cf reference](https://developers.cloudflare.com/cf/wrangler/reference/index.md) or `cf cli search`. Do not translate Wrangler commands from memory. For the full comparison, refer to [`cf` for Wrangler users](https://developers.cloudflare.com/cf/wrangler/index.md).
 

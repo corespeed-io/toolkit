@@ -143,7 +143,7 @@ Do these outward-facing actions only when the user asked for them or approved th
 ## Routing invariants
 
 - Model IDs use the exact `provider/model` strings that `/v1/models` returns.
-- `order` sets the provider preference. `only` limits the providers. `sort` ranks providers by a supported metric.
+- The default routing already fails over across providers. Add `order` (preference), `only` (hard filter, no failover outside the list), or `sort` (ranking by one metric) only for a stated requirement.
 - `models` lists the fallback models that come after the primary model.
 - `caching: 'auto'` manages provider prompt-cache markers. It is not an HTTP response cache.
 - `providerTimeouts` applies to BYOK provider attempts. Streaming requests clear it at the first stream chunk. Non-streaming requests measure the time of the complete response.

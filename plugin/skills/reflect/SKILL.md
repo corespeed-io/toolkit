@@ -56,7 +56,11 @@ Show the full Accepted / Rejected / Backlog output of the synthesizer. Wait for 
 
 Record each Accepted and Backlog item as a lesson in memory without waiting, in the ledger format of the **retro** skill. Only the edits wait for approval.
 
-The skills come from the toolkit. Make each skill edit in the toolkit, not in the installed copy, and follow `add-to-toolkit`: on my machines in `~/toolkit`, on Agent Ensemble as a PR. Set the lesson to `proposed`.
+The skills come from the toolkit. Make each skill edit in the toolkit, and follow `add-to-toolkit`: on my machines in `~/toolkit`, on Agent Ensemble as a PR. Set the lesson to `proposed`.
+
+- Never edit the installed copy of a skill, for example a skill under `~/.claude/plugins/cache/`.
+- Before approval, show the destination of each skill edit in the toolkit.
+- Do not push or open a PR yourself. Only the steps of `add-to-toolkit` push.
 
 Follow the Routing of each approved row exactly:
 

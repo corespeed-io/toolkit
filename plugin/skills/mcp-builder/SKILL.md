@@ -65,8 +65,23 @@ Use the web fetch tool of your harness to load URLs (`WebFetch` in Claude Code).
 - **MCP Best Practices**: [📋 View Best Practices](./reference/mcp_best_practices.md) - Core guidelines
 
 **For TypeScript (recommended):**
-- **TypeScript SDK**: Fetch `https://raw.githubusercontent.com/modelcontextprotocol/typescript-sdk/main/README.md`
-- [⚡ TypeScript Guide](./reference/node_mcp_server.md) - TypeScript patterns and examples
+
+The TypeScript SDK has two major versions. Choose one before you write code:
+- **v2** (`@modelcontextprotocol/server`): the current stable release. Use it for new servers.
+- **v1** (`@modelcontextprotocol/sdk`): gets only bug fixes and security fixes. Use it only when the `package.json` of the project already depends on `@modelcontextprotocol/sdk`. To migrate that project, run `npx @modelcontextprotocol/codemod@latest v1-to-v2 .`
+
+If the project already uses v1, tell the user these facts one time, in one or two sentences:
+- v2 (`@modelcontextprotocol/server`) is the current stable release.
+- v1 gets only bug fixes and security fixes.
+- `npx @modelcontextprotocol/codemod@latest v1-to-v2 .` migrates the project.
+
+Then continue with v1, unless the user tells you to migrate.
+
+Do not use the two versions in one project. The v1 code samples (imports from `@modelcontextprotocol/sdk/...`) do not apply to v2.
+
+- **TypeScript SDK (v2)**: Fetch `https://raw.githubusercontent.com/modelcontextprotocol/typescript-sdk/main/README.md`. The full docs index is `https://ts.sdk.modelcontextprotocol.io/v2/llms.txt`
+- [⚡ TypeScript Guide (v2)](./reference/node_mcp_server_v2.md) - TypeScript patterns and examples
+- For v1 projects only: `https://raw.githubusercontent.com/modelcontextprotocol/typescript-sdk/v1.x/README.md` and the [TypeScript Guide (v1)](./reference/node_mcp_server.md)
 
 **For Python:**
 - **Python SDK**: Fetch `https://raw.githubusercontent.com/modelcontextprotocol/python-sdk/main/README.md`
@@ -87,7 +102,7 @@ Give priority to full API coverage. List the endpoints to implement. Start with 
 #### 2.1 Set Up the Project Structure
 
 See the language-specific guides for project setup:
-- [⚡ TypeScript Guide](./reference/node_mcp_server.md) - Project structure, package.json, tsconfig.json
+- [⚡ TypeScript Guide (v2)](./reference/node_mcp_server_v2.md) - Project structure, package.json, tsconfig.json ([v1](./reference/node_mcp_server.md) for existing v1 projects)
 - [🐍 Python Guide](./reference/python_mcp_server.md) - Module organization, dependencies
 
 #### 2.2 Implement the Core Infrastructure
@@ -145,6 +160,7 @@ Review the code for these items:
 
 **TypeScript:**
 - Run `npm run build` to make sure that the code compiles.
+- For a v2 project, run the self-check script from the [v2 guide](./reference/node_mcp_server_v2.md#verify-your-server) on the built server.
 - Test with MCP Inspector: `npx @modelcontextprotocol/inspector`
 
 **Python:**
@@ -217,7 +233,8 @@ Load these resources when you need them during development.
 
 ### SDK Documentation (Load During Phase 1/2)
 - **Python SDK**: Fetch from `https://raw.githubusercontent.com/modelcontextprotocol/python-sdk/main/README.md`
-- **TypeScript SDK**: Fetch from `https://raw.githubusercontent.com/modelcontextprotocol/typescript-sdk/main/README.md`
+- **TypeScript SDK (v2)**: Fetch from `https://raw.githubusercontent.com/modelcontextprotocol/typescript-sdk/main/README.md`; full docs index at `https://ts.sdk.modelcontextprotocol.io/v2/llms.txt`
+- **TypeScript SDK (v1, existing v1 projects only)**: Fetch from `https://raw.githubusercontent.com/modelcontextprotocol/typescript-sdk/v1.x/README.md`
 
 ### Language-Specific Implementation Guides (Load During Phase 2)
 - [🐍 Python Implementation Guide](./reference/python_mcp_server.md) - Full Python/FastMCP guide:
@@ -227,12 +244,16 @@ Load these resources when you need them during development.
   - Complete working examples
   - Quality checklist
 
-- [⚡ TypeScript Implementation Guide](./reference/node_mcp_server.md) - Full TypeScript guide:
-  - Project structure
-  - Zod schema patterns
-  - Tool registration with `server.registerTool`
-  - Complete working examples
-  - Quality checklist
+- [⚡ TypeScript Implementation Guide (SDK v2)](./reference/node_mcp_server_v2.md) - Full TypeScript guide for `@modelcontextprotocol/server`:
+  - Project setup and the server factory
+  - Tool design: Zod 4 schemas, output formats, pagination, errors
+  - A complete example that serves stdio and Streamable HTTP, with bearer auth
+  - Resources, prompts, and notifications
+  - A self-check script to verify the built server
+  - Links to SDK examples for advanced features
+  - A v1 → v2 translation table, migration steps, and a quality checklist
+
+- [⚡ TypeScript Implementation Guide (SDK v1)](./reference/node_mcp_server.md) - The equivalent guide for existing `@modelcontextprotocol/sdk` projects
 
 ### Evaluation Guide (Load During Phase 4)
 - [✅ Evaluation Guide](./reference/evaluation.md) - Full guide to create evaluations:

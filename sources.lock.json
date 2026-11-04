@@ -2,7 +2,7 @@
   "agents-sdk": {
     "repo": "cloudflare/skills",
     "path": "skills/agents-sdk",
-    "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f"
+    "commit": "1f2cd0a19588e2c6197c91dd7c71729df1fb6156"
   },
   "agents/comment-sicko.md": {
     "repo": "cursor/plugins",
@@ -17,7 +17,7 @@
   "ai-gateway": {
     "repo": "vercel/vercel-plugin",
     "path": "skills/ai-gateway",
-    "commit": "89e9ab9e4a15de0b18f3df6bc89d29152a00ff1b"
+    "commit": "3ca3e549d48578bcb3b315ec6e9a972fce1c24ed"
   },
   "ai-sdk": {
     "repo": "vercel/vercel-plugin",
@@ -32,7 +32,7 @@
   "arena": {
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/arena",
-    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+    "commit": "bb68f2365eceafa0cb2d253112f675acf5f144cc"
   },
   "automate-me": {
     "repo": "cursor/plugins",
@@ -57,12 +57,12 @@
   "cf-cli": {
     "repo": "cloudflare/skills",
     "path": "skills/cf-cli",
-    "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f"
+    "commit": "1f2cd0a19588e2c6197c91dd7c71729df1fb6156"
   },
   "cloudflare": {
     "repo": "cloudflare/skills",
     "path": "skills/cloudflare",
-    "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f"
+    "commit": "1f2cd0a19588e2c6197c91dd7c71729df1fb6156"
   },
   "correct": {
     "repo": "cursor/plugins",
@@ -72,7 +72,7 @@
   "create-formal-verification-skill": {
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/create-formal-verification-skill",
-    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+    "commit": "bb68f2365eceafa0cb2d253112f675acf5f144cc"
   },
   "create-verification-skill": {
     "repo": "cursor/plugins",
@@ -82,12 +82,12 @@
   "deployments-cicd": {
     "repo": "vercel/vercel-plugin",
     "path": "skills/deployments-cicd",
-    "commit": "89e9ab9e4a15de0b18f3df6bc89d29152a00ff1b"
+    "commit": "3ca3e549d48578bcb3b315ec6e9a972fce1c24ed"
   },
   "durable-objects": {
     "repo": "cloudflare/skills",
     "path": "skills/durable-objects",
-    "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f"
+    "commit": "1f2cd0a19588e2c6197c91dd7c71729df1fb6156"
   },
   "env-vars": {
     "repo": "vercel/vercel-plugin",
@@ -117,7 +117,7 @@
   "interrogate": {
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/interrogate",
-    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+    "commit": "bb68f2365eceafa0cb2d253112f675acf5f144cc"
   },
   "ketchup": {
     "repo": "cursor/plugins",
@@ -142,7 +142,7 @@
   "mcp-builder": {
     "repo": "anthropics/skills",
     "path": "skills/mcp-builder",
-    "commit": "dbd4588f9e1033efb41dad4bef2f7947c8993d44"
+    "commit": "ca45fc496a3436251f191354091d557da31c15b5"
   },
   "nextjs": {
     "repo": "vercel/vercel-plugin",
@@ -158,12 +158,12 @@
   "poteto-help": {
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/poteto-help",
-    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+    "commit": "bb68f2365eceafa0cb2d253112f675acf5f144cc"
   },
   "poteto-mode": {
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/poteto-mode",
-    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+    "commit": "bb68f2365eceafa0cb2d253112f675acf5f144cc"
   },
   "principle-attack-the-premise": {
     "repo": "cursor/plugins",
@@ -198,7 +198,7 @@
   "principle-explain-the-number": {
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/principle-explain-the-number",
-    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+    "commit": "bb68f2365eceafa0cb2d253112f675acf5f144cc"
   },
   "principle-fix-root-causes": {
     "repo": "cursor/plugins",
@@ -298,12 +298,12 @@
   "reflect": {
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/reflect",
-    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+    "commit": "bb68f2365eceafa0cb2d253112f675acf5f144cc"
   },
   "setup-pstack": {
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/setup-pstack",
-    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+    "commit": "bb68f2365eceafa0cb2d253112f675acf5f144cc"
   },
   "shadcn": {
     "repo": "shadcn-ui/ui",
@@ -328,12 +328,12 @@
   "statechart": {
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/statechart",
-    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+    "commit": "bb68f2365eceafa0cb2d253112f675acf5f144cc"
   },
   "stripe-best-practices": {
     "repo": "stripe/ai",
     "path": "skills/stripe-best-practices",
-    "commit": "8a8818e856376003701bb0d4a569c26bacac1d0e"
+    "commit": "a3196df9925589ec7dd96c90692d13ea1c453cae"
   },
   "supabase": {
     "repo": "supabase/agent-skills",
@@ -348,7 +348,7 @@
   "swarm": {
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/swarm",
-    "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+    "commit": "bb68f2365eceafa0cb2d253112f675acf5f144cc"
   },
   "tdd": {
     "repo": "cursor/plugins",
@@ -403,6 +403,6 @@
   "workers-best-practices": {
     "repo": "cloudflare/skills",
     "path": "skills/workers-best-practices",
-    "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f"
+    "commit": "1f2cd0a19588e2c6197c91dd7c71729df1fb6156"
   }
 }
