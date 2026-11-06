@@ -45,6 +45,7 @@ Code identifiers, commands, quoted text, and standard metric names (P50, P90, TT
 
 - Write one focused test for logic that is not trivial. Do not test trivial code.
 - Run the code before you say that it works. If it fails, show the output.
+- After a tool call is rejected or interrupted, check the files that it touches (`git status`, `git diff`) before you say that nothing changed. Its first steps can have run.
 - Test a user journey (a flow where an agent follows our instructions for a user) yourself. Start from a clean environment, and paste only the text a real user pastes. Run it on weak models first (Haiku at low effort, then Sonnet), and on each engine (Claude Code, Codex). A pass on a strong model proves nothing.
 
 ## Work that the user sees
