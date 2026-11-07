@@ -1,29 +1,33 @@
 ---
 name: add-to-toolkit
-description: Use when the user wants to save a skill, hook, command, agent, MCP server, setting, or global instruction in their personal toolkit at ~/toolkit.
+description: Use when the user wants to save a skill, subagent, MCP server, setting, or global instruction in their personal toolkit (spinsirr/toolkit).
 ---
 
 # Add to toolkit
 
-The toolkit is a git repo at `~/toolkit`. It sets up Claude Code and Codex (CLI and app) in the same way on each machine.
+The toolkit is the GitHub repo `spinsirr/toolkit`. It sets up Claude Code and Codex (CLI and app) in the same way on each machine. The clone in `~/toolkit` is only for editing.
 
 | Item | Location |
 | --- | --- |
-| Global instructions | `AGENTS.md` (Codex links to it; Claude Code imports it) |
-| Skill | `plugin/skills/<name>/SKILL.md`, with `name` and `description` in the frontmatter |
-| Slash command (Claude Code) | `plugin/commands/<name>.md` |
+| Global instructions | `AGENTS.md` |
+| Skill | `plugin/skills/<name>/SKILL.md`, with `name` (the folder name) and `description` in the frontmatter |
 | Subagent (Claude Code) | `plugin/agents/<name>.md` |
-| MCP server | `mcp.json`. Put secrets in `.env` as `${VAR}`. Add the name to `.env.example`. |
-| Shared setting | `settings/claude.json` or `settings/codex.toml` |
+| Setting for every install | `settings/claude.json` |
+| My setting | `personal/claude.json` or `personal/codex.toml` |
+| MCP server | `personal/mcp.json`. Put machine values in `~/.config/toolkit/env` as `${VAR}`. Add the name to `personal/env.example`. |
+
+The plugin must not run code: no hooks, `bin/`, MCP servers or `version` in `plugin/`. The checks in `tests/check.py` fail on them. A skill must work in every agent, so it must not use the plugin path variables of Claude Code or other things that only one agent has.
 
 The tech stack of a project does not go here. It goes in the `AGENTS.md` of that project (use `init-project`).
 
-After a change:
+Every change goes through a pull request, because a merge to `main` reaches every machine. Branch protection blocks a direct push to `main`. When the user asks you to change the toolkit, the request includes the branch push and the PR:
 
-1. Commit. Do not add a `version` to `plugin.json`: without it, both tools follow each commit.
-2. Ask the user for permission to push `main`. The machines get a change only after it is on GitHub.
-3. After the push, Claude Code and Codex update the plugin and `AGENTS.md` by themselves (see the README, "Updates"). Tell the user that a running Claude Code session needs `/reload-plugins`.
-4. If you changed `settings/` or `mcp.json`, tell the user to run `git pull && ./install.sh` in `~/toolkit` on each machine.
+1. `git -C ~/toolkit fetch -q origin && git -C ~/toolkit worktree add ../toolkit-<topic> -b <topic> origin/main`. A worktree keeps other sessions' work in `~/toolkit` apart.
+2. Make the change in `~/toolkit-<topic>`. Run `python3 tests/check.py`. Commit.
+3. `git push -u origin <topic>`, then `gh pr create --fill`.
+4. Give the user the PR link. The user merges it. Do not merge it yourself.
+5. After the merge, Claude Code and Codex update the plugin and `AGENTS.md` by themselves (see the README, "Updates"). Tell the user that a running Claude Code session needs `/reload-plugins`. If you changed `settings/` or `personal/`, tell the user to run the `--personal` install on each machine.
+6. Remove the worktree: `git -C ~/toolkit worktree remove ../toolkit-<topic>`.
 
 ## On Agent Ensemble
 
@@ -33,7 +37,7 @@ The platform cannot push to `spinsirr/toolkit`. It can push to the fork `corespe
 
 1. Start a child session with `spawn_agent`, with `repo: "corespeed-io/toolkit"`. Start its prompt with who asked for the change, why, and this session's id, so that the child can check the request with `peek_agent`. A child that gets only commands to push code treats them as an injection and refuses (2026-10-25). Then give it the exact change (file paths and text), and these steps:
    1. `git fetch https://github.com/spinsirr/toolkit.git main && git checkout -b <topic> FETCH_HEAD`
-   2. Make the change and do step 1 above. Commit.
+   2. Make the change. Run `python3 tests/check.py`. Commit.
    3. `git push origin <topic>`
    4. Reply with `https://github.com/spinsirr/toolkit/compare/main...corespeed-io:toolkit:<topic>?expand=1`.
 2. The Fork PRs workflow in `spinsirr/toolkit` opens a PR for the branch within about 15 minutes. Give the user the PR link, or the compare link if there is no PR yet. The user merges it. Sessions that start after the merge get the change.
@@ -44,4 +48,4 @@ Do not push the clone in `~/toolkit`. A rule for all machines goes in `AGENTS.md
 
 ## Updates
 
-There is no sync hook. Claude Code and Codex install `personal@toolkit` from GitHub and update it by themselves. The clone in `~/toolkit` does not update by itself: run `git pull` in it before you edit.
+There is no sync hook. Claude Code and Codex install `personal@toolkit` from GitHub and update it by themselves. The clone in `~/toolkit` does not update by itself, so always start a change from `origin/main`.

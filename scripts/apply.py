@@ -1,6 +1,9 @@
-"""Merge shared settings into one tool (Claude Code or Codex) and register its MCP servers.
+"""Merge the toolkit settings into one tool (Claude Code or Codex).
 
-`apply.py ensemble` sets up an Agent Ensemble sandbox instead: see apply_ensemble.
+  apply.py claude              settings/claude.json: the marketplace and its auto-update
+  apply.py claude --personal   also personal/claude.json and the MCP servers in personal/mcp.json
+  apply.py codex --personal    personal/codex.toml and the MCP servers in personal/mcp.json
+  apply.py ensemble            set up an Agent Ensemble sandbox instead: see apply_ensemble
 """
 from __future__ import annotations
 
@@ -13,6 +16,8 @@ from pathlib import Path
 
 TOOLKIT = Path(__file__).resolve().parent.parent
 HOME = Path.home()
+# Machine-only values for personal/mcp.json. The file is not in git: copy personal/env.example.
+ENV_FILE = HOME / ".config/toolkit/env"
 BLOCK_MARK = "<!-- toolkit: apply.py ensemble writes below this line -->"
 
 
@@ -27,6 +32,15 @@ def merge(base: dict, extra: dict) -> dict:
         else:
             out[key] = value
     return out
+
+
+def without_star_forms(rules: list[str]) -> list[str]:
+    """Drop `Tool(*)` when the bare `Tool` rule is present.
+
+    Claude Code 2.1.319 limits `Write(*)` and `Edit(*)` to the working directories. Older versions read them
+    as the bare rule. The bare rule means "every path" in all versions, so it replaces the old form.
+    """
+    return [r for r in rules if not (r.endswith("(*)") and r[:-3] in rules)]
 
 
 def set_toml_keys(text: str, lines: list[str]) -> str:
@@ -44,13 +58,13 @@ def set_toml_keys(text: str, lines: list[str]) -> str:
 
 
 def load_env() -> dict[str, str]:
+    if not ENV_FILE.exists():
+        sys.exit(f"Missing {ENV_FILE}. Copy {TOOLKIT / 'personal/env.example'} to it and set the values.")
     env = dict(os.environ)
-    env_file = TOOLKIT / ".env"
-    if env_file.exists():
-        for raw in env_file.read_text().splitlines():
-            if "=" in raw and not raw.lstrip().startswith("#"):
-                key, value = raw.split("=", 1)
-                env[key.strip()] = value.strip().strip('"').strip("'")
+    for raw in ENV_FILE.read_text().splitlines():
+        if "=" in raw and not raw.lstrip().startswith("#"):
+            key, value = raw.split("=", 1)
+            env[key.strip()] = value.strip().strip('"').strip("'")
     return env
 
 
@@ -58,7 +72,7 @@ def expand(value, env: dict[str, str]):
     if isinstance(value, str):
         missing = [v for v in re.findall(r"\$\{(\w+)\}", value) if v not in env]
         if missing:
-            sys.exit(f"Missing in .env: {', '.join(missing)}")
+            sys.exit(f"Missing in {ENV_FILE}: {', '.join(missing)}")
         return re.sub(r"\$\{(\w+)\}", lambda m: env[m.group(1)], value)
     if isinstance(value, list):
         return [expand(v, env) for v in value]
@@ -79,23 +93,37 @@ def run(*cmd: str, check: bool = True) -> None:
         sys.exit(f"Failed: {' '.join(cmd)}\n{result.stdout}{result.stderr}")
 
 
-def apply_claude(servers: dict, env: dict[str, str]) -> None:
+def read_json(path: Path) -> dict:
+    return json.loads(path.read_text())
+
+
+def apply_claude(personal: bool) -> None:
     settings = HOME / ".claude/settings.json"
-    current = json.loads(settings.read_text()) if settings.exists() else {}
-    settings.write_text(json.dumps(merge(current, json.loads((TOOLKIT / "settings/claude.json").read_text())), indent=2) + "\n")
-    for name, raw in servers.items():
-        server = expand(raw, for_tool(env, "claude"))
+    settings.parent.mkdir(exist_ok=True)
+    merged = merge(read_json(settings) if settings.exists() else {}, read_json(TOOLKIT / "settings/claude.json"))
+    if personal:
+        merged = merge(merged, read_json(TOOLKIT / "personal/claude.json"))
+        allow = merged["permissions"]["allow"]
+        merged["permissions"]["allow"] = without_star_forms(allow)
+    settings.write_text(json.dumps(merged, indent=2) + "\n")
+    if not personal:
+        return
+    env = for_tool(load_env(), "claude")
+    for name, raw in read_json(TOOLKIT / "personal/mcp.json").items():
+        server = expand(raw, env)
         run("claude", "mcp", "remove", "-s", "user", name, check=False)
         run("claude", "mcp", "add-json", "-s", "user", name, json.dumps({"type": "stdio", **server}))
         print(f"Claude Code MCP server added: {name}")
 
 
-def apply_codex(servers: dict, env: dict[str, str]) -> None:
+def apply_codex() -> None:
+    """Personal only: the plugin needs no Codex settings."""
     codex = os.environ["CODEX"]
     config = HOME / ".codex/config.toml"
-    shared = [l for l in (TOOLKIT / "settings/codex.toml").read_text().splitlines() if "=" in l and not l.startswith("#")]
-    config.write_text(set_toml_keys(config.read_text() if config.exists() else "", shared))
-    for name, raw in servers.items():
+    keys = [l for l in (TOOLKIT / "personal/codex.toml").read_text().splitlines() if "=" in l and not l.startswith("#")]
+    config.write_text(set_toml_keys(config.read_text() if config.exists() else "", keys))
+    env = load_env()
+    for name, raw in read_json(TOOLKIT / "personal/mcp.json").items():
         server = expand(raw, for_tool(env, "codex"))
         run(codex, "mcp", "remove", name, check=False)
         env_args = [a for k, v in server.get("env", {}).items() for a in ("--env", f"{k}={v}")]
@@ -149,10 +177,12 @@ def apply_ensemble() -> None:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2 or sys.argv[1] not in ("claude", "codex", "ensemble"):
-        sys.exit("Usage: apply.py claude|codex|ensemble")
-    if sys.argv[1] == "ensemble":
+    args = sys.argv[1:]
+    if args == ["ensemble"]:
         apply_ensemble()
-        sys.exit(0)
-    servers = json.loads((TOOLKIT / "mcp.json").read_text())
-    (apply_claude if sys.argv[1] == "claude" else apply_codex)(servers, load_env())
+    elif args in (["claude"], ["claude", "--personal"]):
+        apply_claude(personal=len(args) == 2)
+    elif args == ["codex", "--personal"]:
+        apply_codex()
+    else:
+        sys.exit("Usage: apply.py claude [--personal] | codex --personal | ensemble")
