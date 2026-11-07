@@ -1,3 +1,0 @@
-# Top-level keys only. install.sh sets each one in ~/.codex/config.toml.
-model_reasoning_effort = "medium"
-personality = "pragmatic"

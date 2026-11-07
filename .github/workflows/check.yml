@@ -1,0 +1,26 @@
+# Checks each pull request. A merge to main reaches every machine, so main accepts only a PR that passes.
+# pull_request (not pull_request_target) runs fork code with a read-only token and no secrets.
+name: Check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolkit tests
+        run: python3 tests/check.py
+      - name: Claude Code plugin validation
+        run: |
+          npm install -g @anthropic-ai/claude-code@2.1.319
+          claude plugin validate .
+          claude plugin validate plugin
+      - name: Install script syntax
+        run: sh -n install.sh

@@ -1,16 +1,29 @@
 # toolkit
 
-My setup for Claude Code and Codex (CLI and app), the same on each machine.
+My skills and subagents for Claude Code and Codex (CLI and app), the same on each machine.
+
+## Install
 
 ```sh
-git clone git@github.com:spinsirr/toolkit.git ~/toolkit
-cp ~/toolkit/.env.example ~/toolkit/.env   # add keys if mcp.json needs them
-~/toolkit/install.sh
+curl -fsSL https://raw.githubusercontent.com/spinsirr/toolkit/main/install.sh | sh
 ```
 
-- `AGENTS.md`: global instructions (engineering taste, Lore memory). Tech stacks stay in each project's own `AGENTS.md`.
+Or, in a Claude Code session: `/plugin install personal --marketplace spinsirr/toolkit`.
+
+`install.sh` finds Claude Code and Codex on the machine and installs the plugin `personal@toolkit` in each one. It needs no clone.
+
+On my machines, add `--personal`. It also installs my global instructions (`AGENTS.md`), my settings (`personal/`) and the Lore MCP server. First copy `personal/env.example` to `~/.config/toolkit/env` and set the values.
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/spinsirr/toolkit/main/install.sh | sh -s -- --personal
+```
+
+## Layout
+
 - `plugin/`: skills and subagents, installed as `personal@toolkit`.
-- `mcp.json`, `settings/`: merged into each tool's config by `install.sh`.
+- `settings/claude.json`: the marketplace and its auto-update. Every install gets it.
+- `personal/`: my permissions, Claude Code and Codex settings, and MCP servers. Only `--personal` installs them.
+- `AGENTS.md`: my global instructions (engineering taste, Lore memory). Only `--personal` installs them. Tech stacks stay in each project's own `AGENTS.md`.
 
 ## Updates
 
@@ -18,10 +31,18 @@ Claude Code and Codex install the plugin from GitHub (`spinsirr/toolkit`, branch
 
 - Codex updates when it starts. Claude Code updates in an interactive session, up to 10 minutes after the first message, and then shows "Run /reload-plugins to apply".
 - `plugin.json` has no `version`, so both tools follow each commit on `main`.
-- The global instructions come from each tool's copy of the marketplace (`~/.claude/plugins/marketplaces/toolkit/AGENTS.md`, `~/.codex/.tmp/marketplaces/toolkit/AGENTS.md`), so they update too.
-- A change reaches the machines only after it is pushed to `main`. The clone in `~/toolkit` is only for editing.
-- A change to `settings/` or `mcp.json` needs `git pull && ./install.sh` on each machine.
-- Check: `python3 tests/check.py`.
+- With `--personal`, the global instructions come from each tool's copy of the marketplace (`~/.claude/plugins/marketplaces/toolkit/AGENTS.md`, `~/.codex/.tmp/marketplaces/toolkit/AGENTS.md`), so they update too.
+- A change to `settings/` or `personal/` needs `install.sh` again on each machine.
+
+## Change the toolkit
+
+Every change goes through a pull request to `main`. A merge reaches every machine, so `main` accepts only a PR that passes the Check workflow (`.github/workflows/check.yml`), and only the owner merges.
+
+1. Clone, and make a branch from `main`.
+2. Make the change. Run `python3 tests/check.py`.
+3. Push the branch and open a PR.
+
+The checks keep the plugin safe and portable: no hooks, executables or MCP servers in `plugin/`, no `version`, and each skill in the Agent Skills format (`SKILL.md` with a `name` that matches its folder, and a `description`).
 
 ## Agent Ensemble sandbox
 
@@ -38,6 +59,6 @@ In the environment:
 
 `apply.py ensemble` only adds. It imports `AGENTS.md` from `~/.claude/CLAUDE.md`, appends a copy to `~/.codex/AGENTS.md`, and links each subagent that is not installed yet. The `skills` CLI does not install subagents, and some skills use them.
 
-This repo is the only source. The platform can push only to `corespeed-io` repositories, so a session pushes a branch to the fork [corespeed-io/toolkit](https://github.com/corespeed-io/toolkit). The Fork PRs workflow (`.github/workflows/fork-prs.yml`) opens a PR here for each new fork branch, every 15 minutes. It needs Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests". The fork's `main` is not used, so nothing needs to be synced.
+The platform can push only to `corespeed-io` repositories, so a session pushes a branch to the fork [corespeed-io/toolkit](https://github.com/corespeed-io/toolkit). The Fork PRs workflow (`.github/workflows/fork-prs.yml`) opens a PR here for each new fork branch, every 15 minutes. It needs Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests". The fork's `main` is not used, so nothing needs to be synced.
 
 Self-improvement: sessions record lessons in memory when you correct them (`AGENTS.md`, Memory). The daily `retro` routine curates them and proposes fixes on the branch `retro/next`.
