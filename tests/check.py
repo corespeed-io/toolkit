@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path[:0] = [str(ROOT / "plugin/hooks"), str(ROOT / "scripts")]
+sys.path[:0] = [str(ROOT / "hooks-plugin/hooks"), str(ROOT / "scripts")]
 
 from apply import BLOCK_MARK, for_tool, merge, set_toml_keys, with_block
 from guard import reason

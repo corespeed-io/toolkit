@@ -13,14 +13,18 @@ ln -sfn "$T/AGENTS.md" ~/.codex/AGENTS.md
 
 claude_setup() {
   claude plugin marketplace add "$T" >/dev/null 2>&1 || claude plugin marketplace update toolkit
-  claude plugin install personal@toolkit >/dev/null 2>&1 || claude plugin update personal@toolkit
+  for p in personal hooks; do
+    claude plugin install "$p@toolkit" >/dev/null 2>&1 || claude plugin update "$p@toolkit"
+  done
   python3 "$T/scripts/apply.py" claude
 }
 
 codex_setup() {
   "$CODEX" plugin marketplace add "$T" >/dev/null 2>&1 || "$CODEX" plugin marketplace upgrade toolkit >/dev/null 2>&1 || true
-  "$CODEX" plugin remove personal@toolkit >/dev/null 2>&1 || true
-  "$CODEX" plugin add personal@toolkit
+  for p in personal hooks; do
+    "$CODEX" plugin remove "$p@toolkit" >/dev/null 2>&1 || true
+    "$CODEX" plugin add "$p@toolkit"
+  done
   python3 "$T/scripts/apply.py" codex
 }
 

@@ -9,7 +9,8 @@ cp ~/toolkit/.env.example ~/toolkit/.env   # add keys if mcp.json needs them
 ```
 
 - `AGENTS.md`: global instructions (engineering taste, Lore memory). Tech stacks stay in each project's own `AGENTS.md`.
-- `plugin/`: skills and hooks, installed as `personal@toolkit`.
+- `plugin/`: skills and subagents, installed as `personal@toolkit`.
+- `hooks-plugin/`: hooks, installed as `hooks@toolkit`. Codex trusts plugin hooks by a hash of all the files in the plugin. The hooks have their own plugin, so a skill change does not make Codex ask for hook trust again.
 - `mcp.json`, `settings/`: merged into each tool's config by `install.sh`.
 - Check: `python3 tests/check.py`.
 
