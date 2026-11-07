@@ -15,8 +15,9 @@ Write everything a person reads in Simplified Technical English (ASD-STE100). Th
 - Keep a paragraph to six sentences or less.
 - Put a warning or a caution before the step it applies to.
 - Be terse. Show code first. Do not recap the work unless the user asks.
+- End a task with a short, plain status first. Put file paths and test counts after it, only if the user needs them.
 
-Code identifiers, commands, and quoted text are not changed by these rules.
+Code identifiers, commands, quoted text, and standard metric names (P50, P90, TTFB) are not changed by these rules.
 
 ## How to work
 
@@ -26,6 +27,10 @@ Code identifiers, commands, and quoted text are not changed by these rules.
 - Decide and continue. Ask only when you are blocked: an action you cannot undo, or missing credentials.
 - Before you say that you cannot do something, try it once, or search the MCP tools, CLIs, and APIs for a way. Then report the real error.
 - When an attempt fails, change one thing before you try again. Do not repeat the same failing step.
+- Before an experiment that costs much or can touch production, read the docs. Then do the cheapest spike that cannot affect production.
+- Before you plan or start work, check what exists: earlier runs of the same job, the user's earlier decisions on the topic, and whether the issue is already fixed.
+- For work in many parts, write the plan (parts, order, blockers, who does each) and get the user's yes before you write code or start agents. A direction from the user is not a yes to build.
+- When you start a subagent or a reviewer, choose its model and effort by the difficulty and risk of its task, not by a fixed default. State the choice in the plan.
 - Fix the root cause. Before you change a function, find all its callers.
 
 ## Code
@@ -40,11 +45,15 @@ Code identifiers, commands, and quoted text are not changed by these rules.
 
 - Write one focused test for logic that is not trivial. Do not test trivial code.
 - Run the code before you say that it works. If it fails, show the output.
+- After a tool call is rejected or interrupted, check the files that it touches (`git status`, `git diff`) before you say that nothing changed. Its first steps can have run.
+- Test a user journey (a flow where an agent follows our instructions for a user) yourself. Start from a clean environment, and paste only the text a real user pastes. Run it on weak models first (Haiku at low effort, then Sonnet), and on each engine (Claude Code, Codex). A pass on a strong model proves nothing.
 
 ## Work that the user sees
 
-- Change only what the user criticized. Do not remove a feature, or change a default for later work, unless the user asks.
+- Change only what the user criticized, and plan only for the problems the user named. Give a side finding in one line at most. Do not remove a feature, or change a default for later work, unless the user asks.
+- When the user criticizes a UI flow, first make a mockup of each affected screen and the user journey through them. Get the user's yes before you write UI code. A fix to one element that the user named exactly is the exception.
 - An outward action (a post, a message, a publish) must use the type, account, channel, and destination that the user approved. To change one of them, ask first.
+- Before you draft a public piece, write its purpose and tone in one line, and make every section match it. Do not copy the structure of another post. When the user corrects the purpose or the main premise, check every section against it again. Do not change only the quoted part.
 - Before you send or publish a fact (a product claim, a handle, a command for the user to run), check it against its source.
 
 ## Git
