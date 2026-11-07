@@ -6,11 +6,6 @@
       "name": "personal",
       "source": "./plugin",
       "description": "My personal skills"
-    },
-    {
-      "name": "hooks",
-      "source": "./hooks-plugin",
-      "description": "My hooks"
     }
   ]
 }

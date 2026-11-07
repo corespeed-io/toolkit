@@ -10,8 +10,17 @@ cp ~/toolkit/.env.example ~/toolkit/.env   # add keys if mcp.json needs them
 
 - `AGENTS.md`: global instructions (engineering taste, Lore memory). Tech stacks stay in each project's own `AGENTS.md`.
 - `plugin/`: skills and subagents, installed as `personal@toolkit`.
-- `hooks-plugin/`: hooks, installed as `hooks@toolkit`. Codex trusts plugin hooks by a hash of all the files in the plugin. The hooks have their own plugin, so a skill change does not make Codex ask for hook trust again.
 - `mcp.json`, `settings/`: merged into each tool's config by `install.sh`.
+
+## Updates
+
+Claude Code and Codex install the plugin from GitHub (`spinsirr/toolkit`, branch `main`) and update it by themselves. There are no hooks and no sync script.
+
+- Codex updates when it starts. Claude Code updates in an interactive session, up to 10 minutes after the first message, and then shows "Run /reload-plugins to apply".
+- `plugin.json` has no `version`, so both tools follow each commit on `main`.
+- The global instructions come from each tool's copy of the marketplace (`~/.claude/plugins/marketplaces/toolkit/AGENTS.md`, `~/.codex/.tmp/marketplaces/toolkit/AGENTS.md`), so they update too.
+- A change reaches the machines only after it is pushed to `main`. The clone in `~/toolkit` is only for editing.
+- A change to `settings/` or `mcp.json` needs `git pull && ./install.sh` on each machine.
 - Check: `python3 tests/check.py`.
 
 ## Agent Ensemble sandbox

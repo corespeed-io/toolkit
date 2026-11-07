@@ -1,6 +1,13 @@
 {
   "permissions": {
-    "allow": ["Bash(*)", "Write(*)", "Edit(*)", "WebSearch(*)", "WebFetch(*)", "mcp__lore__*"]
+    "allow": [
+      "Bash(*)",
+      "Write(*)",
+      "Edit(*)",
+      "WebSearch(*)",
+      "WebFetch(*)",
+      "mcp__lore__*"
+    ]
   },
   "effortLevel": "high",
   "tui": "fullscreen",
@@ -8,5 +15,17 @@
   "autoDreamEnabled": false,
   "skipDangerousModePermissionPrompt": true,
   "inputNeededNotifEnabled": true,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "extraKnownMarketplaces": {
+    "toolkit": {
+      "source": {
+        "source": "github",
+        "repo": "spinsirr/toolkit"
+      },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "personal@toolkit": true
+  }
 }

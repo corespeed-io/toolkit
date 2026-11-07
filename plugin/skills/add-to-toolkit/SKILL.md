@@ -11,7 +11,6 @@ The toolkit is a git repo at `~/toolkit`. It sets up Claude Code and Codex (CLI 
 | --- | --- |
 | Global instructions | `AGENTS.md` (Codex links to it; Claude Code imports it) |
 | Skill | `plugin/skills/<name>/SKILL.md`, with `name` and `description` in the frontmatter |
-| Hook | `plugin/hooks/hooks.json` and a script in `plugin/hooks/` |
 | Slash command (Claude Code) | `plugin/commands/<name>.md` |
 | Subagent (Claude Code) | `plugin/agents/<name>.md` |
 | MCP server | `mcp.json`. Put secrets in `.env` as `${VAR}`. Add the name to `.env.example`. |
@@ -21,10 +20,10 @@ The tech stack of a project does not go here. It goes in the `AGENTS.md` of that
 
 After a change:
 
-1. Increase `version` in `plugin/.claude-plugin/plugin.json` and `plugin/.codex-plugin/plugin.json`.
-2. Run `~/toolkit/install.sh`.
-3. Commit. Do not push: the `sync.sh push` Stop hook pushes toolkit commits at the end of the turn.
-4. Tell the user to restart Claude Code and Codex.
+1. Commit. Do not add a `version` to `plugin.json`: without it, both tools follow each commit.
+2. Ask the user for permission to push `main`. The machines get a change only after it is on GitHub.
+3. After the push, Claude Code and Codex update the plugin and `AGENTS.md` by themselves (see the README, "Updates"). Tell the user that a running Claude Code session needs `/reload-plugins`.
+4. If you changed `settings/` or `mcp.json`, tell the user to run `git pull && ./install.sh` in `~/toolkit` on each machine.
 
 ## On Agent Ensemble
 
@@ -43,6 +42,6 @@ When this session's repo is `corespeed-io/toolkit` (for example, the retro routi
 
 Do not push the clone in `~/toolkit`. A rule for all machines goes in `AGENTS.md`. You cannot edit the environment instructions: for a rule only for Agent Ensemble, give the user the exact text.
 
-## Sync
+## Updates
 
-Other machines sync by themselves after a push: the `sync.sh pull` SessionStart hook pulls the repo (fast-forward only) and runs `install.sh`. The new version loads in the session after that. Sync errors are in `~/.cache/toolkit-sync/error`, and the next session shows them.
+There is no sync hook. Claude Code and Codex install `personal@toolkit` from GitHub and update it by themselves. The clone in `~/toolkit` does not update by itself: run `git pull` in it before you edit.
