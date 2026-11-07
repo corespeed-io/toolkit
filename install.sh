@@ -31,9 +31,11 @@ if [ -z "$CLAUDE" ] && [ -z "$CODEX" ]; then
   exit 1
 fi
 
+# Update first: an add of a marketplace that exists can succeed without a fetch, and leave an old copy.
+# An update fails when nothing is installed yet, and then the add runs.
 claude_setup() {
-  claude plugin marketplace add "$REPO${REF:+#$REF}" >/dev/null 2>&1 || claude plugin marketplace update toolkit
-  claude plugin install personal@toolkit >/dev/null 2>&1 || claude plugin update personal@toolkit
+  claude plugin marketplace update toolkit >/dev/null 2>&1 || claude plugin marketplace add "$REPO${REF:+#$REF}"
+  claude plugin update personal@toolkit >/dev/null 2>&1 || claude plugin install personal@toolkit
   copy="$HOME/.claude/plugins/marketplaces/toolkit"
   if [ "$PERSONAL" = 0 ]; then
     python3 "$copy/scripts/apply.py" claude
@@ -48,7 +50,7 @@ claude_setup() {
 codex_setup() {
   home="${CODEX_HOME:-$HOME/.codex}"
   if [ -n "$REF" ]; then set -- --ref "$REF"; else set --; fi
-  "$CODEX" plugin marketplace add "$REPO" "$@" >/dev/null 2>&1 || "$CODEX" plugin marketplace upgrade toolkit
+  "$CODEX" plugin marketplace upgrade toolkit >/dev/null 2>&1 || "$CODEX" plugin marketplace add "$REPO" "$@"
   "$CODEX" plugin add personal@toolkit
   if [ "$PERSONAL" = 0 ]; then return; fi
   copy="$home/.tmp/marketplaces/toolkit"
