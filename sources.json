@@ -10,5 +10,12 @@
   { "repo": "railwayapp/railway-skills", "path": "plugins/railway/skills", "skills": ["use-railway"] },
   { "repo": "cloudflare/skills", "path": "skills", "skills": ["cloudflare", "cf-cli", "workers-best-practices", "durable-objects", "agents-sdk"] },
   { "repo": "cursor/plugins", "path": "harness/pstack/claude-code/skills", "skills": "*",
-    "agents": "harness/pstack/claude-code/agents", "license": "harness/pstack/claude-code/LICENSE" }
+    "agents": "harness/pstack/claude-code/agents", "license": "harness/pstack/claude-code/LICENSE" },
+  { "repo": "blader/humanizer", "path": "SKILL.md", "skills": ["humanizer"] },
+  { "repo": "op7418/Humanizer-zh", "path": "SKILL.md", "skills": ["humanizer-zh"] },
+  { "repo": "Yeachan-Heo/oh-my-claudecode", "path": "skills", "skills": ["ai-slop-cleaner"],
+    "note": "Our copy drops the oh-my-claudecode and Ralph parts, so it works on its own." },
+  { "repo": "pbakaus/impeccable", "path": ".agents/skills", "skills": ["impeccable"],
+    "note": "The .agents build. Its launcher downloads a pinned engine binary and checks it against scripts/engine-checksums.txt." },
+  { "repo": "cathrynlavery/diagram-design", "path": "skills", "skills": ["diagram-design"] }
 ]
