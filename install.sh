@@ -9,7 +9,7 @@
 #
 # Each agent then updates the plugin by itself. Run this again only after a change to settings/ or personal/.
 # It reads those files from the agent's own copy of the marketplace, so it needs no clone.
-# TOOLKIT_REF=<branch> installs that branch instead of main, for tests.
+# TOOLKIT_REPO and TOOLKIT_REF install another repo or branch, for tests.
 set -eu
 
 PERSONAL=0
@@ -18,7 +18,7 @@ case "${1:-}" in
   --personal) PERSONAL=1 ;;
   *) echo "Usage: install.sh [--personal]" >&2; exit 2 ;;
 esac
-REPO=spinsirr/toolkit
+REPO="${TOOLKIT_REPO:-spinsirr/toolkit}"
 REF="${TOOLKIT_REF:-}"
 
 CLAUDE="$(command -v claude || true)"
