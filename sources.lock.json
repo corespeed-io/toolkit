@@ -67,7 +67,17 @@
   "cloudflare": {
     "repo": "cloudflare/skills",
     "path": "skills/cloudflare",
-    "commit": "1f2cd0a19588e2c6197c91dd7c71729df1fb6156"
+    "commit": "6eb6c781aa9b6438e0c7307bd102788a75fe1a6d"
+  },
+  "cloudflare-app-bootstrap": {
+    "repo": "cloudflare/skills",
+    "path": "skills/cloudflare-app-bootstrap",
+    "commit": "6eb6c781aa9b6438e0c7307bd102788a75fe1a6d"
+  },
+  "cloudflare-one": {
+    "repo": "cloudflare/skills",
+    "path": "skills/cloudflare-one",
+    "commit": "6eb6c781aa9b6438e0c7307bd102788a75fe1a6d"
   },
   "correct": {
     "repo": "cursor/plugins",
@@ -109,6 +119,11 @@
     "path": "harness/pstack/claude-code/skills/figure-it-out",
     "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
   },
+  "frameworks-on-cloudflare": {
+    "repo": "cloudflare/skills",
+    "path": "skills/frameworks-on-cloudflare",
+    "commit": "6eb6c781aa9b6438e0c7307bd102788a75fe1a6d"
+  },
   "frontend-design": {
     "repo": "anthropics/skills",
     "path": "skills/frontend-design",
@@ -148,6 +163,11 @@
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/ketchup",
     "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "ketchup-video": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/ketchup-video",
+    "commit": "6b0300214a09fd6029cfb7077043125758cd1fd2"
   },
   "maintain-formal-verification-skill": {
     "repo": "cursor/plugins",
@@ -429,5 +449,10 @@
     "repo": "cloudflare/skills",
     "path": "skills/workers-best-practices",
     "commit": "1f2cd0a19588e2c6197c91dd7c71729df1fb6156"
+  },
+  "workers-development": {
+    "repo": "cloudflare/skills",
+    "path": "skills/workers-development",
+    "commit": "6eb6c781aa9b6438e0c7307bd102788a75fe1a6d"
   }
 }

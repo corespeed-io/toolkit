@@ -8,7 +8,7 @@
   { "repo": "supabase/agent-skills", "path": "skills", "skills": ["supabase", "supabase-postgres-best-practices"] },
   { "repo": "stripe/ai", "path": "skills", "skills": ["stripe-best-practices"] },
   { "repo": "railwayapp/railway-skills", "path": "plugins/railway/skills", "skills": ["use-railway"] },
-  { "repo": "cloudflare/skills", "path": "skills", "skills": ["cloudflare", "cf-cli", "workers-best-practices", "durable-objects", "agents-sdk"] },
+  { "repo": "cloudflare/skills", "path": "skills", "skills": ["cloudflare", "cf-cli", "workers-best-practices", "durable-objects", "agents-sdk", "frameworks-on-cloudflare", "cloudflare-app-bootstrap", "workers-development", "cloudflare-one"] },
   { "repo": "cursor/plugins", "path": "harness/pstack/claude-code/skills", "skills": "*",
     "agents": "harness/pstack/claude-code/agents", "license": "harness/pstack/claude-code/LICENSE" },
   { "repo": "blader/humanizer", "path": "SKILL.md", "skills": ["humanizer"] },
