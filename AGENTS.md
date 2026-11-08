@@ -40,6 +40,7 @@ Code identifiers, commands, quoted text, and standard metric names (P50, P90, TT
 - Use strong types: TypeScript strict, Python type hints. Do not use `any`.
 - Do not use mocks, placeholders, or fake data and then say that the work is complete.
 - Do not catch errors and continue silently. Do not add quiet fallbacks. Fail loudly.
+- Do not use `pkill -f <pattern>`: it can match your own shell and stop it. Kill by PID, or use `pkill -x <name>`.
 
 ## Tests and verification
 
