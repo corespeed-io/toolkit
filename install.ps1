@@ -16,13 +16,17 @@ $ErrorActionPreference = 'Stop'
 $Repo = if ($env:TOOLKIT_REPO) { $env:TOOLKIT_REPO } else { 'spinsirr/toolkit' }
 $Ref = $env:TOOLKIT_REF
 
+# Windows PowerShell 5.1 turns each stderr line of a native command into an error, and 'Stop' then ends the
+# script. So the helpers use 'Continue' and judge a native command only by its exit code.
 function Invoke-Native([string]$Exe, [string[]]$Arguments) {
-  & $Exe @Arguments
+  $ErrorActionPreference = 'Continue'
+  & $Exe @Arguments 2>&1 | ForEach-Object { "$_" }
   if ($LASTEXITCODE -ne 0) { throw "Failed (exit $LASTEXITCODE): $Exe $($Arguments -join ' ')" }
 }
 
 function Test-Native([string]$Exe, [string[]]$Arguments) {
-  & $Exe @Arguments *> $null
+  $ErrorActionPreference = 'Continue'
+  & $Exe @Arguments 2>&1 | Out-Null
   return $LASTEXITCODE -eq 0
 }
 
