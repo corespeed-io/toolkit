@@ -97,6 +97,14 @@ def read_json(path: Path) -> dict:
     return json.loads(path.read_text())
 
 
+def skip_mcp_on_windows() -> bool:
+    """personal/mcp.json runs its servers through sh. Windows runs Lore through its own launcher."""
+    if sys.platform != "win32":
+        return False
+    print("Skipped the MCP servers in personal/mcp.json: they need sh. Set up Lore on Windows by hand.")
+    return True
+
+
 def apply_claude(personal: bool) -> None:
     settings = HOME / ".claude/settings.json"
     settings.parent.mkdir(exist_ok=True)
@@ -106,7 +114,7 @@ def apply_claude(personal: bool) -> None:
         allow = merged["permissions"]["allow"]
         merged["permissions"]["allow"] = without_star_forms(allow)
     settings.write_text(json.dumps(merged, indent=2) + "\n")
-    if not personal:
+    if not personal or skip_mcp_on_windows():
         return
     env = for_tool(load_env(), "claude")
     for name, raw in read_json(TOOLKIT / "personal/mcp.json").items():
@@ -119,9 +127,11 @@ def apply_claude(personal: bool) -> None:
 def apply_codex() -> None:
     """Personal only: the plugin needs no Codex settings."""
     codex = os.environ["CODEX"]
-    config = HOME / ".codex/config.toml"
+    config = Path(os.environ.get("CODEX_HOME", HOME / ".codex")) / "config.toml"
     keys = [l for l in (TOOLKIT / "personal/codex.toml").read_text().splitlines() if "=" in l and not l.startswith("#")]
     config.write_text(set_toml_keys(config.read_text() if config.exists() else "", keys))
+    if skip_mcp_on_windows():
+        return
     env = load_env()
     for name, raw in read_json(TOOLKIT / "personal/mcp.json").items():
         server = expand(raw, for_tool(env, "codex"))

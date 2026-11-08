@@ -24,3 +24,43 @@ jobs:
           claude plugin validate plugin
       - name: Install script syntax
         run: sh -n install.sh
+
+  # Runs the installers from GitHub, on this PR's branch, in the runner's empty home.
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      TOOLKIT_REPO: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+      TOOLKIT_REF: ${{ github.head_ref || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Claude Code and Codex
+        run: npm install -g @anthropic-ai/claude-code@2.1.319 @openai/codex@0.167.0
+      - name: Plain install (Linux)
+        if: runner.os == 'Linux'
+        run: sh install.sh && python3 tests/check_install.py
+      - name: Personal install (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p ~/.config/toolkit && cp personal/env.example ~/.config/toolkit/env
+          sh install.sh --personal && python3 tests/check_install.py --personal
+      - name: Plain install (Windows PowerShell 5.1)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          .\install.ps1
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          python tests/check_install.py
+      - name: Personal install (Windows PowerShell 5.1)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          .\install.ps1 -Personal
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          python tests/check_install.py --personal

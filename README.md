@@ -18,6 +18,20 @@ On my machines, add `--personal`. It also installs my global instructions (`AGEN
 curl -fsSL https://raw.githubusercontent.com/spinsirr/toolkit/main/install.sh | sh -s -- --personal
 ```
 
+On Windows, use `install.ps1` in PowerShell. It needs Python 3.9 or newer.
+
+```powershell
+irm https://raw.githubusercontent.com/spinsirr/toolkit/main/install.ps1 | iex
+```
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/spinsirr/toolkit/main/install.ps1))) -Personal
+```
+
+On Windows, `-Personal` does not set up the Lore MCP server, because `personal/mcp.json` needs `sh`. It links the Codex `AGENTS.md`, so it needs Developer Mode (Settings → System → For developers).
+
+CI runs both installers on Linux and Windows for each PR (`tests/check_install.py`).
+
 ## Layout
 
 - `plugin/`: skills and subagents, installed as `personal@toolkit`.
