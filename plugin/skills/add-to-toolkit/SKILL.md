@@ -10,7 +10,9 @@ The toolkit is the GitHub repo `spinsirr/toolkit`. It sets up Claude Code and Co
 | Item | Location |
 | --- | --- |
 | Global instructions | `AGENTS.md` |
-| Skill | `plugin/skills/<name>/SKILL.md`, with `name` (the folder name) and `description` in the frontmatter |
+| Our own skill | `plugin/skills/<name>/SKILL.md`, with `name` (the folder name) and `description` in the frontmatter |
+| A skill from another repo | Add its source to `sources.json`, then run `python3 scripts/vendor.py`. Do not copy it by hand. |
+| An edit to a skill from another repo (it is in `sources.lock.json`) | Edit the copy, then run `python3 scripts/vendor.py patch <skill>`. Without the patch, the next update removes the edit. Keep the edit small, and put a rule for every skill in `AGENTS.md` instead. |
 | Subagent (Claude Code) | `plugin/agents/<name>.md` |
 | Setting for every install | `settings/claude.json` |
 | My setting | `personal/claude.json` or `personal/codex.toml` |

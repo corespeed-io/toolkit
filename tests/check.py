@@ -54,6 +54,11 @@ for skill_dir in sorted((PLUGIN / "skills").iterdir()):
         if path.is_file() and path.suffix in {".md", ".sh", ".py", ".js", ".ts", ".json"}:
             assert "CLAUDE_PLUGIN_" not in path.read_text(errors="ignore"), f"{path}: CLAUDE_PLUGIN_* works only in Claude Code"
 
+# Each patch belongs to a vendored skill (or to the vendored docs), so vendor.py applies it.
+lock = json.loads((ROOT / "sources.lock.json").read_text())
+for patch in (ROOT / "patches").glob("*.patch"):
+    assert patch.stem in lock, f"{patch.name}: {patch.stem} is not in sources.lock.json"
+
 for path in ["settings/claude.json", "personal/claude.json", "personal/mcp.json"]:
     json.loads((ROOT / path).read_text())
 print("ok")

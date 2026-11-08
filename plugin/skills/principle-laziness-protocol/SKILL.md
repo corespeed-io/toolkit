@@ -1,13 +1,10 @@
 ---
 name: principle-laziness-protocol
-description: "Use when you refactor, judge diff size, or want to add abstractions, layers, or signal threading. Prefer deletion and the smallest change that solves the problem."
+description: "Apply when refactoring, evaluating diff size, or tempted to add abstractions, layers, or signal threading. Bias toward deletion and the smallest change that solves the problem."
 disable-model-invocation: true
 ---
 
 # Laziness Protocol
 
-Prefer deletion. Make the smallest change that works.
-
-- **Consolidate decisions.** Do not make the same choice in many locations. Put it behind one source of truth, and pass the result as a simple flag.
-- **Make the diff small.** Make the smallest change that solves the problem. Fewer lines are better than "elegant" boilerplate.
-- **Do not write again what a library does well.** When a good, well-known library fits, use it. Do not add an abstraction for one use.
+- **Consolidate decisions.** Do not repeat the same choice in several places. Put it behind one source of truth and pass the result as a simple flag.
+- **Minimize the diff.** Make the smallest change that solves the problem. Fewer lines beat "elegant" boilerplate.

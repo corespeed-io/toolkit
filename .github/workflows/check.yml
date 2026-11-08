@@ -6,6 +6,8 @@ on:
   pull_request:
   push:
     branches: [main]
+  # The Upstream update workflow starts this on its branch: a PR that its token opens starts no pull_request run.
+  workflow_dispatch:
 
 permissions:
   contents: read

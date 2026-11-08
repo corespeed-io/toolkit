@@ -58,6 +58,27 @@ Every change goes through a pull request to `main`. A merge reaches every machin
 
 The checks keep the plugin safe and portable: no hooks, executables or MCP servers in `plugin/`, no `version`, and each skill in the Agent Skills format (`SKILL.md` with a `name` that matches its folder, and a `description`).
 
+## Third-party skills
+
+Most skills come from other repositories, listed in `sources.json`. Each copy is upstream plus a small patch in `patches/<skill>.patch`, so one command updates every skill:
+
+```sh
+python3 scripts/vendor.py
+```
+
+- It replaces each copy with upstream (at `HEAD`, or at the `ref` that a source pins), applies the patch, and records the commits in `sources.lock.json`. It also copies new skills from a source that lists `"skills": "*"`, and removes skills that upstream removed.
+- If a patch no longer applies, that skill keeps its old copy, and the command fails and names the skill. Update the copy by hand, then save the patch again.
+- The Upstream update workflow (`.github/workflows/upstream.yml`) runs it every Monday and opens or updates a PR from the branch `upstream/update`. Review the diff, then merge.
+- `exclude` in a source leaves out files, such as Vercel build output. `docs` copies a folder that the skills link to into `plugin/docs`.
+
+To change a third-party skill, edit its copy, then save the edit as a patch:
+
+```sh
+python3 scripts/vendor.py patch <skill>
+```
+
+Keep a patch small: only edits that change what the skill does. General rules, such as the writing style, memory and git, stay in `AGENTS.md`, which applies to every skill. Our own skills (not in `sources.lock.json`) need no patch.
+
 ## Agent Ensemble sandbox
 
 In the environment:
