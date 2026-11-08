@@ -1,6 +1,6 @@
 ---
 name: cloudflare
-description: Find and choose Cloudflare products for apps, APIs, AI agents, storage, networking, and security. Use for Cloudflare architecture and product selection, also when the user describes a need and does not name a product.
+description: Find and choose Cloudflare products for apps, APIs, AI agents, storage, networking, and security. Use for Cloudflare architecture and product selection, also when the user describes a need and does not name a product. Also use when a site behind the Cloudflare proxy shows a Cloudflare error page, a `52x` status, a 1xxx error code, or a Cloudflare `403`, to find out whether the fix is in the Cloudflare configuration or at the origin.
 ---
 
 # Discover and build with Cloudflare
@@ -23,6 +23,7 @@ The owner uses the Cloudflare CLI (`cf`). Use `cf` unless the project already us
 - **All other projects, also a new project or a project with no Cloudflare configuration:**
   - Use `cf`. Load the `cf-cli` skill.
   - Do not install Wrangler. Do not make a Wrangler configuration file.
+- **A new web-framework project:** follow the `frameworks-on-cloudflare` skill. The `cf` docs do not yet tell how to make a framework project, so that skill uses the Workers guide of each framework.
 
 The product guidance below, and the documentation that it links to, applies to the two CLIs. Many documentation pages show only Wrangler commands and configuration. In a `cf` project, do not run these commands and do not add a Wrangler configuration file. Use one CLI in each project. The only exception is the `npx wrangler` commands that the `cf-cli` skill lists as not yet supported by `cf`. Some guidance names a Wrangler command or file. To find the `cf` equivalent, use `cf cli search "<task>"` or the [Wrangler to cf reference](https://developers.cloudflare.com/cf/wrangler/reference/index.md). Do not translate from memory.
 
@@ -50,7 +51,9 @@ How to use the table:
 | Choose the building blocks for an AI application | AI overview | Compare Cloudflare's AI services before choosing inference, retrieval, or agent tooling | [AI docs](https://developers.cloudflare.com/ai/index.md) |
 | Choose infrastructure for a customer-facing platform | Cloudflare for Platforms | Compare running customer code with serving an app on customer domains | [Platform overview](https://developers.cloudflare.com/cloudflare-for-platforms/index.md) |
 | Choose an approach to live audio and video | Realtime | Compare application SDKs, media infrastructure, and connectivity relays | [Realtime overview](https://developers.cloudflare.com/realtime/index.md) |
-| Start a Worker or framework project | C3 | Scaffold a project using the appropriate framework template | [C3](references/c3/README.md); `cf-cli` skill |
+| Start a Worker project | `cf` | Make a basic Worker with `cf init` | `cf-cli` skill; [First Worker](https://developers.cloudflare.com/cf/get-started/first-worker/index.md) |
+| Build, set up, or migrate a framework app | Framework tooling + Workers | Follow the Workers guide of the framework and its own agent guidance | `frameworks-on-cloudflare` skill; [Framework guides](https://developers.cloudflare.com/workers/framework-guides/index.md) |
+| Get a new or checked-out app to run locally | Bindings, secrets, and local development | Connect the resources and values that the app needs, then make sure that a real request works | `cloudflare-app-bootstrap` skill; [Local development](https://developers.cloudflare.com/workers/development-testing/index.md) |
 | Build or deploy a Next.js app on Cloudflare | vinext + Workers | Use vinext rather than OpenNext for new projects | [Next.js docs](https://developers.cloudflare.com/workers/framework-guides/web-apps/nextjs/index.md) |
 | Host a new static site, SPA, or full-stack app | Workers + Workers Static Assets | Serve site files and add server-side logic where needed | [Static Assets](references/static-assets/README.md); `workers-best-practices` skill |
 | Build an API or handle webhooks | Workers | Run request handlers with access to Cloudflare services | `workers-best-practices` skill; [Workers docs](https://developers.cloudflare.com/workers/index.md) |
@@ -95,6 +98,7 @@ How to use the table:
 | Connect an existing server to Cloudflare | Cloudflare Tunnel | Reach an origin without a publicly routable IP address | [Tunnel](references/tunnel/README.md) |
 | Connect Workers to private services | Workers VPC | Access services in private networks from a Worker | [Workers VPC docs](https://developers.cloudflare.com/workers-vpc/index.md) |
 | Require employee login before accessing an internal app | Access | Put identity-based access policies in front of an internal application | [Access docs](https://developers.cloudflare.com/cloudflare-one/access-controls/index.md) |
+| Get access to a protected webpage or API from an agent, script, or crawler | Access service tokens | Authenticate an approved client that is not a browser to an Access application | `cloudflare-one` skill; [Service token docs](https://developers.cloudflare.com/cloudflare-one/access-controls/service-credentials/service-tokens/index.md) |
 | Protect access to internal applications and networks | Cloudflare One | Apply identity and network access policies | [Cloudflare One docs](https://developers.cloudflare.com/cloudflare-one/index.md) |
 | Transform permitted Gateway HTTP traffic with a Worker | Gateway Forward + Workers | Apply custom request or response logic to traffic passing through Gateway | [Cloudflare One docs](https://developers.cloudflare.com/cloudflare-one/index.md) |
 | Migrate existing access and network security configurations | Cloudflare One | The task is a supported migration to Cloudflare One | [Cloudflare One docs](https://developers.cloudflare.com/cloudflare-one/index.md) |
@@ -135,7 +139,7 @@ How to use the table:
 | Release a feature gradually or target user groups | Flagship | Change feature availability with targeting and percentage rollouts | [Flagship docs](https://developers.cloudflare.com/flagship/index.md) |
 | Manage infrastructure as code | Terraform or Pulumi | Use Terraform for declarative configuration or Pulumi for infrastructure in programming languages | [Terraform docs](https://developers.cloudflare.com/terraform/index.md); [Pulumi docs](https://developers.cloudflare.com/pulumi/index.md) |
 | Automate account or product configuration through an API | Cloudflare REST API | Manage resources programmatically; prefer bindings for supported operations inside Workers | [REST API docs](https://developers.cloudflare.com/fundamentals/api/index.md) |
-| Debug failures and trace application requests | Workers Logs and Traces | Investigate runtime errors and execution paths | [Observability](references/observability/README.md) |
+| Debug failures and trace application requests | Local Explorer; Workers Logs and Traces | Examine binding data and traces locally, or investigate runtime errors after deployment | `workers-development` skill; [Observability](references/observability/README.md) |
 | Profile CPU usage or memory allocations in deployed Workers or Durable Objects | Workers profiling | Investigate CPU and memory issues in production | [Observability](references/observability/README.md); [Workers observability docs](https://developers.cloudflare.com/workers/observability/index.md) |
 | Process Worker execution events in code | Tail Workers | Build custom log or exception processing | [Tail Workers](references/tail-workers/README.md) |
 | Export Worker logs to another system | Workers Logpush | Deliver logs to a supported external destination | [Logpush docs](https://developers.cloudflare.com/workers/observability/logs/logpush/index.md) |
@@ -159,6 +163,17 @@ Recommend only the products that the requested behavior needs.
 - To evaluate scale, cost, or an upgrade, use the limits, pricing, and migration guides of the product.
 
 The table shows common tasks and some Cloudflare products. It does not show all possible applications.
+
+## Troubleshoot HTTP errors on a site behind the Cloudflare proxy
+
+Before you suggest a fix, find out whether it belongs in the Cloudflare configuration of the zone or at the origin. Get the page for the specific code from [HTTP status codes](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/index.md). Do not answer from memory. [Custom Errors](https://developers.cloudflare.com/rules/custom-errors/index.md) can change how error pages look and which status they return, so ask whether the zone uses them before you trust the branding.
+
+- **Do not identify a `502` or `504` by its branding.** A `502` or `504` with Cloudflare branding usually means that the origin returned that status. A blank page with no branding came from Cloudflare. Refer to [Error 502 or 504](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-502-504/index.md).
+- **For other errors, read the diagnostic headers.** A `cf-error-type` response header means that Cloudflare made the page, and its value names the category. A page that Cloudflare made can still need a fix at the origin. Refer to [Cloudflare error diagnostic headers](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-error-headers/index.md).
+- **A 1xxx code means that Cloudflare made the response**, often because of the configuration of the site, such as a security rule, a DNS record, a Worker, or a Tunnel. The code is in the page body, and the HTTP status is different. Find the pair in the [HTTP status codes table](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/index.md#http-status-codes), then open the page for that error. A Cloudflare 10xxx code is an API error, not an error of a site behind the proxy.
+- **`520` to `526` are Cloudflare pages for a failed connection to the origin**: an unexpected response, no connection, a timeout, or a TLS failure. Start at the origin: server logs, firewalls that block [Cloudflare IP ranges](https://www.cloudflare.com/ips/), and each load balancer or proxy between them. For `525` and `526`, also examine the SSL/TLS encryption mode of the zone. Refer to [Cloudflare 5xx errors](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/index.md).
+- **For a `403`, examine the page first.** A `403` with no Cloudflare branding usually comes from the origin. If the page shows a 1xxx code, open the page for that error. For error 1020 or the WAF block page, search Security Events for the Ray ID or the client IP to find the rule. WAF custom and managed rules show the WAF block page, not error 1020. Security Events shows sampled logs, so a missing event does not prove that the origin returned the error. Refer to [Error 403](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/4xx-client-error/error-403/index.md), [Error 1020](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1020/index.md), and [Security Events](https://developers.cloudflare.com/waf/analytics/security-events/index.md).
+- **Usually only the site owner can fix these errors.** If the user is a visitor, explain the error and send them to the site owner.
 
 ## Caching
 

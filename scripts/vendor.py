@@ -48,16 +48,24 @@ def import_all() -> None:
         paths = [src["path"], *license_paths(src)] + ([src["agents"]] if "agents" in src else [])
         checkout, sha = fetch(repo, ref, paths)
         base = checkout / src["path"]
+        # A repo whose root is one skill: "path" is its SKILL.md, and only that file is copied.
+        root_skill = base.name == "SKILL.md"
         names = sorted(p.name for p in base.iterdir() if (p / "SKILL.md").exists()) if src["skills"] == "*" else src["skills"]
         for name in names:
-            if not (base / name / "SKILL.md").exists():
-                sys.exit(f"{repo}: no skill at {src['path']}/{name}")
+            skill_md = base if root_skill else base / name / "SKILL.md"
+            if not skill_md.exists():
+                sys.exit(f"{repo}: no skill at {skill_md.relative_to(checkout)}")
             if (SKILLS / name).exists():
                 if lock.get(name, {}).get("repo") != repo:
                     sys.exit(f"Name clash: {name} from {repo} is already in plugin/skills")
                 continue
-            shutil.copytree(base / name, SKILLS / name)
-            lock[name] = {"repo": repo, "path": f"{src['path']}/{name}", "commit": sha, **({"pinned": True} if "ref" in src else {})}
+            if root_skill:
+                (SKILLS / name).mkdir()
+                shutil.copy2(skill_md, SKILLS / name / "SKILL.md")
+            else:
+                shutil.copytree(base / name, SKILLS / name)
+            path = src["path"] if root_skill else f"{src['path']}/{name}"
+            lock[name] = {"repo": repo, "path": path, "commit": sha, **({"pinned": True} if "ref" in src else {})}
             print(f"imported {name} from {repo}")
         if "agents" in src:
             AGENTS.mkdir(parents=True, exist_ok=True)

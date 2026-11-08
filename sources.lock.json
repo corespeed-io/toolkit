@@ -24,6 +24,11 @@
     "path": "skills/ai-sdk",
     "commit": "89e9ab9e4a15de0b18f3df6bc89d29152a00ff1b"
   },
+  "ai-slop-cleaner": {
+    "repo": "Yeachan-Heo/oh-my-claudecode",
+    "path": "skills/ai-slop-cleaner",
+    "commit": "0564555b63dfedd158669c6799d53743abd7d6bf"
+  },
   "architect": {
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/architect",
@@ -62,7 +67,17 @@
   "cloudflare": {
     "repo": "cloudflare/skills",
     "path": "skills/cloudflare",
-    "commit": "1f2cd0a19588e2c6197c91dd7c71729df1fb6156"
+    "commit": "6eb6c781aa9b6438e0c7307bd102788a75fe1a6d"
+  },
+  "cloudflare-app-bootstrap": {
+    "repo": "cloudflare/skills",
+    "path": "skills/cloudflare-app-bootstrap",
+    "commit": "6eb6c781aa9b6438e0c7307bd102788a75fe1a6d"
+  },
+  "cloudflare-one": {
+    "repo": "cloudflare/skills",
+    "path": "skills/cloudflare-one",
+    "commit": "6eb6c781aa9b6438e0c7307bd102788a75fe1a6d"
   },
   "correct": {
     "repo": "cursor/plugins",
@@ -84,6 +99,11 @@
     "path": "skills/deployments-cicd",
     "commit": "3ca3e549d48578bcb3b315ec6e9a972fce1c24ed"
   },
+  "diagram-design": {
+    "repo": "cathrynlavery/diagram-design",
+    "path": "skills/diagram-design",
+    "commit": "e57eda6102a19444538ebd611d39534fad65b663"
+  },
   "durable-objects": {
     "repo": "cloudflare/skills",
     "path": "skills/durable-objects",
@@ -99,6 +119,11 @@
     "path": "harness/pstack/claude-code/skills/figure-it-out",
     "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
   },
+  "frameworks-on-cloudflare": {
+    "repo": "cloudflare/skills",
+    "path": "skills/frameworks-on-cloudflare",
+    "commit": "6eb6c781aa9b6438e0c7307bd102788a75fe1a6d"
+  },
   "frontend-design": {
     "repo": "anthropics/skills",
     "path": "skills/frontend-design",
@@ -108,6 +133,21 @@
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/how",
     "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "humanizer": {
+    "repo": "blader/humanizer",
+    "path": "SKILL.md",
+    "commit": "0ef9fe5bc3572734fd3ae6c448fe00a30cd5dcf0"
+  },
+  "humanizer-zh": {
+    "repo": "op7418/Humanizer-zh",
+    "path": "SKILL.md",
+    "commit": "f4518a8eab97b8bfebc66a89d34320a89bef6930"
+  },
+  "impeccable": {
+    "repo": "pbakaus/impeccable",
+    "path": ".agents/skills/impeccable",
+    "commit": "687bc381bc9091bf252c0a05303640561014a425"
   },
   "in-your-own-words": {
     "repo": "cursor/plugins",
@@ -123,6 +163,11 @@
     "repo": "cursor/plugins",
     "path": "harness/pstack/claude-code/skills/ketchup",
     "commit": "8b3326d99fd4b993cb33a24dad8af03175c642c5"
+  },
+  "ketchup-video": {
+    "repo": "cursor/plugins",
+    "path": "harness/pstack/claude-code/skills/ketchup-video",
+    "commit": "6b0300214a09fd6029cfb7077043125758cd1fd2"
   },
   "maintain-formal-verification-skill": {
     "repo": "cursor/plugins",
@@ -404,5 +449,10 @@
     "repo": "cloudflare/skills",
     "path": "skills/workers-best-practices",
     "commit": "1f2cd0a19588e2c6197c91dd7c71729df1fb6156"
+  },
+  "workers-development": {
+    "repo": "cloudflare/skills",
+    "path": "skills/workers-development",
+    "commit": "6eb6c781aa9b6438e0c7307bd102788a75fe1a6d"
   }
 }
