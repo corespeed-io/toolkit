@@ -27,7 +27,7 @@
   "ai-slop-cleaner": {
     "repo": "Yeachan-Heo/oh-my-claudecode",
     "path": "skills/ai-slop-cleaner",
-    "commit": "0564555b63dfedd158669c6799d53743abd7d6bf"
+    "commit": "d7c127f02e0b6bfc87a9ad44e807f0ad19c5399d"
   },
   "architect": {
     "repo": "cursor/plugins",
