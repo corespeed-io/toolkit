@@ -67,7 +67,9 @@ Propose a fix for a lesson when one of these is true:
 - The user stated it as a rule.
 - Its status is `regressed`.
 
-For a `regressed` lesson, more text did not work. Use the **encode-lessons-in-structure** principle skill: a script, a check, or a change to the skill's steps. Do not add another sentence.
+For a `regressed` lesson, more text did not work. Use the **encode-lessons-in-structure** principle skill: a check in `tests/check.py`, or a change to the skill's steps. Do not add another sentence.
+
+The toolkit has no hooks (user decision, 2026-11-07). Do not propose a hook, a `bin/` script or an MCP server in `plugin/`: `tests/check.py` fails on them, and the user closed PR #10 for this reason.
 
 Route each fix to one place:
 
