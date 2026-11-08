@@ -23,7 +23,7 @@
  
  - Preserve behavior unless the user explicitly asks for behavior changes.
  - Lock behavior with focused regression tests first whenever practical.
-@@ -41,19 +40,10 @@
+@@ -41,8 +40,8 @@
  
  This skill can be bounded to an explicit file list or changed-file scope when the caller already knows the safe cleanup surface.
  
@@ -33,6 +33,11 @@
 +- Good fit: only the files that the current task changed
  - Preserve the same regression-safe workflow even when the scope is a short file list
  - Do not silently expand a changed-file scope into broader cleanup work unless the user explicitly asks for it
+ 
+@@ -59,15 +58,6 @@
+ 
+ This bounds the pass to work whose review context is already open, and keeps
+ unrelated legacy cleanup from riding in under an anti-slop flag.
 -
 -## Ralph Integration
 -
@@ -45,7 +50,7 @@
  
  ## Review Mode (`--review`)
  
-@@ -129,10 +119,9 @@
+@@ -143,10 +133,9 @@
  
  ## Usage
  

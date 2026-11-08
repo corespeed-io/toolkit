@@ -18,27 +18,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # A patch that no longer applies keeps that skill's old copy. The other updates still go into the PR,
+      # and the last step fails the run, so GitHub sends a notification.
       - name: Update the skills to upstream
-        run: python3 scripts/vendor.py
+        id: update
+        run: |
+          set +e
+          python3 scripts/vendor.py 2>&1 | tee "$RUNNER_TEMP/vendor.log"
+          echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
       - name: Open or update the PR
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           if [ -z "$(git status --porcelain)" ]; then
-            echo "All skills are up to date."
+            echo "No skill changed."
             exit 0
           fi
           branch=upstream/update
+          body="Opened by the Upstream update workflow. Each skill is upstream plus its patch in patches/. Review the diff, then merge."
+          failed=$(grep "kept their old copy" "$RUNNER_TEMP/vendor.log" || true)
+          if [ -n "$failed" ]; then
+            body="$body"$'\n\n'"**Not updated:** $failed"
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$branch"
           git add -A
           git commit -q -m "Update skills to upstream" -m "$(git diff --cached --stat | tail -1)"
           git push -q -f origin "$branch"
-          if [ -z "$(gh pr list --head "$branch" --state open --json number --jq '.[].number')" ]; then
-            gh pr create --base main --head "$branch" --title "Update skills to upstream" \
-              --body "Opened by the Upstream update workflow. Each skill is upstream plus its patch in patches/. Review the diff, then merge."
+          pr=$(gh pr list --head "$branch" --state open --json number --jq '.[].number')
+          if [ -z "$pr" ]; then
+            gh pr create --base main --head "$branch" --title "Update skills to upstream" --body "$body"
+          else
+            gh pr edit "$pr" --body "$body"
           fi
           # A PR that this token opens does not start pull_request workflows, so start the required checks here.
           gh workflow run check.yml --ref "$branch"
+      - name: Fail when a patch did not apply
+        if: steps.update.outputs.status != '0'
+        run: |
+          grep "kept their old copy" "$RUNNER_TEMP/vendor.log" || cat "$RUNNER_TEMP/vendor.log"
+          exit 1
