@@ -1,15 +1,15 @@
 ---
 name: durable-objects
-description: Build, debug, or review Cloudflare Durable Objects code for persistent state, coordination, RPC, alarms, WebSockets, and SQLite storage.
+description: Build, debug, or review Cloudflare Durable Objects code for persistent state and coordination.
 ---
 
 # Durable Objects
 
-Use Durable Objects to build stateful, coordinated applications on the Cloudflare edge.
+Build stateful, coordinated applications on Cloudflare's edge using Durable Objects.
 
-## Retrieval sources
+## Retrieval Sources
 
-Your knowledge of Durable Objects APIs and configuration can be old. **Use retrieval, not pre-training,** for all Durable Objects tasks.
+Your knowledge of Durable Objects APIs and configuration may be outdated. **Prefer retrieval over pre-training** for any Durable Objects task.
 
 | Resource | URL |
 |----------|-----|
@@ -19,18 +19,18 @@ Your knowledge of Durable Objects APIs and configuration can be old. **Use retri
 | Examples | https://developers.cloudflare.com/durable-objects/examples/index.md |
 | Roles and permissions | https://developers.cloudflare.com/workers/authorization/durable-objects/index.md |
 
-When you make a feature, get the applicable doc page.
+Fetch the relevant doc page when implementing features.
 
-## When to use
+## When to Use
 
-- To make new Durable Object classes for stateful coordination.
-- To make RPC methods, alarms, or WebSocket handlers.
-- To review existing DO code for best practices.
-- To configure DO bindings and migrations in wrangler.jsonc/toml or `cloudflare.config.ts`. For CLI commands, load the `cf-cli` skill.
-- To write tests with the Cloudflare Vitest integration.
-- To design sharding strategies and parent-child relationships.
+- Creating new Durable Object classes for stateful coordination
+- Implementing RPC methods, alarms, or WebSocket handlers
+- Reviewing existing DO code for best practices
+- Configuring wrangler.jsonc/toml for DO bindings and migrations
+- Writing tests with Cloudflare’s Vitest integration
+- Designing sharding strategies and parent-child relationships
 
-## Reference documentation
+## Reference Documentation
 
 - `./references/rules.md` - Core rules, storage, concurrency, RPC, alarms
 - [Testing reference](./references/testing.md) - Current Vitest documentation, migration choices, and test selection
@@ -38,9 +38,9 @@ When you make a feature, get the applicable doc page.
 
 Search: `blockConcurrencyWhile`, `idFromName`, `getByName`, `setAlarm`, `sql.exec`
 
-## Core principles
+## Core Principles
 
-### Use Durable Objects for
+### Use Durable Objects For
 
 | Need | Example |
 |------|---------|
@@ -50,17 +50,15 @@ Search: `blockConcurrencyWhile`, `idFromName`, `getByName`, `setAlarm`, `sql.exe
 | Persistent connections | WebSockets, real-time notifications |
 | Scheduled work per entity | Subscription renewals, game timeouts |
 
-### Do not use Durable Objects for
+### Do NOT Use For
 
-- Stateless request handling. Use plain Workers.
-- Requirements for maximum global distribution.
-- Many independent requests in parallel (high fan-out).
+- Stateless request handling (use plain Workers)
+- Maximum global distribution needs
+- High fan-out independent requests
 
-## Quick reference
+## Quick Reference
 
-### Wrangler configuration
-
-This example uses `wrangler.jsonc`. In a `cf` project (`cloudflare.config.ts`), load the `cf-cli` skill and find the equivalent configuration in the [Wrangler to cf reference](https://developers.cloudflare.com/cf/wrangler/reference/index.md).
+### Wrangler Configuration
 
 ```jsonc
 // wrangler.jsonc
@@ -72,7 +70,7 @@ This example uses `wrangler.jsonc`. In a `cf` project (`cloudflare.config.ts`), 
 }
 ```
 
-### Basic Durable Object pattern
+### Basic Durable Object Pattern
 
 ```typescript
 import { DurableObject } from "cloudflare:workers";
@@ -112,32 +110,29 @@ export default {
 };
 ```
 
-## Critical rules
+## Critical Rules
 
-1. **Model around coordination atoms.** Use one DO for each chat room, game, or user. Do not use one global DO.
-2. **Use `getByName()` for deterministic routing.** The same input gives the same DO instance.
-3. **Use SQLite storage.** Configure `new_sqlite_classes` in migrations.
-4. **Initialize in the constructor.** Use `blockConcurrencyWhile()` only for schema setup.
-5. **Use RPC methods.** Do not use the fetch() handler (compatibility date >= 2024-04-03).
-6. **Persist first, then cache.** You must write to storage before you update in-memory state.
-7. **One alarm for each DO.** `setAlarm()` replaces the existing alarm.
+1. **Model around coordination atoms** - One DO per chat room/game/user, not one global DO
+2. **Use `getByName()` for deterministic routing** - Same input = same DO instance
+3. **Use SQLite storage** - Configure `new_sqlite_classes` in migrations
+4. **Initialize in constructor** - Use `blockConcurrencyWhile()` for schema setup only
+5. **Use RPC methods** - Not fetch() handler (compatibility date >= 2024-04-03)
+6. **Persist first, cache second** - Always write to storage before updating in-memory state
+7. **One alarm per DO** - `setAlarm()` replaces any existing alarm
 
 ## Authorization
 
-Durable Objects do not have their own roles or permissions. Access follows the Worker that implements them.
+Durable Objects do not have separate roles or permissions; access follows the Worker that implements them. Retrieve the current [Durable Objects authorization guidance](https://developers.cloudflare.com/workers/authorization/durable-objects/index.md) before granting observability or Data Studio access, and scope the Workers role to the intended Worker or Workers product.
 
-1. Before you give observability or Data Studio access, get the current [Durable Objects authorization guidance](https://developers.cloudflare.com/workers/authorization/durable-objects/index.md).
-2. Limit the Workers role to the intended Worker or Workers product.
+## Anti-Patterns (NEVER)
 
-## Anti-patterns (never do these)
+- Single global DO handling all requests (bottleneck)
+- Using `blockConcurrencyWhile()` on every request (kills throughput)
+- Storing critical state only in memory (lost on eviction/crash)
+- Using `await` between related storage writes (breaks atomicity)
+- Holding `blockConcurrencyWhile()` across `fetch()` or external I/O
 
-- One global DO for all requests. It becomes a bottleneck.
-- `blockConcurrencyWhile()` on each request. It stops throughput.
-- Critical state only in memory. Eviction or a crash deletes it.
-- `await` between related storage writes. It breaks atomicity.
-- `blockConcurrencyWhile()` held across `fetch()` or external I/O.
-
-## Stub creation
+## Stub Creation
 
 ```typescript
 // Deterministic - preferred for most cases
@@ -152,7 +147,7 @@ const id = env.MY_DO.newUniqueId();
 const stub = env.MY_DO.get(id);
 ```
 
-## Storage operations
+## Storage Operations
 
 ```typescript
 // SQL (synchronous, recommended)
@@ -182,4 +177,8 @@ await this.ctx.storage.deleteAlarm();
 
 ## Testing
 
-Before you configure a test suite or write Durable Object tests, read the [testing reference](./references/testing.md). It links to the current setup, APIs, and examples. It also tells you which behavior to test.
+Read the [testing reference](./references/testing.md) before configuring a suite or writing Durable Object tests. It routes to current setup, APIs, and examples and identifies the behavior to cover.
+
+## Skill feedback
+
+If the user reports that this skill gave incorrect or outdated guidance, or is missing information, read [references/skill-feedback.md](references/skill-feedback.md).

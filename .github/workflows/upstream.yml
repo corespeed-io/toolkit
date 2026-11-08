@@ -1,0 +1,44 @@
+# Updates the third-party skills to upstream once a week and opens a PR when something changed.
+# scripts/vendor.py replaces each copy with upstream and applies patches/<skill>.patch.
+# A patch that no longer applies fails this run, so GitHub sends a notification; fix it by hand (see the README).
+name: Upstream update
+
+on:
+  schedule:
+    - cron: "0 16 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update the skills to upstream
+        run: python3 scripts/vendor.py
+      - name: Open or update the PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "All skills are up to date."
+            exit 0
+          fi
+          branch=upstream/update
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add -A
+          git commit -q -m "Update skills to upstream" -m "$(git diff --cached --stat | tail -1)"
+          git push -q -f origin "$branch"
+          if [ -z "$(gh pr list --head "$branch" --state open --json number --jq '.[].number')" ]; then
+            gh pr create --base main --head "$branch" --title "Update skills to upstream" \
+              --body "Opened by the Upstream update workflow. Each skill is upstream plus its patch in patches/. Review the diff, then merge."
+          fi
+          # A PR that this token opens does not start pull_request workflows, so start the required checks here.
+          gh workflow run check.yml --ref "$branch"

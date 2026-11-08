@@ -4,6 +4,8 @@
 
 set -e
 
+
+
 if ! command -v jq &>/dev/null; then
   echo '{"error": "jq not installed. Install with: brew install jq"}'
   exit 1
