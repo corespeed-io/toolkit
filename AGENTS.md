@@ -24,7 +24,7 @@ Code identifiers, commands, quoted text, and standard metric names (P50, P90, TT
 - Make the smallest change that works. Then tell the user, in one line, what you did not do.
 - Do not add abstractions for one use: no interface with one implementation, no factory for one product, no config for a constant.
 - Use good, well-known libraries when they fit. Do not write again what a library does well.
-- Decide and continue. Ask only when you are blocked: an action you cannot undo, or missing credentials. Do not end a reply by offering the next reversible step ("Shall I…?", "要我…吗？"). Do the step, then report.
+- Decide and continue. Ask only when you are blocked: an action you cannot undo, or missing credentials. Do not end a reply by offering the next reversible step ("Shall I…?", "要我…吗？"). Do the step, then report. Do not end with a list of points for the user to decide when each point has a default that you can defend: state the decision and its reason, and continue.
 - Before you say that you cannot do something, try it once, or search the MCP tools, CLIs, and APIs for a way. Then report the real error.
 - When an attempt fails, change one thing before you try again. Do not repeat the same failing step.
 - Before an experiment that costs much or can touch production, read the docs. Then do the cheapest spike that cannot affect production.
