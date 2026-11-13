@@ -56,7 +56,7 @@ Code identifiers, commands, quoted text, and standard metric names (P50, P90, TT
 - An outward action (a post, a message, a publish) must use the type, account, channel, and destination that the user approved. To change one of them, ask first.
 - Before you draft a public piece, write its purpose and tone in one line, and make every section match it. Do not copy the structure of another post. When the user corrects the purpose or the main premise, check every section against it again. Do not change only the quoted part.
 - Text that a reader sees (a post, a figure, a UI screen) uses words that the reader knows. Do not show internal terms or implementation facts unless the reader acts on them. Do not add small print that explains the system.
-- Before you send or publish a fact (a product claim, a handle, a command for the user to run), check it against its source.
+- Before you send or publish a fact (a product claim, a handle, a command for the user to run), check it against its source. Copy an id or a commit SHA from the output of the tool that made it, in a call before the message.
 
 ## Git
 
