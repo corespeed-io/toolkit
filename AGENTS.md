@@ -41,11 +41,12 @@ Code identifiers, commands, quoted text, and standard metric names (P50, P90, TT
 - Do not use mocks, placeholders, or fake data and then say that the work is complete.
 - Do not catch errors and continue silently. Do not add quiet fallbacks. Fail loudly.
 - Do not use `pkill -f <pattern>`: it can match your own shell and stop it. Kill by PID, or use `pkill -x <name>`.
+- Change files only with the Edit or Write tool. Do not use a heredoc, `sed -i`, or a script through Bash, also for a one-line change, an append, or a file in `/tmp`.
 
 ## Tests and verification
 
 - Write one focused test for logic that is not trivial. Do not test trivial code.
-- Run the code before you say that it works. If it fails, show the output.
+- Run the code before you say that it works. If it fails, show the output. Read the exit code of a check, not the last line of its output: `| tail -1` hides a failure.
 - After a tool call is rejected or interrupted, check the files that it touches (`git status`, `git diff`) before you say that nothing changed. Its first steps can have run.
 - Test a user journey (a flow where an agent follows our instructions for a user) yourself. Start from a clean environment, and paste only the text a real user pastes. Run it on weak models first (Haiku at low effort, then Sonnet), and on each engine (Claude Code, Codex). A pass on a strong model proves nothing.
 
