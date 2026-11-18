@@ -30,7 +30,7 @@ irm https://raw.githubusercontent.com/spinsirr/toolkit/main/install.ps1 | iex
 
 On Windows, `-Personal` does not set up the Lore MCP server, because `personal/mcp.json` needs `sh`. It links the Codex `AGENTS.md`, so it needs Developer Mode (Settings → System → For developers).
 
-CI runs both installers on Linux and Windows for each PR (`tests/check_install.py`).
+To test an installer, run it in an empty home, then run `python3 tests/check_install.py` (add `--personal` after a personal install).
 
 ## Layout
 
