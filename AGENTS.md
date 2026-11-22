@@ -63,7 +63,7 @@ Code identifiers, commands, quoted text, and standard metric names (P50, P90, TT
 
 - If you are on `main` or `master`, make a branch first.
 - Make a small commit at each step that works.
-- Do not push unless the user tells you to. A request to fix or build something tells you to push its branch and open its PR the repo's way (with its reviewer, if the repo uses `ship`). Never push `main` and never merge.
+- Do not push unless the user tells you to. A request to fix or build something tells you to push its branch and open its PR the repo's way (with its reviewer, if the repo uses `ship`). Never push `main`. Do not merge, unless the repo's `AGENTS.md` or the user makes you the code owner who merges: then merge when its gates pass, and report after the merge.
 
 ## Project context
 
