@@ -51,6 +51,7 @@ Code identifiers, commands, quoted text, and standard metric names (P50, P90, TT
 - Run the code before you say that it works. If it fails, show the output. Read the exit code of a check, not the last line of its output: `| tail -1` hides a failure. Do not say that a fix works until you see the user's symptom go away on the real path (the browser, the Simulator, the deployed service). Until then, say "not checked".
 - After a tool call is rejected or interrupted, check the files that it touches (`git status`, `git diff`) before you say that nothing changed. Its first steps can have run.
 - Test a user journey (a flow where an agent follows our instructions for a user) yourself. Start from a clean environment, and paste only the text a real user pastes. Run it on weak models first (Haiku at low effort, then Sonnet), and on each engine (Claude Code, Codex). A pass on a strong model proves nothing.
+- An end-to-end test gives the same result for each person, agent or CI job that runs it. It signs in as a test identity by itself, and takes its targets (URL, device, token) as inputs. Do not build it on one person's login or machine.
 
 ## Work that the user sees
 
