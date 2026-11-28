@@ -42,6 +42,7 @@ Code identifiers, commands, quoted text, and standard metric names (P50, P90, TT
 - Do not catch errors and continue silently. Do not add quiet fallbacks. Fail loudly.
 - Do not use `pkill -f <pattern>`: it can match your own shell and stop it. Kill by PID, or use `pkill -x <name>`.
 - Change files only with the Edit or Write tool. Do not use a heredoc, `sed -i`, or a script through Bash, also for a one-line change, an append, or a file in `/tmp`.
+- When a design comes from copyleft code (GPL, LGPL, MPL), write the design in your own words first, and write the code from that text only. Do not copy identifiers, struct layouts, comments, or tests. Put the number of lines that match the upstream files in the PR body.
 
 ## Tests and verification
 
