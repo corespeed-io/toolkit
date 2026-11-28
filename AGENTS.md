@@ -32,6 +32,7 @@ Code identifiers, commands, quoted text, and standard metric names (P50, P90, TT
 - For work in many parts, write the plan (parts, order, blockers, who does each) and get the user's yes before you write code or start agents. A direction from the user is not a yes to build. A yes to a proposal or plan that you made ("OK", "可以") is the yes to build it: start, and do not ask again. Run parts that do not depend on each other at the same time. Put one feature, and the features that the user asks for together, on one branch with one PR to main: each worker targets that branch. Before you move a requested part to "later", check what it costs, and give the reason that the check found.
 - When you start a subagent or a reviewer, choose its model and effort by the difficulty and risk of its task, not by a fixed default. State the choice in the plan.
 - Fix the root cause. Before you change a function, find all its callers.
+- Before you design a database table, read the project's database rules and the `supabase-postgres-best-practices` skill. When the user doubts a design, check the doubt against these sources and report what they say. Do not change the design only to agree with the doubt.
 
 ## Code
 
